@@ -17,7 +17,7 @@ function GuideSection({ sectionName }: GuideSectionProps) {
   return (
     <>
       <h2>{sectionName}</h2>
-      <Accordion>
+      <Accordion alwaysOpen>
         {sectionSteps.map(function (nextStep, index) {
           return (
             <SectionStep

@@ -1,5 +1,7 @@
 import React from "react";
 import Accordion from "react-bootstrap/Accordion";
+import StepTask, { StepTaskProps } from "../StepTask/StepTask";
+import { ListGroup } from "react-bootstrap";
 
 export interface SectionStepProps {
   stepSummary: string;
@@ -7,6 +9,11 @@ export interface SectionStepProps {
 }
 
 function SectionStep({ stepSummary, stepIndex }: SectionStepProps) {
+  let stepTasks: StepTaskProps[] = [
+    { summary: "Go to X,Y", depth: 0 },
+    { summary: "Accept something", depth: 0 },
+    { summary: "Kill some boars", depth: 0 },
+  ];
   function getCurretnIndex() {
     return stepIndex !== undefined ? stepIndex : 0;
   }
@@ -16,13 +23,16 @@ function SectionStep({ stepSummary, stepIndex }: SectionStepProps) {
         //Step #{(getCurretnIndex() + 1).toString()} || {stepSummary}
       </Accordion.Header>
       <Accordion.Body>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-        mollit anim id est laborum.
+        {stepTasks.length > 0 && (
+          <ListGroup as="ul">
+            {stepTasks.map((nextTask, index) => (
+              <StepTask
+                summary={nextTask.summary}
+                depth={nextTask.depth}
+              ></StepTask>
+            ))}
+          </ListGroup>
+        )}
       </Accordion.Body>
     </Accordion.Item>
   );
