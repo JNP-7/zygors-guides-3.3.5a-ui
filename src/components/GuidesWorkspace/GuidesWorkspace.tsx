@@ -9,10 +9,31 @@ function GuidesWorkspace() {
   const [guides, setGuides] = useState<GuideProps[]>([]);
   const [currentTabKey, setCurrentTabKey] = useState(addGuideButtonKey);
 
+  function handleOnChangeGuideName(newName: string, indexToUpdate: number) {
+    const nextGuides: GuideProps[] = guides.map((nextGuide, index) => {
+      return index === indexToUpdate
+        ? { ...nextGuide, guideName: newName }
+        : nextGuide;
+    });
+
+    setGuides(nextGuides);
+  }
+
+  function handleOnChangeGuideAuthor(
+    newAuthor: string,
+    indexToUpdate: number
+  ) {}
+
   function handleAddGuide(e: React.MouseEvent<HTMLElement, MouseEvent>) {
     let nGuides = guides.length;
     setCurrentTabKey(nGuides.toString());
-    setGuides([...guides, { guideName: `Guide ${nGuides + 1}` }]);
+    setGuides([
+      ...guides,
+      {
+        guideIndex: nGuides,
+        guideName: "",
+      },
+    ]);
   }
 
   function handleOnTabSelect(activeKey: string) {
@@ -35,7 +56,11 @@ function GuidesWorkspace() {
           {guides.map(function (nextGuide, nextIndex) {
             return (
               <Nav.Item key={nextIndex} as="li">
-                <Nav.Link eventKey={nextIndex}>{nextGuide.guideName}</Nav.Link>
+                <Nav.Link eventKey={nextIndex}>
+                  {nextGuide.guideName !== ""
+                    ? nextGuide.guideName
+                    : `Guide ${nextIndex + 1}`}
+                </Nav.Link>
               </Nav.Item>
             );
           })}
@@ -52,7 +77,12 @@ function GuidesWorkspace() {
           {guides.map(function (nextGuide, nextIndex) {
             return (
               <Tab.Pane key={nextIndex} eventKey={nextIndex}>
-                <Guide guideName={nextGuide.guideName}></Guide>
+                <Guide
+                  guideIndex={nextIndex}
+                  onChangeGuideName={handleOnChangeGuideName}
+                  onChangeGuideAuthor={handleOnChangeGuideAuthor}
+                  guideName={nextGuide.guideName}
+                ></Guide>
               </Tab.Pane>
             );
           })}
