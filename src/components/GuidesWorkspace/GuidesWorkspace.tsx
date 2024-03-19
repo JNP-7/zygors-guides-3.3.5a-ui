@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { Container, Nav, Row } from "react-bootstrap";
-import Guide, { GuideProps } from "../Guide/Guide";
+import { Container, Nav } from "react-bootstrap";
+import Guide, { GuideExtProps } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 
 function GuidesWorkspace() {
-  const addGuideButtonKey: string = "addGuideButton";
+  const ADD_GUIDE_BUTTON_KEY: string = "addGuideButton";
 
-  const [guides, setGuides] = useState<GuideProps[]>([]);
-  const [currentTabKey, setCurrentTabKey] = useState(addGuideButtonKey);
+  const [guides, setGuides] = useState<GuideExtProps[]>([]);
+  const [currentTabKey, setCurrentTabKey] = useState(ADD_GUIDE_BUTTON_KEY);
 
   function handleOnChangeGuideName(newName: string, indexToUpdate: number) {
-    const nextGuides: GuideProps[] = guides.map((nextGuide, index) => {
+    const nextGuides: GuideExtProps[] = guides.map((nextGuide, index) => {
       return index === indexToUpdate
         ? { ...nextGuide, guideName: newName }
         : nextGuide;
@@ -19,37 +19,46 @@ function GuidesWorkspace() {
     setGuides(nextGuides);
   }
 
-  function handleOnChangeGuideAuthor(
-    newAuthor: string,
-    indexToUpdate: number
-  ) {}
-
   function handleAddGuide(e: React.MouseEvent<HTMLElement, MouseEvent>) {
     let nGuides = guides.length;
     setCurrentTabKey(nGuides.toString());
     setGuides([
       ...guides,
       {
-        guideIndex: nGuides,
         guideName: "",
       },
     ]);
   }
 
+  function handleDeleteGuide(indexToDelete: number) {
+    let nGuides = guides.length;
+    if (nGuides - 1 >= 0) {
+      setCurrentTabKey(Math.max(indexToDelete - 1, 0).toString());
+    } else {
+      setCurrentTabKey(ADD_GUIDE_BUTTON_KEY);
+    }
+    let newGuides: GuideExtProps[] = guides.filter((_, index) => {
+      return index !== indexToDelete;
+    });
+    setGuides(newGuides);
+  }
+
   function handleOnTabSelect(activeKey: string) {
-    if (activeKey !== addGuideButtonKey) {
+    if (activeKey !== ADD_GUIDE_BUTTON_KEY) {
       setCurrentTabKey(activeKey);
     }
   }
 
   return (
-    <Container className="workspace-main-container ">
+    <Container className="workspace-main-container py-4">
       <Tab.Container
         transition={false}
         defaultActiveKey={currentTabKey}
         activeKey={currentTabKey}
         onSelect={(activeKey) =>
-          handleOnTabSelect(activeKey !== null ? activeKey : addGuideButtonKey)
+          handleOnTabSelect(
+            activeKey !== null ? activeKey : ADD_GUIDE_BUTTON_KEY
+          )
         }
       >
         <Nav variant="tabs" as="ul">
@@ -64,10 +73,11 @@ function GuidesWorkspace() {
               </Nav.Item>
             );
           })}
-          <Nav.Item key={addGuideButtonKey} as="li">
+          <Nav.Item key={ADD_GUIDE_BUTTON_KEY} as="li">
             <Nav.Link
-              eventKey={addGuideButtonKey}
+              eventKey={ADD_GUIDE_BUTTON_KEY}
               onClick={(e) => handleAddGuide(e)}
+              title="Add guide"
             >
               &#10010;
             </Nav.Link>
@@ -76,11 +86,11 @@ function GuidesWorkspace() {
         <Tab.Content>
           {guides.map(function (nextGuide, nextIndex) {
             return (
-              <Tab.Pane key={nextIndex} eventKey={nextIndex}>
+              <Tab.Pane key={nextIndex} eventKey={nextIndex} className="p-4">
                 <Guide
                   guideIndex={nextIndex}
                   onChangeGuideName={handleOnChangeGuideName}
-                  onChangeGuideAuthor={handleOnChangeGuideAuthor}
+                  onDeleteGuide={handleDeleteGuide}
                   guideName={nextGuide.guideName}
                 ></Guide>
               </Tab.Pane>

@@ -1,12 +1,15 @@
 import { useRef } from "react";
 import GuideSection, { GuideSectionProps } from "../GuideSection/GuideSection";
-import { Col, Form, Row } from "react-bootstrap";
+import { Button, Col, Form, Row } from "react-bootstrap";
 
-export interface GuideProps {
-  guideIndex: number;
+export interface GuideExtProps {
   guideName: string;
-  onChangeGuideName?: (newName: string, indexToUpdate: number) => void;
-  onChangeGuideAuthor?: (newAuthor: string, indexToUpdate: number) => void;
+}
+
+export interface GuideProps extends GuideExtProps {
+  guideIndex: number;
+  onChangeGuideName: (newName: string, indexToUpdate: number) => void;
+  onDeleteGuide: (indexToDelete: number) => void;
 }
 
 //Texts
@@ -20,7 +23,7 @@ function Guide({
   guideIndex,
   guideName = "",
   onChangeGuideName,
-  onChangeGuideAuthor,
+  onDeleteGuide,
 }: GuideProps) {
   let guideSections: GuideSectionProps[] = [{ sectionName: "Section 1" }];
 
@@ -32,7 +35,7 @@ function Guide({
 
   return (
     <>
-      <div className="guide-data">
+      <div className="guide-data mb-4">
         <Row>
           <Col xs={4}>
             <Form.Group>
@@ -50,6 +53,15 @@ function Guide({
               <Form.Label>{AUTHOR_LABEL}</Form.Label>
               <Form.Control type="text" placeholder={AUTHOR_PLACEHOLDER} />
             </Form.Group>
+          </Col>
+          <Col xs="auto" className="ms-auto align-self-end">
+            <Button
+              variant="danger"
+              title="Delete guide"
+              onClick={() => onDeleteGuide(guideIndex)}
+            >
+              Delete guide
+            </Button>
           </Col>
         </Row>
       </div>
