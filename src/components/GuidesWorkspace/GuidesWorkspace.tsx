@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Container, Nav } from "react-bootstrap";
-import Guide, { GuideExtProps } from "../Guide/Guide";
+import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 
 function GuidesWorkspace() {
@@ -68,7 +68,7 @@ function GuidesWorkspace() {
                 <Nav.Link eventKey={nextIndex}>
                   {nextGuide.guideName !== ""
                     ? nextGuide.guideName
-                    : `Guide ${nextIndex + 1}`}
+                    : getDefaultGuideName(nextIndex)}
                 </Nav.Link>
               </Nav.Item>
             );

@@ -14,13 +14,16 @@ function SectionStep({ stepSummary, stepIndex }: SectionStepProps) {
     { summary: "Accept something", depth: 0 },
     { summary: "Kill some boars", depth: 0 },
   ];
-  function getCurretnIndex() {
+  function getCurrentIndex() {
     return stepIndex !== undefined ? stepIndex : 0;
   }
   return (
-    <Accordion.Item eventKey={getCurretnIndex().toString()}>
+    <Accordion.Item
+      key={getCurrentIndex()}
+      eventKey={getCurrentIndex().toString()}
+    >
       <Accordion.Header>
-        //Step #{(getCurretnIndex() + 1).toString()} || {stepSummary}
+        //Step #{(getCurrentIndex() + 1).toString()} || {stepSummary}
       </Accordion.Header>
       <Accordion.Body>
         {stepTasks.length > 0 && (
