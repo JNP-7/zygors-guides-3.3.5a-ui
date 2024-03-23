@@ -1,15 +1,17 @@
 import React from "react";
 import Accordion from "react-bootstrap/Accordion";
-import StepTask, { StepTaskProps } from "../StepTask/StepTask";
+import StepTask, { StepTaskExtProps } from "../StepTask/StepTask";
 import { ListGroup } from "react-bootstrap";
 
-export interface SectionStepProps {
+export interface SectionStepExtProps {
   stepSummary: string;
   stepIndex?: number;
 }
 
+interface SectionStepProps extends SectionStepExtProps {}
+
 function SectionStep({ stepSummary, stepIndex }: SectionStepProps) {
-  let stepTasks: StepTaskProps[] = [
+  let stepTasks: StepTaskExtProps[] = [
     { summary: "Go to X,Y", depth: 0 },
     { summary: "Accept something", depth: 0 },
     { summary: "Kill some boars", depth: 0 },

@@ -1,9 +1,11 @@
 import ListGroup from "react-bootstrap/ListGroup";
 
-export interface StepTaskProps {
+export interface StepTaskExtProps {
   summary: string;
   depth: number;
 }
+
+interface StepTaskProps extends StepTaskExtProps {}
 
 function StepTask({ summary, depth }: StepTaskProps) {
   //TODO: Depth conditional is temporary, to get atleast one sublevel of tasks
