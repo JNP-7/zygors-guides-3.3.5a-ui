@@ -1,17 +1,24 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 import GuideSection, {
+  FINAL_SECTION_OPTION,
   GuideSectionExtProps,
+  NO_DEFAULT_RACE_SECTION,
   getDefaultSectionName,
 } from "../GuideSection/GuideSection";
 import { Button, Col, Form, Row } from "react-bootstrap";
+import {
+  GuidesWorkspaceContext,
+  GuidesWorkspaceContextAccessor,
+} from "../GuidesWorkspace/GuidesWorkspace";
+import { CharacterRace } from "../../types/CharacterRace";
 
 export interface GuideExtProps {
   guideName: string;
+  guideAuthor: string;
+  guideSections: GuideSectionExtProps[];
 }
 
-export interface GuideProps extends GuideExtProps {
-  guideIndex: number;
-  onChangeGuideName: (newName: string, indexToUpdate: number) => void;
+interface GuideProps extends GuideExtProps, GuidesWorkspaceContextAccessor {
   onDeleteGuide: (indexToDelete: number) => void;
 }
 
@@ -20,43 +27,34 @@ export function getDefaultGuideName(guideIndex: number) {
 }
 
 function Guide({
-  guideIndex,
-  guideName = getDefaultGuideName(guideIndex),
-  onChangeGuideName,
+  indexPath,
+  guideName = getDefaultGuideName(indexPath[0]),
+  guideAuthor,
+  guideSections,
   onDeleteGuide,
 }: GuideProps) {
   const DEFAULT_SECTION_INDEX = -1;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
     DEFAULT_SECTION_INDEX
   );
-  const [guideSections, setGuideSections] = useState<GuideSectionExtProps[]>(
-    []
-  );
+
+  const guidesContext = useContext(GuidesWorkspaceContext);
 
   function handleOnAddSection() {
     let nGuides = guideSections.length;
     setCurrentSectionIndex(nGuides);
-    setGuideSections([
-      ...guideSections,
-      {
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections.push({
         sectionName: "",
-      },
-    ]);
+        sectionSteps: [],
+        nextSectionVal: FINAL_SECTION_OPTION.value,
+        defaultForRace: NO_DEFAULT_RACE_SECTION.value,
+      });
+    });
   }
 
   function handleOnSelectGuideSection(e: ChangeEvent<HTMLSelectElement>) {
     setCurrentSectionIndex(Number.parseInt(e.target.value));
-  }
-
-  function handleOnChangeSectionName(newName: string, indexToUpdate: number) {
-    const nextGuideSections: GuideSectionExtProps[] = guideSections.map(
-      (nextGuideSection, index) => {
-        return index === indexToUpdate
-          ? { ...nextGuideSection, sectionName: newName }
-          : nextGuideSection;
-      }
-    );
-    setGuideSections(nextGuideSections);
   }
 
   function handleOnDeleteSection(indexToDelete: number) {
@@ -66,12 +64,25 @@ function Guide({
     } else {
       setCurrentSectionIndex(DEFAULT_SECTION_INDEX);
     }
-    let nextGuideSections: GuideSectionExtProps[] = guideSections.filter(
-      (_, index) => {
-        return index !== indexToDelete;
-      }
-    );
-    setGuideSections(nextGuideSections);
+  }
+
+  function handleOnChangeGuideName(newName: string) {
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideName = newName;
+    });
+  }
+
+  function handleOnChangeGuideAuthor(newAuthorName: string) {
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideAuthor = newAuthorName;
+    });
+  }
+
+  function handleOnDeleteGuide() {
+    guidesContext.setGuidesContext((guides) => {
+      guides.splice(indexPath[0], 1);
+    });
+    onDeleteGuide(indexPath[0]);
   }
 
   return (
@@ -84,7 +95,7 @@ function Guide({
               <Form.Control
                 type="text"
                 placeholder="Your guide name..."
-                onChange={(e) => onChangeGuideName(e.target.value, guideIndex)}
+                onChange={(e) => handleOnChangeGuideName(e.target.value)}
                 value={guideName}
               />
             </Form.Group>
@@ -92,14 +103,19 @@ function Guide({
           <Col xs={4}>
             <Form.Group>
               <Form.Label>Author</Form.Label>
-              <Form.Control type="text" placeholder="Your guide author..." />
+              <Form.Control
+                onChange={(e) => handleOnChangeGuideAuthor(e.target.value)}
+                type="text"
+                value={guideAuthor}
+                placeholder="Your guide author..."
+              />
             </Form.Group>
           </Col>
           <Col xs="auto" className="ms-auto align-self-end">
             <Button
               variant="danger"
               title="Delete guide"
-              onClick={() => onDeleteGuide(guideIndex)}
+              onClick={() => handleOnDeleteGuide()}
             >
               Delete guide
             </Button>
@@ -142,9 +158,11 @@ function Guide({
       <div className="guide-content">
         {currentSectionIndex >= 0 && (
           <GuideSection
+            indexPath={indexPath.concat(currentSectionIndex)}
             sectionName={guideSections[currentSectionIndex].sectionName}
-            sectionIndex={currentSectionIndex}
-            onChangeSectionName={handleOnChangeSectionName}
+            sectionSteps={guideSections[currentSectionIndex].sectionSteps}
+            nextSectionVal={guideSections[currentSectionIndex].nextSectionVal}
+            defaultForRace={guideSections[currentSectionIndex].defaultForRace}
             onDeleteSection={handleOnDeleteSection}
           ></GuideSection>
         )}
