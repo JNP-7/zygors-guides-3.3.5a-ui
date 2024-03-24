@@ -4,13 +4,15 @@ import StepTask, {
   StepTaskExtProps,
   getTaskSummary,
 } from "../stepTasks/StepTask/StepTask";
-import { ListGroup } from "react-bootstrap";
+import { Button, ListGroup } from "react-bootstrap";
 import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
 } from "../GuidesWorkspace/GuidesWorkspace";
 import { GuideExtProps } from "../Guide/Guide";
 import Stack from "../../types/Stack";
+import { Dash, Plus } from "react-bootstrap-icons";
+import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 
 export interface SectionStepExtProps {
   stepTasks: StepTaskExtProps[];
@@ -102,9 +104,62 @@ function SectionStep({ stepTasks, indexPath }: SectionStepProps) {
       : `//Step #${indexPath[2] + 1}`;
   }
 
+  function isOnlySectionStep(): boolean {
+    let sectionStepsSize: number =
+      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+        .sectionSteps.length;
+    return sectionStepsSize <= 1;
+  }
+
+  function handleOnAddStep() {
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+        indexPath[2] + 1,
+        0,
+        { stepTasks: [getDefaultCommentTask(0)] }
+      );
+    });
+  }
+
+  function handleOnDeleteStep() {
+    let currentStepIndex = indexPath[2];
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+        indexPath[2],
+        1
+      );
+    });
+  }
+
   return (
-    <Accordion.Item eventKey={indexPath[2].toString()}>
-      <Accordion.Header>{getStepSummary()}</Accordion.Header>
+    <Accordion.Item
+      className="step-acordion-item"
+      eventKey={indexPath[2].toString()}
+    >
+      <Accordion.Header className="position-relative">
+        <span>{getStepSummary()}</span>
+      </Accordion.Header>
+      <div className="step-creation-buttons-container">
+        <Button
+          title="Add step"
+          size="sm"
+          variant="primary"
+          onClick={() => handleOnAddStep()}
+        >
+          <Plus />
+        </Button>
+        {!isOnlySectionStep() && (
+          <Button
+            title="Remove this step"
+            size="sm"
+            variant="danger"
+            className="ms-2"
+            onClick={() => handleOnDeleteStep()}
+          >
+            <Dash />
+          </Button>
+        )}
+      </div>
       <Accordion.Body>
         {stepTasks.length > 0 && (
           <ListGroup as="ul">

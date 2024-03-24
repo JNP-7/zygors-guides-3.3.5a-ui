@@ -3,6 +3,7 @@ import { Container, Nav } from "react-bootstrap";
 import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 import { Updater, useImmer } from "use-immer";
+import { Plus } from "react-bootstrap-icons";
 
 type GuidesWorkspaceContextType = {
   guidesContext: GuideExtProps[];
@@ -88,8 +89,9 @@ function GuidesWorkspace() {
                 eventKey={ADD_GUIDE_BUTTON_KEY}
                 onClick={(e) => handleAddGuide(e)}
                 title="Add guide"
+                className="add-guide-button"
               >
-                &#10010;
+                <Plus size="1.25rem" />
               </Nav.Link>
             </Nav.Item>
           </Nav>

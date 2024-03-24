@@ -1,0 +1,38 @@
+
+.step-acordion-item {
+
+    $button-size: 1.5rem;
+
+    position: relative;
+
+    .accordion-header {
+
+        .accordion-button {
+
+            &::after{
+                display: none;
+            }
+
+        }
+
+    }
+
+    .step-creation-buttons-container {
+
+        position: absolute;
+        display: flex;
+        right: $button-size;
+        bottom: calc(-1 * calc($button-size / 2));
+        z-index: 500;
+
+        & > button {
+            
+            width: $button-size;
+            height: $button-size;
+            line-height: 1;
+            padding: 0;
+
+        }
+    }
+
+}

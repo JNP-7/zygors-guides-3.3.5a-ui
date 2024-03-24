@@ -15,6 +15,7 @@ import {
   CommentTaskExtProps,
   getDefaultCommentTask,
 } from "../stepTasks/CommentTask/CommentTask";
+import { Plus } from "react-bootstrap-icons";
 
 export interface GuideExtProps {
   guideName: string;
@@ -128,34 +129,42 @@ function Guide({
       </div>
       <div className="section-management mb-4">
         <Row>
-          <Col xs="auto">
-            <Button
-              variant="primary"
-              title="Add section"
-              onClick={() => handleOnAddSection()}
-            >
-              Add section
-            </Button>
-          </Col>
-          <Col xs="auto">
-            <Form.Select
-              aria-label="Section selection"
-              onChange={(e) => handleOnSelectGuideSection(e)}
-              value={currentSectionIndex}
-            >
-              <option key={DEFAULT_SECTION_INDEX} value={DEFAULT_SECTION_INDEX}>
-                Choose or add a section
-              </option>
-              {guideSections.map((nextGuideSection, index) => {
-                return (
-                  <option key={index} value={index}>
-                    {nextGuideSection.sectionName !== ""
-                      ? nextGuideSection.sectionName
-                      : getDefaultSectionName(index)}
+          <Col xs="4" className="d-flex">
+            <Row>
+              <Col xs="auto">
+                <Button
+                  variant="primary"
+                  title="Add section"
+                  onClick={() => handleOnAddSection()}
+                  className="p-0"
+                >
+                  <Plus size="2rem" />
+                </Button>
+              </Col>
+              <Col xs="auto">
+                <Form.Select
+                  aria-label="Section selection"
+                  onChange={(e) => handleOnSelectGuideSection(e)}
+                  value={currentSectionIndex}
+                >
+                  <option
+                    key={DEFAULT_SECTION_INDEX}
+                    value={DEFAULT_SECTION_INDEX}
+                  >
+                    Choose or add a section
                   </option>
-                );
-              })}
-            </Form.Select>
+                  {guideSections.map((nextGuideSection, index) => {
+                    return (
+                      <option key={index} value={index}>
+                        {nextGuideSection.sectionName !== ""
+                          ? nextGuideSection.sectionName
+                          : getDefaultSectionName(index)}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </div>

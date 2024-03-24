@@ -1,4 +1,24 @@
 
 .workspace-main-container {
+
     border: transparent solid 1px;
+
+    & > .nav-tabs {
+
+        .nav-item {
+
+            .add-guide-button {
+
+                display: flex;
+                align-items: center;
+                padding: 0;
+                height: 100%;
+                width: 2.5rem;
+                justify-content: center;
+                height: 2.625rem;
+
+            }
+
+        }
+    }
 }
