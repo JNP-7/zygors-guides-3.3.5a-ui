@@ -1,4 +1,4 @@
-export enum CharacterClass {
+enum CharacterClass {
   DRUID = "Druid",
   HUNTER = "Hunter",
   MAGE = "Mage",
@@ -9,3 +9,5 @@ export enum CharacterClass {
   WARLOCK = "Warlock",
   WARRIOR = "Warrior",
 }
+
+export default CharacterClass;

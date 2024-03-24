@@ -1,4 +1,4 @@
-export enum CharacterRace {
+enum CharacterRace {
   DWARF = "Dwarf",
   GNOME = "Gnome",
   HUMAN = "Human",
@@ -9,6 +9,8 @@ export enum CharacterRace {
   UNDEAD = "Undead",
 }
 
-export function getOrdinal(characterRace: CharacterRace) {
+export function getCharacterRaceOrdinal(characterRace: CharacterRace) {
   return Object.values(CharacterRace).indexOf(characterRace);
 }
+
+export default CharacterRace;

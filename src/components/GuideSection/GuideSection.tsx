@@ -5,22 +5,24 @@ import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
 } from "../GuidesWorkspace/GuidesWorkspace";
-import { CharacterRace } from "../../types/CharacterRace";
+import CharacterRace, {
+  getCharacterRaceOrdinal,
+} from "../../types/CharacterRace";
 
 export interface GuideSectionExtProps {
   sectionName: string;
   sectionSteps: SectionStepExtProps[];
-  nextSectionVal: string;
+  nextSectionVal: number;
   defaultForRace: number;
 }
 
 export const FINAL_SECTION_OPTION = {
   text: "Final section",
-  value: "-1",
+  value: -1,
 };
 
 export const NO_DEFAULT_RACE_SECTION = {
-  text: "Final section",
+  text: "Any",
   value: -1,
 };
 
@@ -39,19 +41,22 @@ function GuideSection({
   sectionName = getDefaultSectionName(indexPath[1]),
   nextSectionVal,
   onDeleteSection,
+  defaultForRace,
+  sectionSteps,
 }: GuideSectionProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
-  let sectionSteps: SectionStepExtProps[] = [
-    { stepSummary: "Go to X,Y, Accept..." },
-    { stepSummary: "Go to X,Y, Accept..." },
-    { stepSummary: "Go to X,Y, Accept..." },
-    { stepSummary: "Go to X,Y, Accept..." },
-  ];
 
   function handleOnSelectNextGuideSection(selectedVal: string) {
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].nextSectionVal =
-        selectedVal;
+        Number.parseInt(selectedVal);
+    });
+  }
+
+  function handleOnSelectDefaultForRace(selectedVal: string) {
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections[indexPath[1]].defaultForRace =
+        Number.parseInt(selectedVal);
     });
   }
 
@@ -67,13 +72,13 @@ function GuideSection({
     guidesContext.guidesContext[indexPath[0]].guideSections.forEach(
       (guideSection, index) => {
         if (guideSection.nextSectionVal !== FINAL_SECTION_OPTION.value) {
-          let nexSectionIndex = Number.parseInt(guideSection.nextSectionVal);
+          let nexSectionIndex = guideSection.nextSectionVal;
           if (nexSectionIndex > indexPath[1]) {
             /*Pointing to a section that's about to shift backwards in the array*/
             nexSectionIndex--;
             guidesContext.setGuidesContext((guides) => {
               guides[indexPath[0]].guideSections[index].nextSectionVal =
-                nexSectionIndex.toString();
+                nexSectionIndex;
             });
           } else if (nexSectionIndex === indexPath[1]) {
             /*Pointing to the section about to be deleted, unset it*/
@@ -130,19 +135,54 @@ function GuideSection({
                 >
                   {FINAL_SECTION_OPTION.text}
                 </option>
-                {guidesContext.guidesContext[indexPath[0]].guideSections.map(
-                  (nextGuideSection, index) => {
-                    return index !== indexPath[1] ? (
-                      <option key={index} value={index}>
-                        {nextGuideSection.sectionName !== ""
-                          ? nextGuideSection.sectionName
+                {guidesContext.guidesContext[indexPath[0]].guideSections
+                  .map((nextGuideSection, index) => {
+                    return index !== indexPath[1]
+                      ? { text: nextGuideSection.sectionName, value: index }
+                      : null;
+                  })
+                  .filter((nextSectionObj) => {
+                    return nextSectionObj !== null;
+                  })
+                  .map((nextSectionObj) => {
+                    return (
+                      <option
+                        key={nextSectionObj?.value}
+                        value={nextSectionObj?.value}
+                      >
+                        {nextSectionObj?.text !== ""
+                          ? nextSectionObj?.text
                           : `<unnamed_section>`}
                       </option>
-                    ) : (
-                      <></>
                     );
-                  }
-                )}
+                  })}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col xs={4}>
+            <Form.Group>
+              <Form.Label>Default for race</Form.Label>
+              <Form.Select
+                aria-label="This section will load by default for the choosen race"
+                onChange={(e) => handleOnSelectDefaultForRace(e.target.value)}
+                value={defaultForRace}
+              >
+                <option
+                  key={NO_DEFAULT_RACE_SECTION.value}
+                  value={NO_DEFAULT_RACE_SECTION.value}
+                >
+                  {NO_DEFAULT_RACE_SECTION.text}
+                </option>
+                {Object.entries(CharacterRace).map((nextRaceEntry) => {
+                  return (
+                    <option
+                      key={getCharacterRaceOrdinal(nextRaceEntry[1])}
+                      value={getCharacterRaceOrdinal(nextRaceEntry[1])}
+                    >
+                      {nextRaceEntry[1]}
+                    </option>
+                  );
+                })}
               </Form.Select>
             </Form.Group>
           </Col>
@@ -153,8 +193,9 @@ function GuideSection({
         {sectionSteps.map(function (nextStep, index) {
           return (
             <SectionStep
-              stepSummary={nextStep.stepSummary}
-              stepIndex={index}
+              key={index}
+              stepTasks={nextStep.stepTasks}
+              indexPath={indexPath.concat(index)}
             ></SectionStep>
           );
         })}

@@ -10,7 +10,11 @@ import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
 } from "../GuidesWorkspace/GuidesWorkspace";
-import { CharacterRace } from "../../types/CharacterRace";
+import TaskType from "../../types/TaskType";
+import {
+  CommentTaskExtProps,
+  getDefaultCommentTask,
+} from "../stepTasks/CommentTask/CommentTask";
 
 export interface GuideExtProps {
   guideName: string;
@@ -46,7 +50,7 @@ function Guide({
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections.push({
         sectionName: "",
-        sectionSteps: [],
+        sectionSteps: [{ stepTasks: [getDefaultCommentTask(0)] }],
         nextSectionVal: FINAL_SECTION_OPTION.value,
         defaultForRace: NO_DEFAULT_RACE_SECTION.value,
       });
