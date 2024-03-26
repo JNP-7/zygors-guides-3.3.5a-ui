@@ -24,7 +24,7 @@ export function getDefaultCommentTask(
   subTasks: StepTaskExtProps[] = []
 ): CommentTaskExtProps {
   return {
-    comment: "Do something",
+    comment: "Do something (Timestamp) > " + new Date().getTime(),
     depth: depth,
     subTasks: subTasks,
     type: TaskType.COMMENT,

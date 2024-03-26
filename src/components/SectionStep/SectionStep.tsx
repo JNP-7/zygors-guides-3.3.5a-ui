@@ -11,7 +11,7 @@ import {
 } from "../GuidesWorkspace/GuidesWorkspace";
 import { GuideExtProps } from "../Guide/Guide";
 import Stack from "../../types/Stack";
-import { Dash, Plus } from "react-bootstrap-icons";
+import { ChevronDown, ChevronUp, Dash, Plus } from "react-bootstrap-icons";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 
 export interface SectionStepExtProps {
@@ -47,6 +47,7 @@ interface SectionStepProps
     GuidesWorkspaceContextAccessor {
   onDeleteStep: (indexToDelete: number) => void;
   onAddStep: (indexToDelete: number) => void;
+  onStepShift: (indexToShift: number, shiftAmount: number) => void;
 }
 
 function SectionStep({
@@ -54,6 +55,7 @@ function SectionStep({
   indexPath,
   onDeleteStep,
   onAddStep,
+  onStepShift,
 }: SectionStepProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
 
@@ -141,6 +143,26 @@ function SectionStep({
     onDeleteStep(indexPath[2]);
   }
 
+  function handleOnStepShift(shiftAmount: number) {
+    guidesContext.setGuidesContext((guides) => {
+      let newIndex = indexPath[2] + shiftAmount;
+      let currentStep =
+        guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps[
+          indexPath[2]
+        ];
+      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+        indexPath[2],
+        1
+      );
+      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+        newIndex,
+        0,
+        currentStep
+      );
+    });
+    onStepShift(indexPath[2], shiftAmount);
+  }
+
   return (
     <Accordion.Item
       className="step-acordion-item"
@@ -149,7 +171,36 @@ function SectionStep({
       <Accordion.Header className="position-relative">
         <span>{getStepSummary()}</span>
       </Accordion.Header>
+      <div className="step-shift-buttons-container">
+        <Button
+          title="Shift step upwards"
+          size="sm"
+          variant="primary"
+          onClick={() => handleOnStepShift(-1)}
+        >
+          <ChevronUp />
+        </Button>
+        <Button
+          title="Shift step downwards"
+          size="sm"
+          variant="primary"
+          onClick={() => handleOnStepShift(1)}
+        >
+          <ChevronDown />
+        </Button>
+      </div>
       <div className="step-creation-buttons-container">
+        {!isOnlySectionStep() && (
+          <Button
+            title="Remove this step"
+            size="sm"
+            variant="danger"
+            className="me-2"
+            onClick={() => handleOnDeleteStep()}
+          >
+            <Dash />
+          </Button>
+        )}
         <Button
           title="Add step"
           size="sm"
@@ -158,17 +209,6 @@ function SectionStep({
         >
           <Plus />
         </Button>
-        {!isOnlySectionStep() && (
-          <Button
-            title="Remove this step"
-            size="sm"
-            variant="danger"
-            className="ms-2"
-            onClick={() => handleOnDeleteStep()}
-          >
-            <Dash />
-          </Button>
-        )}
       </div>
       <Accordion.Body>
         {stepTasks.length > 0 && (

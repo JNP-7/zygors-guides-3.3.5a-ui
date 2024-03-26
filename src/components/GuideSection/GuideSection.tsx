@@ -141,6 +141,26 @@ function GuideSection({
     }
   }
 
+  function handleOnStepShift(indexToShift: number, shiftAmount: number) {
+    let oldIndexValue: boolean = openAccordionKeyIsOpen[indexToShift];
+    let newPosition: number = indexToShift + shiftAmount;
+    if (newPosition < 0) {
+      newPosition = 0;
+    } else if (newPosition >= openAccordionKeyIsOpen.length) {
+      newPosition = openAccordionKeyIsOpen.length - 1;
+    }
+    let filteredKeyIsOpen: boolean[] = openAccordionKeyIsOpen.filter(
+      (_, index) => {
+        return index !== indexToShift;
+      }
+    );
+    setOpenAccordionKeyIsOpen([
+      ...filteredKeyIsOpen.slice(0, newPosition),
+      oldIndexValue,
+      ...filteredKeyIsOpen.slice(newPosition),
+    ]);
+  }
+
   function getOpenAccordionKeys(): string[] {
     let openAccordionKeys: string[] = [];
     openAccordionKeyIsOpen.forEach((nextKeyIsOpen, index) => {
@@ -247,6 +267,7 @@ function GuideSection({
         alwaysOpen
         activeKey={getOpenAccordionKeys()}
         onSelect={handleOnSelectAccordion}
+        className="steps-acordion"
       >
         {sectionSteps.map(function (nextStep, index) {
           return (
@@ -256,6 +277,7 @@ function GuideSection({
               indexPath={indexPath.concat(index)}
               onDeleteStep={handleOnDeleteStep}
               onAddStep={handleOnAddStep}
+              onStepShift={handleOnStepShift}
             ></SectionStep>
           );
         })}

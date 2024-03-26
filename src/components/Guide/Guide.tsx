@@ -10,11 +10,7 @@ import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
 } from "../GuidesWorkspace/GuidesWorkspace";
-import TaskType from "../../types/TaskType";
-import {
-  CommentTaskExtProps,
-  getDefaultCommentTask,
-} from "../stepTasks/CommentTask/CommentTask";
+import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import { Plus } from "react-bootstrap-icons";
 
 export interface GuideExtProps {
@@ -131,7 +127,7 @@ function Guide({
         <Row>
           <Col xs="4" className="d-flex">
             <Row>
-              <Col xs="auto">
+              <Col xs="auto" className="d-flex align-items-center">
                 <Button
                   variant="primary"
                   title="Add section"
@@ -171,7 +167,10 @@ function Guide({
       <div className="guide-content">
         {guideSections.map((nextGuideSection, index) => {
           return (
-            <div className={index !== currentSectionIndex ? "d-none" : ""}>
+            <div
+              key={index}
+              className={index !== currentSectionIndex ? "d-none" : ""}
+            >
               <GuideSection
                 indexPath={indexPath.concat(index)}
                 sectionName={nextGuideSection.sectionName}
