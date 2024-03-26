@@ -169,16 +169,20 @@ function Guide({
         </Row>
       </div>
       <div className="guide-content">
-        {currentSectionIndex >= 0 && (
-          <GuideSection
-            indexPath={indexPath.concat(currentSectionIndex)}
-            sectionName={guideSections[currentSectionIndex].sectionName}
-            sectionSteps={guideSections[currentSectionIndex].sectionSteps}
-            nextSectionVal={guideSections[currentSectionIndex].nextSectionVal}
-            defaultForRace={guideSections[currentSectionIndex].defaultForRace}
-            onDeleteSection={handleOnDeleteSection}
-          ></GuideSection>
-        )}
+        {guideSections.map((nextGuideSection, index) => {
+          return (
+            <div className={index !== currentSectionIndex ? "d-none" : ""}>
+              <GuideSection
+                indexPath={indexPath.concat(index)}
+                sectionName={nextGuideSection.sectionName}
+                sectionSteps={nextGuideSection.sectionSteps}
+                nextSectionVal={nextGuideSection.nextSectionVal}
+                defaultForRace={nextGuideSection.defaultForRace}
+                onDeleteSection={handleOnDeleteSection}
+              ></GuideSection>
+            </div>
+          );
+        })}
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Accordion, Button, Col, Form, Row } from "react-bootstrap";
 import SectionStep, { SectionStepExtProps } from "../SectionStep/SectionStep";
 import {
@@ -8,6 +8,7 @@ import {
 import CharacterRace, {
   getCharacterRaceOrdinal,
 } from "../../types/CharacterRace";
+import { AccordionEventKey } from "react-bootstrap/esm/AccordionContext";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -26,14 +27,14 @@ export const NO_DEFAULT_RACE_SECTION = {
   value: -1,
 };
 
+export function getDefaultSectionName(sectionIndex: number) {
+  return `Section ${sectionIndex + 1}`;
+}
+
 interface GuideSectionProps
   extends GuideSectionExtProps,
     GuidesWorkspaceContextAccessor {
   onDeleteSection: (indexToDelete: number) => void;
-}
-
-export function getDefaultSectionName(sectionIndex: number) {
-  return `Section ${sectionIndex + 1}`;
 }
 
 function GuideSection({
@@ -45,6 +46,9 @@ function GuideSection({
   sectionSteps,
 }: GuideSectionProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
+  const [openAccordionKeyIsOpen, setOpenAccordionKeyIsOpen] = useState<
+    boolean[]
+  >([false]);
 
   function handleOnSelectNextGuideSection(selectedVal: string) {
     guidesContext.setGuidesContext((guides) => {
@@ -93,6 +97,56 @@ function GuideSection({
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections.splice(indexPath[1], 1);
     });
+  }
+
+  function handleOnDeleteStep(indexToDelete: number) {
+    setOpenAccordionKeyIsOpen(
+      openAccordionKeyIsOpen.filter((_, index) => {
+        return indexToDelete !== index;
+      })
+    );
+  }
+
+  function handleOnAddStep(indexThatAdded: number) {
+    setOpenAccordionKeyIsOpen([
+      ...openAccordionKeyIsOpen.slice(0, indexThatAdded + 1),
+      false,
+      ...openAccordionKeyIsOpen.slice(indexThatAdded + 1),
+    ]);
+  }
+
+  function handleOnSelectAccordion(eventKey: AccordionEventKey) {
+    if (eventKey instanceof Array) {
+      let mappedKeys: number[] = eventKey.map((nextKey) =>
+        Number.parseInt(nextKey)
+      );
+      setOpenAccordionKeyIsOpen(
+        openAccordionKeyIsOpen.map((_, index) => {
+          return mappedKeys.indexOf(index) >= 0;
+        })
+      );
+    } else if (eventKey !== null && eventKey !== undefined) {
+      let openIndex = Number.parseInt(eventKey);
+      setOpenAccordionKeyIsOpen(
+        openAccordionKeyIsOpen.map((_, index) => {
+          return openIndex === index;
+        })
+      );
+    } else {
+      setOpenAccordionKeyIsOpen(
+        openAccordionKeyIsOpen.map(() => {
+          return false;
+        })
+      );
+    }
+  }
+
+  function getOpenAccordionKeys(): string[] {
+    let openAccordionKeys: string[] = [];
+    openAccordionKeyIsOpen.forEach((nextKeyIsOpen, index) => {
+      if (nextKeyIsOpen) openAccordionKeys.push(index.toString());
+    });
+    return openAccordionKeys;
   }
 
   return (
@@ -189,13 +243,19 @@ function GuideSection({
         </Row>
       </div>
 
-      <Accordion alwaysOpen>
+      <Accordion
+        alwaysOpen
+        activeKey={getOpenAccordionKeys()}
+        onSelect={handleOnSelectAccordion}
+      >
         {sectionSteps.map(function (nextStep, index) {
           return (
             <SectionStep
               key={index}
               stepTasks={nextStep.stepTasks}
               indexPath={indexPath.concat(index)}
+              onDeleteStep={handleOnDeleteStep}
+              onAddStep={handleOnAddStep}
             ></SectionStep>
           );
         })}

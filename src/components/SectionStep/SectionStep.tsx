@@ -44,9 +44,17 @@ export function stepIsMaxedOutOnTasks(
 
 interface SectionStepProps
   extends SectionStepExtProps,
-    GuidesWorkspaceContextAccessor {}
+    GuidesWorkspaceContextAccessor {
+  onDeleteStep: (indexToDelete: number) => void;
+  onAddStep: (indexToDelete: number) => void;
+}
 
-function SectionStep({ stepTasks, indexPath }: SectionStepProps) {
+function SectionStep({
+  stepTasks,
+  indexPath,
+  onDeleteStep,
+  onAddStep,
+}: SectionStepProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
 
   function getStepSummary(): string {
@@ -55,6 +63,7 @@ function SectionStep({ stepTasks, indexPath }: SectionStepProps) {
     let currentStepProps =
       guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
         .sectionSteps[indexPath[2]];
+
     interface ISummaryStepTask {
       stepTaskProps: StepTaskExtProps;
       indexPath: number[];
@@ -119,16 +128,17 @@ function SectionStep({ stepTasks, indexPath }: SectionStepProps) {
         { stepTasks: [getDefaultCommentTask(0)] }
       );
     });
+    onAddStep(indexPath[2]);
   }
 
   function handleOnDeleteStep() {
-    let currentStepIndex = indexPath[2];
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
         indexPath[2],
         1
       );
     });
+    onDeleteStep(indexPath[2]);
   }
 
   return (
