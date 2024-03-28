@@ -10,4 +10,14 @@ enum CharacterClass {
   WARRIOR = "Warrior",
 }
 
+export function getCharacterClassOrdinal(characterClass: CharacterClass) {
+  return Object.values(CharacterClass).indexOf(characterClass);
+}
+
+export function getCharacterClassByName(className: string): CharacterClass {
+  return Object.values(CharacterClass)[
+    Object.keys(CharacterClass).indexOf(className)
+  ];
+}
+
 export default CharacterClass;

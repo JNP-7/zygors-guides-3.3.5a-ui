@@ -8,8 +8,12 @@ import { GuideExtProps } from "../../Guide/Guide";
 import CommentTask, {
   CommentTaskExtProps,
   getCommentTaskSummary,
+  getDefaultCommentTask,
 } from "../CommentTask/CommentTask";
 import { useContext } from "react";
+import { Button } from "react-bootstrap";
+import { BoxArrowDownRight, Dash, Plus } from "react-bootstrap-icons";
+import { stepIsMaxedOutOnTasks } from "../../SectionStep/SectionStep";
 
 export interface StepTaskExtProps {
   depth: number;
@@ -51,17 +55,60 @@ export function getTargetTask(
   let targetTask: StepTaskExtProps = stepTasks[indexPathToTask[3]];
 
   for (let nextDepth = 1; nextDepth <= taskDepth; nextDepth++) {
-    targetTask = stepTasks[indexPathToTask[3 + nextDepth]];
-    if (nextDepth !== taskDepth) {
-      stepTasks = targetTask.subTasks;
-    }
+    targetTask = targetTask.subTasks[indexPathToTask[3 + nextDepth]];
   }
 
   return targetTask;
 }
 
+export function getTargetTaskList(
+  guidesContext: GuideExtProps[],
+  indexPathToTask: number[],
+  taskDepth: number
+): StepTaskExtProps[] {
+  let stepTasks: StepTaskExtProps[] =
+    guidesContext[indexPathToTask[0]].guideSections[indexPathToTask[1]]
+      .sectionSteps[indexPathToTask[2]].stepTasks;
+
+  for (let nextDepth = 1; nextDepth <= taskDepth; nextDepth++) {
+    stepTasks = stepTasks[indexPathToTask[3 + nextDepth - 1]].subTasks;
+  }
+
+  return stepTasks;
+}
+
 function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
+
+  let isMaxedOutStep = stepIsMaxedOutOnTasks(
+    indexPath,
+    guidesContext.guidesContext
+  );
+
+  function handleOnRemoveTask() {
+    guidesContext.setGuidesContext((guides) => {
+      let targetTaskList = getTargetTaskList(guides, indexPath, depth);
+      targetTaskList.splice(indexPath[3 + depth], 1);
+    });
+  }
+
+  function handleOnAddSubtasksList() {
+    guidesContext.setGuidesContext((guides) => {
+      let targetTask = getTargetTask(guides, indexPath, depth);
+      targetTask.subTasks.splice(0, 0, getDefaultCommentTask(depth + 1));
+    });
+  }
+
+  function handleOnAddTask() {
+    guidesContext.setGuidesContext((guides) => {
+      let targetTaskList = getTargetTaskList(guides, indexPath, depth);
+      targetTaskList.splice(
+        indexPath[3 + depth] + 1,
+        0,
+        getDefaultCommentTask(depth)
+      );
+    });
+  }
 
   function getStepTaskNode(): JSX.Element {
     let currentTask = getTargetTask(
@@ -87,11 +134,52 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
     }
   }
 
+  function isOnlyFirstLevelTask() {
+    return (
+      depth === 0 &&
+      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+        .sectionSteps[indexPath[2]].stepTasks.length <= 1
+    );
+  }
+
   return (
-    <ListGroup.Item as="li" key={indexPath[3 + depth]}>
+    <ListGroup.Item as="li" className="task-container">
       {getStepTaskNode()}
+      <div className="task-creation-buttons-container">
+        <Button
+          title="Add subtask"
+          size="sm"
+          variant="secondary"
+          disabled={
+            isMaxedOutStep || subTasks.length > 0 || depth >= MAX_TASK_DEPTH
+          }
+          onClick={() => handleOnAddSubtasksList()}
+        >
+          <BoxArrowDownRight />
+        </Button>
+        <Button
+          title="Add task"
+          size="sm"
+          variant="primary"
+          className="ms-1"
+          disabled={isMaxedOutStep}
+          onClick={() => handleOnAddTask()}
+        >
+          <Plus />
+        </Button>
+        <Button
+          title="Remove this task"
+          size="sm"
+          variant="danger"
+          className="ms-1"
+          disabled={isOnlyFirstLevelTask()}
+          onClick={() => handleOnRemoveTask()}
+        >
+          <Dash />
+        </Button>
+      </div>
       {subTasks.length > 0 && (
-        <ListGroup as="ul">
+        <ListGroup as="ul" className="step-tasks-container">
           {subTasks.map((nextSubtask, index) => (
             <StepTask
               key={index}

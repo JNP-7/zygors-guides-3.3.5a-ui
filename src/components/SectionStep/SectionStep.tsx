@@ -4,7 +4,7 @@ import StepTask, {
   StepTaskExtProps,
   getTaskSummary,
 } from "../stepTasks/StepTask/StepTask";
-import { Button, ListGroup } from "react-bootstrap";
+import { Button, Col, Form, ListGroup, Row } from "react-bootstrap";
 import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
@@ -13,9 +13,14 @@ import { GuideExtProps } from "../Guide/Guide";
 import Stack from "../../types/Stack";
 import { ChevronDown, ChevronUp, Dash, Plus } from "react-bootstrap-icons";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
+import CharacterClass, {
+  getCharacterClassByName,
+  getCharacterClassOrdinal,
+} from "../../types/CharacterClass";
 
 export interface SectionStepExtProps {
   stepTasks: StepTaskExtProps[];
+  onlyForClasses: string[];
 }
 
 export const MAX_STEP_TASKS = 20; //According to the addon documentation
@@ -53,6 +58,7 @@ interface SectionStepProps
 function SectionStep({
   stepTasks,
   indexPath,
+  onlyForClasses,
   onDeleteStep,
   onAddStep,
   onStepShift,
@@ -73,12 +79,14 @@ function SectionStep({
     let tasksStack: Stack<ISummaryStepTask> = new Stack<ISummaryStepTask>();
 
     tasksStack.pushAll(
-      currentStepProps.stepTasks.map((nextStepTask, index) => {
-        return {
-          stepTaskProps: nextStepTask,
-          indexPath: indexPath.concat(index),
-        };
-      })
+      currentStepProps.stepTasks
+        .map((nextStepTask, index) => {
+          return {
+            stepTaskProps: nextStepTask,
+            indexPath: indexPath.concat(index),
+          };
+        })
+        .toReversed()
     );
     while (
       tasksStack.hasNext() &&
@@ -95,13 +103,17 @@ function SectionStep({
           nextTask.stepTaskProps.depth
         );
         tasksStack.pushAll(
-          nextTask.stepTaskProps.subTasks.map((nextStepTask, index) => {
-            return {
-              stepTaskProps: nextStepTask,
-              indexPath:
-                nextTask !== undefined ? nextTask.indexPath.concat(index) : [],
-            };
-          })
+          nextTask.stepTaskProps.subTasks
+            .map((nextStepTask, index) => {
+              return {
+                stepTaskProps: nextStepTask,
+                indexPath:
+                  nextTask !== undefined
+                    ? nextTask.indexPath.concat(index)
+                    : [],
+              };
+            })
+            .toReversed()
         );
       }
     }
@@ -122,12 +134,25 @@ function SectionStep({
     return sectionStepsSize <= 1;
   }
 
+  function isFirstStep() {
+    return indexPath[2] === 0;
+  }
+
+  function isLastStep() {
+    return (
+      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+        .sectionSteps.length -
+        1 ===
+      indexPath[2]
+    );
+  }
+
   function handleOnAddStep() {
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
         indexPath[2] + 1,
         0,
-        { stepTasks: [getDefaultCommentTask(0)] }
+        { stepTasks: [getDefaultCommentTask(0)], onlyForClasses: [] }
       );
     });
     onAddStep(indexPath[2]);
@@ -163,6 +188,20 @@ function SectionStep({
     onStepShift(indexPath[2], shiftAmount);
   }
 
+  function handleOnSelectOnlyForClasses(
+    choosenValues: HTMLCollectionOf<HTMLOptionElement>
+  ) {
+    let classesValues: string[] = [];
+    for (let i = 0; i < choosenValues.length; i++) {
+      classesValues.push(choosenValues[i].value);
+    }
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps[
+        indexPath[2]
+      ].onlyForClasses = classesValues;
+    });
+  }
+
   return (
     <Accordion.Item
       className="step-acordion-item"
@@ -176,6 +215,7 @@ function SectionStep({
           title="Shift step upwards"
           size="sm"
           variant="primary"
+          disabled={isFirstStep()}
           onClick={() => handleOnStepShift(-1)}
         >
           <ChevronUp />
@@ -184,23 +224,13 @@ function SectionStep({
           title="Shift step downwards"
           size="sm"
           variant="primary"
+          disabled={isLastStep()}
           onClick={() => handleOnStepShift(1)}
         >
           <ChevronDown />
         </Button>
       </div>
       <div className="step-creation-buttons-container">
-        {!isOnlySectionStep() && (
-          <Button
-            title="Remove this step"
-            size="sm"
-            variant="danger"
-            className="me-2"
-            onClick={() => handleOnDeleteStep()}
-          >
-            <Dash />
-          </Button>
-        )}
         <Button
           title="Add step"
           size="sm"
@@ -209,10 +239,56 @@ function SectionStep({
         >
           <Plus />
         </Button>
+        <Button
+          title="Remove this step"
+          size="sm"
+          variant="danger"
+          className="ms-2"
+          disabled={isOnlySectionStep()}
+          onClick={() => handleOnDeleteStep()}
+        >
+          <Dash />
+        </Button>
       </div>
       <Accordion.Body>
+        <Row className="mb-2">
+          <Col xs={4}>
+            <Accordion className="step-for-class-accordion">
+              <Accordion.Item
+                eventKey={"onlyForClassSelector-" + indexPath.join("-")}
+              >
+                <Accordion.Header>{`Only for class(es)`}</Accordion.Header>
+                <Accordion.Body>
+                  <Form.Select
+                    multiple={true}
+                    aria-label="This step will only load for the choosen races"
+                    onChange={(e) =>
+                      handleOnSelectOnlyForClasses(e.target.selectedOptions)
+                    }
+                    value={onlyForClasses}
+                  >
+                    {Object.entries(CharacterClass).map((nextClassEntry) => {
+                      return (
+                        <option
+                          key={getCharacterClassOrdinal(
+                            nextClassEntry[1]
+                          ).toString()}
+                          value={getCharacterClassOrdinal(
+                            nextClassEntry[1]
+                          ).toString()}
+                        >
+                          {nextClassEntry[1]}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
+                </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
+          </Col>
+        </Row>
         {stepTasks.length > 0 && (
-          <ListGroup as="ul">
+          <ListGroup as="ul" className="step-tasks-container">
             {stepTasks.map((nextTask, index) => (
               <StepTask
                 key={index}

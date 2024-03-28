@@ -275,6 +275,7 @@ function GuideSection({
               key={index}
               stepTasks={nextStep.stepTasks}
               indexPath={indexPath.concat(index)}
+              onlyForClasses={nextStep.onlyForClasses}
               onDeleteStep={handleOnDeleteStep}
               onAddStep={handleOnAddStep}
               onStepShift={handleOnStepShift}

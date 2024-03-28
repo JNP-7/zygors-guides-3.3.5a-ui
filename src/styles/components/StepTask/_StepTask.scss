@@ -1,0 +1,46 @@
+.step-tasks-container {
+
+    .task-container {
+
+        $button-size: 1rem;
+    
+        position: relative;
+        border-radius: var(--bs-list-group-border-radius);
+        margin-bottom: 1rem;
+        border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+
+        & + .task-container {
+            border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    
+        .task-creation-buttons-container{
+    
+            position: absolute;
+            left: var(--bs-list-group-item-padding-x);
+            bottom: calc(-1 * calc($button-size / 2));
+            display: flex;
+    
+            & > button {
+                width: $button-size;
+                height: $button-size;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+    
+        }
+
+        & > .step-tasks-container {
+            margin-top: calc(1rem - calc($button-size / 2));
+            margin-bottom: 1rem;
+        }
+    
+    }
+
+}
+
