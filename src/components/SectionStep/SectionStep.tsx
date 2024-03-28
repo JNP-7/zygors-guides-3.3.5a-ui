@@ -237,7 +237,7 @@ function SectionStep({
           variant="primary"
           onClick={() => handleOnAddStep()}
         >
-          <Plus />
+          <Plus size="1.15rem" />
         </Button>
         <Button
           title="Remove this step"
@@ -247,7 +247,7 @@ function SectionStep({
           disabled={isOnlySectionStep()}
           onClick={() => handleOnDeleteStep()}
         >
-          <Dash />
+          <Dash size="1.15rem" />
         </Button>
       </div>
       <Accordion.Body>

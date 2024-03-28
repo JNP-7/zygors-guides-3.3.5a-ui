@@ -47,7 +47,9 @@ function Guide({
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections.push({
         sectionName: "",
-        sectionSteps: [{ stepTasks: [getDefaultCommentTask(0)] }],
+        sectionSteps: [
+          { stepTasks: [getDefaultCommentTask(0)], onlyForClasses: [] },
+        ],
         nextSectionVal: FINAL_SECTION_OPTION.value,
         defaultForRace: NO_DEFAULT_RACE_SECTION.value,
       });

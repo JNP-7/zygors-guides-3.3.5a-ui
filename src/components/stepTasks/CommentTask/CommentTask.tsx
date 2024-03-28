@@ -31,8 +31,8 @@ export function getDefaultCommentTask(
   };
 }
 
-function CommentTask({ comment }: CommentTaskProps) {
-  return <p className="mb-0">{comment}</p>;
+function CommentTask(commentProps: CommentTaskProps) {
+  return <p className="mb-0">{getCommentTaskSummary(commentProps)}</p>;
 }
 
 export default CommentTask;

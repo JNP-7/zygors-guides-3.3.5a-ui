@@ -3,7 +3,10 @@ import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
 } from "../../GuidesWorkspace/GuidesWorkspace";
-import TaskType from "../../../types/TaskType";
+import TaskType, {
+  getTaskTypeDescription,
+  getTaskTypeOrdinal,
+} from "../../../types/TaskType";
 import { GuideExtProps } from "../../Guide/Guide";
 import CommentTask, {
   CommentTaskExtProps,
@@ -11,9 +14,19 @@ import CommentTask, {
   getDefaultCommentTask,
 } from "../CommentTask/CommentTask";
 import { useContext } from "react";
-import { Button } from "react-bootstrap";
-import { BoxArrowDownRight, Dash, Plus } from "react-bootstrap-icons";
+import { Button, Col, Form, Row } from "react-bootstrap";
+import {
+  BoxArrowDownRight,
+  Dash,
+  PencilFill,
+  Plus,
+} from "react-bootstrap-icons";
 import { stepIsMaxedOutOnTasks } from "../../SectionStep/SectionStep";
+import GoToTask, {
+  GoToTaskExtProps,
+  getDefaultGoToTask,
+  getGoToTaskSummary,
+} from "../GoToTask/GoToTask";
 
 export interface StepTaskExtProps {
   depth: number;
@@ -40,6 +53,8 @@ export function getTaskSummary(
   switch (targetTask.type) {
     case TaskType.COMMENT:
       return getCommentTaskSummary(targetTask as CommentTaskExtProps);
+    case TaskType.GOTO:
+      return getGoToTaskSummary(targetTask as GoToTaskExtProps);
   }
 }
 
@@ -110,6 +125,26 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
     });
   }
 
+  function handleOnTaskTypeChange(typeVal: string) {
+    let newStepTaskType: TaskType =
+      Object.values(TaskType)[Number.parseInt(typeVal)];
+    let newStepTaskProps: StepTaskExtProps;
+    switch (newStepTaskType) {
+      case TaskType.COMMENT:
+        newStepTaskProps = getDefaultCommentTask(depth, subTasks);
+        break;
+      case TaskType.GOTO:
+        newStepTaskProps = getDefaultGoToTask(depth, subTasks);
+        break;
+    }
+    guidesContext.setGuidesContext((guides) => {
+      let targetTaskList = getTargetTaskList(guides, indexPath, depth);
+      targetTaskList.splice(indexPath[3 + depth], 1, newStepTaskProps);
+    });
+  }
+
+  function handleOnEditTask() {}
+
   function getStepTaskNode(): JSX.Element {
     let currentTask = getTargetTask(
       guidesContext.guidesContext,
@@ -131,7 +166,32 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             itemName={currentCommentTask.itemName}
           ></CommentTask>
         );
+      case TaskType.GOTO:
+        let currentGoToTask = currentTask as GoToTaskExtProps;
+        return (
+          <GoToTask
+            coordsMap={currentGoToTask.coordsMap}
+            depth={currentGoToTask.depth}
+            indexPath={indexPath}
+            subTasks={currentGoToTask.subTasks}
+            type={currentGoToTask.type}
+            xCoord={currentGoToTask.xCoord}
+            yCoord={currentGoToTask.yCoord}
+            comment={currentGoToTask.comment}
+            itemId={currentGoToTask.itemId}
+            itemName={currentGoToTask.itemName}
+          ></GoToTask>
+        );
     }
+  }
+
+  function getStepTaskIndexText(): string {
+    let indexText: string = `${indexPath[2] + 1}.`;
+    indexText += `${indexPath[3] + 1}`;
+    for (let nextDepth: number = 1; nextDepth <= depth; nextDepth++) {
+      indexText += `.${indexPath[3 + nextDepth] + 1}`;
+    }
+    return indexText;
   }
 
   function isOnlyFirstLevelTask() {
@@ -144,7 +204,42 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
 
   return (
     <ListGroup.Item as="li" className="task-container">
-      {getStepTaskNode()}
+      <Row className="align-items-center">
+        <Col xs="auto">
+          <span>{getStepTaskIndexText()}</span>
+        </Col>
+        <Col xs="auto">{getStepTaskNode()}</Col>
+        <Col xs="auto" className="d-flex align-items-center ms-auto">
+          <Form.Label className="col-form-label me-2">{`Task type: `}</Form.Label>
+          <Form.Group className="me-2">
+            <Form.Select
+              aria-label="Type of this task"
+              onChange={(e) => handleOnTaskTypeChange(e.target.value)}
+              value={getTaskTypeOrdinal(type)}
+            >
+              {Object.entries(TaskType).map((nextTaskType) => {
+                return (
+                  <option
+                    key={getTaskTypeOrdinal(nextTaskType[1]).toString()}
+                    value={getTaskTypeOrdinal(nextTaskType[1]).toString()}
+                    title={getTaskTypeDescription(nextTaskType[1])}
+                  >
+                    {nextTaskType[1]}
+                  </option>
+                );
+              })}
+            </Form.Select>
+          </Form.Group>
+          <Button
+            className="p-1 d-flex-full-center"
+            variant="primary"
+            title="Edit task"
+            onClick={() => handleOnEditTask()}
+          >
+            <PencilFill size="1.75rem" />
+          </Button>
+        </Col>
+      </Row>
       <div className="task-creation-buttons-container">
         <Button
           title="Add subtask"
