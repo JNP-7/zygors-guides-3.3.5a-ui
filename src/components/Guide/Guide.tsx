@@ -12,6 +12,7 @@ import {
 } from "../GuidesWorkspace/GuidesWorkspace";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import { Plus } from "react-bootstrap-icons";
+import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 
 export interface GuideExtProps {
   guideName: string;
@@ -38,6 +39,7 @@ function Guide({
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
     DEFAULT_SECTION_INDEX
   );
+  const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
 
   const guidesContext = useContext(GuidesWorkspaceContext);
 
@@ -81,7 +83,7 @@ function Guide({
     });
   }
 
-  function handleOnDeleteGuide() {
+  function handleOnCloseGuide() {
     guidesContext.setGuidesContext((guides) => {
       guides.splice(indexPath[0], 1);
     });
@@ -117,10 +119,10 @@ function Guide({
           <Col xs="auto" className="ms-auto align-self-end">
             <Button
               variant="danger"
-              title="Delete guide"
-              onClick={() => handleOnDeleteGuide()}
+              title="Close guide"
+              onClick={() => setConfirmModalIsVisible(true)}
             >
-              Delete guide
+              Close guide
             </Button>
           </Col>
         </Row>
@@ -191,6 +193,12 @@ function Guide({
           );
         })}
       </div>
+      <ConfirmationModal
+        onConfirmation={handleOnCloseGuide}
+        bodyText="The guide will close. Any changes that haven't been saved yet will be lost."
+        setShowVal={setConfirmModalIsVisible}
+        showVal={confirmModalIsVisible}
+      />
     </>
   );
 }

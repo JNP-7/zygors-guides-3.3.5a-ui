@@ -13,7 +13,7 @@ import CommentTask, {
   getCommentTaskSummary,
   getDefaultCommentTask,
 } from "../CommentTask/CommentTask";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import {
   BoxArrowDownRight,
@@ -27,6 +27,7 @@ import GoToTask, {
   getDefaultGoToTask,
   getGoToTaskSummary,
 } from "../GoToTask/GoToTask";
+import ConfirmationModal from "../../modals/ConfirmationModal/ConfirmationModal";
 
 export interface StepTaskExtProps {
   depth: number;
@@ -94,6 +95,7 @@ export function getTargetTaskList(
 
 function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
+  const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
 
   let isMaxedOutStep = stepIsMaxedOutOnTasks(
     indexPath,
@@ -203,90 +205,98 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
   }
 
   return (
-    <ListGroup.Item as="li" className="task-container">
-      <Row className="align-items-center">
-        <Col xs="auto">
-          <span>{getStepTaskIndexText()}</span>
-        </Col>
-        <Col xs="auto">{getStepTaskNode()}</Col>
-        <Col xs="auto" className="d-flex align-items-center ms-auto">
-          <Form.Label className="col-form-label me-2">{`Task type: `}</Form.Label>
-          <Form.Group className="me-2">
-            <Form.Select
-              aria-label="Type of this task"
-              onChange={(e) => handleOnTaskTypeChange(e.target.value)}
-              value={getTaskTypeOrdinal(type)}
+    <>
+      <ListGroup.Item as="li" className="task-container">
+        <Row className="align-items-center">
+          <Col xs="auto">
+            <span>{getStepTaskIndexText()}</span>
+          </Col>
+          <Col xs="auto">{getStepTaskNode()}</Col>
+          <Col xs="auto" className="d-flex align-items-center ms-auto">
+            <Form.Label className="col-form-label me-2">{`Task type: `}</Form.Label>
+            <Form.Group className="me-2">
+              <Form.Select
+                aria-label="Type of this task"
+                onChange={(e) => handleOnTaskTypeChange(e.target.value)}
+                value={getTaskTypeOrdinal(type)}
+              >
+                {Object.entries(TaskType).map((nextTaskType) => {
+                  return (
+                    <option
+                      key={getTaskTypeOrdinal(nextTaskType[1]).toString()}
+                      value={getTaskTypeOrdinal(nextTaskType[1]).toString()}
+                      title={getTaskTypeDescription(nextTaskType[1])}
+                    >
+                      {nextTaskType[1]}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+            <Button
+              className="p-1 d-flex-full-center"
+              variant="primary"
+              title="Edit task"
+              onClick={() => handleOnEditTask()}
             >
-              {Object.entries(TaskType).map((nextTaskType) => {
-                return (
-                  <option
-                    key={getTaskTypeOrdinal(nextTaskType[1]).toString()}
-                    value={getTaskTypeOrdinal(nextTaskType[1]).toString()}
-                    title={getTaskTypeDescription(nextTaskType[1])}
-                  >
-                    {nextTaskType[1]}
-                  </option>
-                );
-              })}
-            </Form.Select>
-          </Form.Group>
+              <PencilFill size="1.75rem" />
+            </Button>
+          </Col>
+        </Row>
+        <div className="task-creation-buttons-container">
           <Button
-            className="p-1 d-flex-full-center"
-            variant="primary"
-            title="Edit task"
-            onClick={() => handleOnEditTask()}
+            title="Add subtask"
+            size="sm"
+            variant="secondary"
+            disabled={
+              isMaxedOutStep || subTasks.length > 0 || depth >= MAX_TASK_DEPTH
+            }
+            onClick={() => handleOnAddSubtasksList()}
           >
-            <PencilFill size="1.75rem" />
+            <BoxArrowDownRight />
           </Button>
-        </Col>
-      </Row>
-      <div className="task-creation-buttons-container">
-        <Button
-          title="Add subtask"
-          size="sm"
-          variant="secondary"
-          disabled={
-            isMaxedOutStep || subTasks.length > 0 || depth >= MAX_TASK_DEPTH
-          }
-          onClick={() => handleOnAddSubtasksList()}
-        >
-          <BoxArrowDownRight />
-        </Button>
-        <Button
-          title="Add task"
-          size="sm"
-          variant="primary"
-          className="ms-1"
-          disabled={isMaxedOutStep}
-          onClick={() => handleOnAddTask()}
-        >
-          <Plus />
-        </Button>
-        <Button
-          title="Remove this task"
-          size="sm"
-          variant="danger"
-          className="ms-1"
-          disabled={isOnlyFirstLevelTask()}
-          onClick={() => handleOnRemoveTask()}
-        >
-          <Dash />
-        </Button>
-      </div>
-      {subTasks.length > 0 && (
-        <ListGroup as="ul" className="step-tasks-container">
-          {subTasks.map((nextSubtask, index) => (
-            <StepTask
-              key={index}
-              depth={nextSubtask.depth}
-              subTasks={nextSubtask.subTasks}
-              indexPath={indexPath.concat(index)}
-              type={nextSubtask.type}
-            ></StepTask>
-          ))}
-        </ListGroup>
-      )}
-    </ListGroup.Item>
+          <Button
+            title="Add task"
+            size="sm"
+            variant="primary"
+            className="ms-1"
+            disabled={isMaxedOutStep}
+            onClick={() => handleOnAddTask()}
+          >
+            <Plus />
+          </Button>
+          <Button
+            title="Remove this task"
+            size="sm"
+            variant="danger"
+            className="ms-1"
+            disabled={isOnlyFirstLevelTask()}
+            onClick={() => setConfirmModalIsVisible(true)}
+          >
+            <Dash />
+          </Button>
+        </div>
+        {subTasks.length > 0 && (
+          <ListGroup as="ul" className="step-tasks-container">
+            {subTasks.map((nextSubtask, index) => (
+              <StepTask
+                key={index}
+                depth={nextSubtask.depth}
+                subTasks={nextSubtask.subTasks}
+                indexPath={indexPath.concat(index)}
+                type={nextSubtask.type}
+              ></StepTask>
+            ))}
+          </ListGroup>
+        )}
+      </ListGroup.Item>
+      <ConfirmationModal
+        onConfirmation={handleOnRemoveTask}
+        bodyText="This task and any tasks that depend on it will be deleted."
+        setShowVal={setConfirmModalIsVisible}
+        showVal={confirmModalIsVisible}
+      />
+    </>
   );
 }
 

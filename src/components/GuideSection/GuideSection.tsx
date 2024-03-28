@@ -9,6 +9,7 @@ import CharacterRace, {
   getCharacterRaceOrdinal,
 } from "../../types/CharacterRace";
 import { AccordionEventKey } from "react-bootstrap/esm/AccordionContext";
+import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -49,6 +50,7 @@ function GuideSection({
   const [openAccordionKeyIsOpen, setOpenAccordionKeyIsOpen] = useState<
     boolean[]
   >([false]);
+  const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
 
   function handleOnSelectNextGuideSection(selectedVal: string) {
     guidesContext.setGuidesContext((guides) => {
@@ -188,7 +190,7 @@ function GuideSection({
             <Button
               variant="danger"
               title="Delete section"
-              onClick={() => handleOnDeleteSection()}
+              onClick={() => setConfirmModalIsVisible(true)}
             >
               Delete section
             </Button>
@@ -283,6 +285,12 @@ function GuideSection({
           );
         })}
       </Accordion>
+      <ConfirmationModal
+        onConfirmation={handleOnDeleteSection}
+        bodyText="This section will be delete. Any information related to it will be deleted as well."
+        setShowVal={setConfirmModalIsVisible}
+        showVal={confirmModalIsVisible}
+      />
     </>
   );
 }
