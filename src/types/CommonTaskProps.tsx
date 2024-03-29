@@ -1,3 +1,5 @@
+import { StepTaskExtProps } from "../components/stepTasks/StepTask/StepTask";
+
 export interface ItemUsageTaskProps {
   itemName?: string;
   itemId?: number;
@@ -16,4 +18,8 @@ export function getItemUsageSummary(
     return `${firstLetter}se Item#${itemId}`;
   }
   return "";
+}
+
+export interface TadkEditionUpdateProps {
+  setProps: (newProps: StepTaskExtProps) => void;
 }

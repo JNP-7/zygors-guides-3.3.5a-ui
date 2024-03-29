@@ -1,5 +1,6 @@
 import {
   ItemUsageTaskProps,
+  TadkEditionUpdateProps,
   getItemUsageSummary,
 } from "../../../types/CommonTaskProps";
 import CoordinatesMap from "../../../types/CoordinatesMap";
@@ -21,10 +22,7 @@ export interface GoToTaskExtProps extends StepTaskExtProps, ItemUsageTaskProps {
   coordsMap: number;
 }
 
-interface GoToTaskProps
-  extends GoToTaskExtProps,
-    StepTaskProps,
-    ItemUsageTaskProps {}
+interface GoToTaskProps extends GoToTaskExtProps {}
 
 export function getGoToTaskSummary(goToTaskProps: GoToTaskExtProps): string {
   let formattedComment = "";
@@ -64,6 +62,16 @@ export function getDefaultGoToTask(
 
 function GoToTask(goToTaskProps: GoToTaskProps) {
   return <p className="mb-0">{getGoToTaskSummary(goToTaskProps)}</p>;
+}
+
+interface GoToTaskEditionFormProps
+  extends GoToTaskExtProps,
+    TadkEditionUpdateProps {}
+
+export function GoToTaskEditionForm(
+  goToTaskEditionProps: GoToTaskEditionFormProps
+) {
+  return <></>;
 }
 
 export default GoToTask;

@@ -28,6 +28,7 @@ import GoToTask, {
   getGoToTaskSummary,
 } from "../GoToTask/GoToTask";
 import ConfirmationModal from "../../modals/ConfirmationModal/ConfirmationModal";
+import TaskEditionModal from "../../modals/TaskEditionModal/TaskEditionModal";
 
 export interface StepTaskExtProps {
   depth: number;
@@ -96,6 +97,8 @@ export function getTargetTaskList(
 function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
   const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
+  const [taskEditionModalIsVisible, setTaskEditionModalIsVisible] =
+    useState(false);
 
   let isMaxedOutStep = stepIsMaxedOutOnTasks(
     indexPath,
@@ -145,7 +148,12 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
     });
   }
 
-  function handleOnEditTask() {}
+  function handleOnEditTask(taskProps: StepTaskExtProps) {
+    guidesContext.setGuidesContext((guides) => {
+      let targetTaskList = getTargetTaskList(guides, indexPath, depth);
+      targetTaskList[indexPath[3 + depth]] = taskProps;
+    });
+  }
 
   function getStepTaskNode(): JSX.Element {
     let currentTask = getTargetTask(
@@ -161,7 +169,6 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
           <CommentTask
             comment={currentCommentTask.comment}
             depth={currentCommentTask.depth}
-            indexPath={indexPath}
             subTasks={currentCommentTask.subTasks}
             type={currentCommentTask.type}
             itemId={currentCommentTask.itemId}
@@ -174,7 +181,6 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
           <GoToTask
             coordsMap={currentGoToTask.coordsMap}
             depth={currentGoToTask.depth}
-            indexPath={indexPath}
             subTasks={currentGoToTask.subTasks}
             type={currentGoToTask.type}
             xCoord={currentGoToTask.xCoord}
@@ -237,7 +243,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
               className="p-1 d-flex-full-center"
               variant="primary"
               title="Edit task"
-              onClick={() => handleOnEditTask()}
+              onClick={() => setTaskEditionModalIsVisible(true)}
             >
               <PencilFill size="1.75rem" />
             </Button>
@@ -295,6 +301,19 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
         bodyText="This task and any tasks that depend on it will be deleted."
         setShowVal={setConfirmModalIsVisible}
         showVal={confirmModalIsVisible}
+      />
+      <TaskEditionModal
+        key={new Date().getTime()} //To force a reset of the modal's state each time it opens
+        taskCurrentProps={getTargetTask(
+          guidesContext.guidesContext,
+          indexPath,
+          depth
+        )}
+        taskType={type}
+        setShowVal={setTaskEditionModalIsVisible}
+        showVal={taskEditionModalIsVisible}
+        title={`Editing  ${""} task ${getStepTaskIndexText()}`}
+        onSaveTaskProperties={handleOnEditTask}
       />
     </>
   );
