@@ -1,14 +1,14 @@
 import { useRef } from "react";
 import {
   ItemUsageTaskProps,
-  TadkEditionUpdateProps,
+  TaskEditionUpdateProps,
   getItemUsageSummary,
 } from "../../../types/CommonTaskProps";
 import CoordinatesMap from "../../../types/CoordinatesMap";
 import TaskType from "../../../types/TaskType";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { StepTaskExtProps } from "../StepTask/StepTask";
-import { Form } from "react-bootstrap";
+import { Col, Form, Row } from "react-bootstrap";
 
 export const DEFAULT_COORDS_MAP_INDEX = -1;
 export const DEFAULT_COORDS_MAP = {
@@ -75,7 +75,7 @@ function GoToTask(goToTaskProps: GoToTaskProps) {
 
 interface GoToTaskEditionFormProps
   extends GoToTaskEditableProps,
-    TadkEditionUpdateProps {}
+    TaskEditionUpdateProps {}
 
 export function GoToTaskEditionForm(
   goToTaskEditionProps: GoToTaskEditionFormProps
@@ -132,26 +132,32 @@ export function GoToTaskEditionForm(
   }
   return (
     <Form>
-      <Form.Group className="col-6 mb-3">
-        <Form.Label>X Coord.</Form.Label>
-        <Form.Control
-          type="number"
-          placeholder="The X coordinate of this waypoint"
-          value={goToTaskEditionProps.xCoord.toString()}
-          onChange={() => handleOnInputChange()}
-          ref={xCoordInputRef}
-        />
-      </Form.Group>
-      <Form.Group className="col-6 mb-3">
-        <Form.Label>Y Coord.</Form.Label>
-        <Form.Control
-          type="number"
-          placeholder="The Y coordinate of this waypoint"
-          value={goToTaskEditionProps.yCoord.toString()}
-          onChange={() => handleOnInputChange()}
-          ref={yCoordInputRef}
-        />
-      </Form.Group>
+      <Row>
+        <Col xs={6} className="mb-3">
+          <Form.Group>
+            <Form.Label>X Coord.</Form.Label>
+            <Form.Control
+              type="number"
+              placeholder="The X coordinate of this waypoint"
+              value={goToTaskEditionProps.xCoord.toString()}
+              onChange={() => handleOnInputChange()}
+              ref={xCoordInputRef}
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={6} className="mb-3">
+          <Form.Group>
+            <Form.Label>Y Coord.</Form.Label>
+            <Form.Control
+              type="number"
+              placeholder="The Y coordinate of this waypoint"
+              value={goToTaskEditionProps.yCoord.toString()}
+              onChange={() => handleOnInputChange()}
+              ref={yCoordInputRef}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
       <Form.Group className="mb-3">
         <Form.Label>Map</Form.Label>
         <Form.Select

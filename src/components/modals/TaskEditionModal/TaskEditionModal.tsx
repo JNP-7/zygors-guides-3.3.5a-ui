@@ -12,6 +12,26 @@ import {
   CommentTaskEditionForm,
   CommentTaskExtProps,
 } from "../../stepTasks/CommentTask/CommentTask";
+import {
+  TalkToTaskEditableProps,
+  TalkToTaskEditionForm,
+  TalkToTaskExtProps,
+} from "../../stepTasks/TalkToTask/TalkToTask";
+import {
+  AcceptTaskEditableProps,
+  AcceptTaskEditionForm,
+  AcceptTaskExtProps,
+} from "../../stepTasks/AcceptTask/AcceptTask";
+import {
+  TurnInTaskEditableProps,
+  TurnInTaskEditionForm,
+  TurnInTaskExtProps,
+} from "../../stepTasks/TurnInTask/TurnInTask";
+import {
+  KillTaskEditableProps,
+  KillTaskEditionForm,
+  KillTaskExtProps,
+} from "../../stepTasks/KillTask/KillTask";
 
 interface TaskEditionModalProps {
   taskType: TaskType;
@@ -82,6 +102,34 @@ function TaskEditionModal({
             goToProps.yCoord = Math.round(goToProps.yCoord * 100) / 100;
             setInEditionTaskProps(goToProps);
             break;
+          case TaskType.TALKTO:
+            setInEditionTaskProps(
+              JSON.parse(
+                advancedTextAreaRef.current.value
+              ) as TalkToTaskEditableProps
+            );
+            break;
+          case TaskType.ACCEPTQ:
+            setInEditionTaskProps(
+              JSON.parse(
+                advancedTextAreaRef.current.value
+              ) as AcceptTaskEditableProps
+            );
+            break;
+          case TaskType.TURNINQ:
+            setInEditionTaskProps(
+              JSON.parse(
+                advancedTextAreaRef.current.value
+              ) as TurnInTaskEditableProps
+            );
+            break;
+          case TaskType.KILL:
+            setInEditionTaskProps(
+              JSON.parse(
+                advancedTextAreaRef.current.value
+              ) as KillTaskEditableProps
+            );
+            break;
         }
       } catch (e) {
         console.error(e);
@@ -114,6 +162,40 @@ function TaskEditionModal({
           itemName: goToProps.itemName,
         };
         return editableGoToProps;
+      case TaskType.TALKTO:
+        let talkToProps: TalkToTaskExtProps =
+          stepTaskProps as TalkToTaskExtProps;
+        let editableTalkToProps: TalkToTaskEditableProps = {
+          npcName: talkToProps.npcName,
+          npcId: talkToProps.npcId,
+        };
+        return editableTalkToProps;
+      case TaskType.ACCEPTQ:
+        let acceptQProps: AcceptTaskExtProps =
+          stepTaskProps as AcceptTaskExtProps;
+        let editableAcceptQProps: AcceptTaskEditableProps = {
+          questName: acceptQProps.questName,
+          questId: acceptQProps.questId,
+        };
+        return editableAcceptQProps;
+      case TaskType.TURNINQ:
+        let turnInQProps: TurnInTaskExtProps =
+          stepTaskProps as TurnInTaskExtProps;
+        let editableTurnInQProps: TurnInTaskEditableProps = {
+          questName: turnInQProps.questName,
+          questId: turnInQProps.questId,
+        };
+        return editableTurnInQProps;
+      case TaskType.KILL:
+        let killProps: KillTaskExtProps = stepTaskProps as KillTaskExtProps;
+        let editableKillProps: KillTaskEditableProps = {
+          npcName: killProps.npcName,
+          npcId: killProps.npcId,
+          count: killProps.count,
+          questId: killProps.questId,
+          questObjectiveIndex: killProps.questObjectiveIndex,
+        };
+        return editableKillProps;
     }
   }
 
@@ -141,6 +223,46 @@ function TaskEditionModal({
           subTasks: taskCurrentProps.subTasks,
         };
         return goToProps;
+      case TaskType.TALKTO:
+        let editableTalkToProps: TalkToTaskEditableProps =
+          editableProps as TalkToTaskEditableProps;
+        let talkToProps: TalkToTaskExtProps = {
+          ...editableTalkToProps,
+          depth: taskCurrentProps.depth,
+          type: taskCurrentProps.type,
+          subTasks: taskCurrentProps.subTasks,
+        };
+        return talkToProps;
+      case TaskType.ACCEPTQ:
+        let editableAcceptQProps: AcceptTaskEditableProps =
+          editableProps as AcceptTaskEditableProps;
+        let acceptQProps: AcceptTaskExtProps = {
+          ...editableAcceptQProps,
+          depth: taskCurrentProps.depth,
+          type: taskCurrentProps.type,
+          subTasks: taskCurrentProps.subTasks,
+        };
+        return acceptQProps;
+      case TaskType.TURNINQ:
+        let editableTurnInQProps: TurnInTaskEditableProps =
+          editableProps as TurnInTaskEditableProps;
+        let turnInQProps: TurnInTaskExtProps = {
+          ...editableTurnInQProps,
+          depth: taskCurrentProps.depth,
+          type: taskCurrentProps.type,
+          subTasks: taskCurrentProps.subTasks,
+        };
+        return turnInQProps;
+      case TaskType.KILL:
+        let editableKillProps: KillTaskEditableProps =
+          editableProps as KillTaskEditableProps;
+        let killProps: KillTaskExtProps = {
+          ...editableKillProps,
+          depth: taskCurrentProps.depth,
+          type: taskCurrentProps.type,
+          subTasks: taskCurrentProps.subTasks,
+        };
+        return killProps;
     }
   }
 
@@ -159,6 +281,38 @@ function TaskEditionModal({
         return (
           <GoToTaskEditionForm
             {...inEditionGoToProps}
+            setProps={handleOnChangeProps}
+          />
+        );
+      case TaskType.TALKTO:
+        let inEditionTalkToProps = inEditionTaskProps as TalkToTaskExtProps;
+        return (
+          <TalkToTaskEditionForm
+            {...inEditionTalkToProps}
+            setProps={handleOnChangeProps}
+          />
+        );
+      case TaskType.ACCEPTQ:
+        let inEditionAcceptProps = inEditionTaskProps as AcceptTaskExtProps;
+        return (
+          <AcceptTaskEditionForm
+            {...inEditionAcceptProps}
+            setProps={handleOnChangeProps}
+          />
+        );
+      case TaskType.TURNINQ:
+        let inEditionTurnInProps = inEditionTaskProps as TurnInTaskExtProps;
+        return (
+          <TurnInTaskEditionForm
+            {...inEditionTurnInProps}
+            setProps={handleOnChangeProps}
+          />
+        );
+      case TaskType.KILL:
+        let inEditionKillProps = inEditionTaskProps as KillTaskExtProps;
+        return (
+          <KillTaskEditionForm
+            {...inEditionKillProps}
             setProps={handleOnChangeProps}
           />
         );

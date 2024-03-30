@@ -20,6 +20,6 @@ export function getItemUsageSummary(
   return "";
 }
 
-export interface TadkEditionUpdateProps {
+export interface TaskEditionUpdateProps {
   setProps: (newProps: IEditableTaskProps) => void;
 }

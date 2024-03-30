@@ -1,10 +1,10 @@
 import { Form } from "react-bootstrap";
 import {
   ItemUsageTaskProps,
-  TadkEditionUpdateProps,
+  TaskEditionUpdateProps,
 } from "../../../types/CommonTaskProps";
 import TaskType from "../../../types/TaskType";
-import { StepTaskExtProps, StepTaskProps } from "../StepTask/StepTask";
+import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 
@@ -44,7 +44,7 @@ function CommentTask(commentProps: CommentTaskProps) {
 
 interface CommentTaskEditionFormProps
   extends CommentTaskEditableProps,
-    TadkEditionUpdateProps {}
+    TaskEditionUpdateProps {}
 
 export function CommentTaskEditionForm(
   commentTaskEditionProps: CommentTaskEditionFormProps
@@ -62,15 +62,15 @@ export function CommentTaskEditionForm(
     };
     if (
       itemIdInputRef.current?.value !== undefined &&
-      itemIdInputRef.current?.value !== ""
+      itemIdInputRef.current.value !== ""
     ) {
-      taskProps.itemId = Number.parseInt(itemIdInputRef.current?.value);
+      taskProps.itemId = Number.parseInt(itemIdInputRef.current.value);
     }
     if (
       itemNameInputRef.current?.value !== undefined &&
-      itemNameInputRef.current?.value !== ""
+      itemNameInputRef.current.value !== ""
     ) {
-      taskProps.itemName = itemNameInputRef.current?.value;
+      taskProps.itemName = itemNameInputRef.current.value;
     }
     return taskProps;
   }

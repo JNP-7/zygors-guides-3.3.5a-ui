@@ -29,6 +29,26 @@ import GoToTask, {
 } from "../GoToTask/GoToTask";
 import ConfirmationModal from "../../modals/ConfirmationModal/ConfirmationModal";
 import TaskEditionModal from "../../modals/TaskEditionModal/TaskEditionModal";
+import TalkToTask, {
+  TalkToTaskExtProps,
+  getDefaultTalkToTask,
+  getTalkToTaskSummary,
+} from "../TalkToTask/TalkToTask";
+import AcceptTask, {
+  AcceptTaskExtProps,
+  getAcceptTaskSummary,
+  getDefaultAcceptTask,
+} from "../AcceptTask/AcceptTask";
+import TurnInTask, {
+  TurnInTaskExtProps,
+  getDefaultTurnInTask,
+  getTurnInTaskSummary,
+} from "../TurnInTask/TurnInTask";
+import KillTask, {
+  KillTaskExtProps,
+  getDefaultKillTask,
+  getKillTaskSummary,
+} from "../KillTask/KillTask";
 
 export interface StepTaskExtProps {
   depth: number;
@@ -57,6 +77,14 @@ export function getTaskSummary(
       return getCommentTaskSummary(targetTask as CommentTaskExtProps);
     case TaskType.GOTO:
       return getGoToTaskSummary(targetTask as GoToTaskExtProps);
+    case TaskType.TALKTO:
+      return getTalkToTaskSummary(targetTask as TalkToTaskExtProps);
+    case TaskType.ACCEPTQ:
+      return getAcceptTaskSummary(targetTask as AcceptTaskExtProps);
+    case TaskType.TURNINQ:
+      return getTurnInTaskSummary(targetTask as TurnInTaskExtProps);
+    case TaskType.KILL:
+      return getKillTaskSummary(targetTask as KillTaskExtProps);
   }
 }
 
@@ -130,6 +158,13 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
     });
   }
 
+  function handleOnEditTask(taskProps: StepTaskExtProps) {
+    guidesContext.setGuidesContext((guides) => {
+      let targetTaskList = getTargetTaskList(guides, indexPath, depth);
+      targetTaskList[indexPath[3 + depth]] = taskProps;
+    });
+  }
+
   function handleOnTaskTypeChange(typeVal: string) {
     let newStepTaskType: TaskType =
       Object.values(TaskType)[Number.parseInt(typeVal)];
@@ -141,17 +176,22 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
       case TaskType.GOTO:
         newStepTaskProps = getDefaultGoToTask(depth, subTasks);
         break;
+      case TaskType.TALKTO:
+        newStepTaskProps = getDefaultTalkToTask(depth, subTasks);
+        break;
+      case TaskType.ACCEPTQ:
+        newStepTaskProps = getDefaultAcceptTask(depth, subTasks);
+        break;
+      case TaskType.TURNINQ:
+        newStepTaskProps = getDefaultTurnInTask(depth, subTasks);
+        break;
+      case TaskType.KILL:
+        newStepTaskProps = getDefaultKillTask(depth, subTasks);
+        break;
     }
     guidesContext.setGuidesContext((guides) => {
       let targetTaskList = getTargetTaskList(guides, indexPath, depth);
       targetTaskList.splice(indexPath[3 + depth], 1, newStepTaskProps);
-    });
-  }
-
-  function handleOnEditTask(taskProps: StepTaskExtProps) {
-    guidesContext.setGuidesContext((guides) => {
-      let targetTaskList = getTargetTaskList(guides, indexPath, depth);
-      targetTaskList[indexPath[3 + depth]] = taskProps;
     });
   }
 
@@ -189,6 +229,53 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             itemId={currentGoToTask.itemId}
             itemName={currentGoToTask.itemName}
           ></GoToTask>
+        );
+      case TaskType.TALKTO:
+        let currentTalkToTask = currentTask as TalkToTaskExtProps;
+        return (
+          <TalkToTask
+            npcName={currentTalkToTask.npcName}
+            npcId={currentTalkToTask.npcId}
+            depth={currentTalkToTask.depth}
+            subTasks={currentTalkToTask.subTasks}
+            type={currentTalkToTask.type}
+          ></TalkToTask>
+        );
+      case TaskType.ACCEPTQ:
+        let currentAcceptTask = currentTask as AcceptTaskExtProps;
+        return (
+          <AcceptTask
+            questName={currentAcceptTask.questName}
+            questId={currentAcceptTask.questId}
+            depth={currentAcceptTask.depth}
+            subTasks={currentAcceptTask.subTasks}
+            type={currentAcceptTask.type}
+          ></AcceptTask>
+        );
+      case TaskType.TURNINQ:
+        let currentTurnInTask = currentTask as TurnInTaskExtProps;
+        return (
+          <TurnInTask
+            questName={currentTurnInTask.questName}
+            questId={currentTurnInTask.questId}
+            depth={currentTurnInTask.depth}
+            subTasks={currentTurnInTask.subTasks}
+            type={currentTurnInTask.type}
+          ></TurnInTask>
+        );
+      case TaskType.KILL:
+        let currentKillTask = currentTask as KillTaskExtProps;
+        return (
+          <KillTask
+            npcName={currentKillTask.npcName}
+            npcId={currentKillTask.questId}
+            count={currentKillTask.count}
+            questId={currentKillTask.questId}
+            questObjectiveIndex={currentKillTask.questObjectiveIndex}
+            depth={currentKillTask.depth}
+            subTasks={currentKillTask.subTasks}
+            type={currentKillTask.type}
+          ></KillTask>
         );
     }
   }
