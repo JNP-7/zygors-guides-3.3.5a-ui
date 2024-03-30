@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import {
   ItemUsageTaskProps,
   TadkEditionUpdateProps,
@@ -5,22 +6,30 @@ import {
 } from "../../../types/CommonTaskProps";
 import CoordinatesMap from "../../../types/CoordinatesMap";
 import TaskType from "../../../types/TaskType";
-import { StepTaskExtProps, StepTaskProps } from "../StepTask/StepTask";
+import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
+import { StepTaskExtProps } from "../StepTask/StepTask";
+import { Form } from "react-bootstrap";
 
 export const DEFAULT_COORDS_MAP_INDEX = -1;
 export const DEFAULT_COORDS_MAP = {
   text: "Current map",
-  value: DEFAULT_COORDS_MAP_INDEX,
+  index: DEFAULT_COORDS_MAP_INDEX,
 };
 
 const MAX_GOTO_SUMMARY_COMMENT_LENGTH = 30;
 
-export interface GoToTaskExtProps extends StepTaskExtProps, ItemUsageTaskProps {
+export interface GoToTaskEditableProps
+  extends IEditableTaskProps,
+    ItemUsageTaskProps {
   comment?: string;
   xCoord: number;
   yCoord: number;
-  coordsMap: number;
+  coordsMap: string;
 }
+
+export interface GoToTaskExtProps
+  extends StepTaskExtProps,
+    GoToTaskEditableProps {}
 
 interface GoToTaskProps extends GoToTaskExtProps {}
 
@@ -36,13 +45,13 @@ export function getGoToTaskSummary(goToTaskProps: GoToTaskExtProps): string {
     formattedComment += ", ";
   }
   let coordsMsg = "Go to ";
-  if (goToTaskProps.coordsMap !== DEFAULT_COORDS_MAP_INDEX) {
-    coordsMsg += Object.values(CoordinatesMap)[goToTaskProps.coordsMap] + " ";
+  if (goToTaskProps.coordsMap !== DEFAULT_COORDS_MAP.text) {
+    coordsMsg += goToTaskProps.coordsMap + " ";
   }
   coordsMsg += `[${goToTaskProps.xCoord},${goToTaskProps.yCoord}]`;
   let itemUsageSummary = getItemUsageSummary(goToTaskProps, false);
   return `${formattedComment}${coordsMsg}${
-    itemUsageSummary !== "" ? `and ${itemUsageSummary}` : ""
+    itemUsageSummary !== "" ? ` and ${itemUsageSummary}` : ""
   }`;
 }
 
@@ -56,7 +65,7 @@ export function getDefaultGoToTask(
     depth: depth,
     subTasks: subTasks,
     type: TaskType.GOTO,
-    coordsMap: DEFAULT_COORDS_MAP_INDEX,
+    coordsMap: DEFAULT_COORDS_MAP.text,
   };
 }
 
@@ -65,13 +74,138 @@ function GoToTask(goToTaskProps: GoToTaskProps) {
 }
 
 interface GoToTaskEditionFormProps
-  extends GoToTaskExtProps,
+  extends GoToTaskEditableProps,
     TadkEditionUpdateProps {}
 
 export function GoToTaskEditionForm(
   goToTaskEditionProps: GoToTaskEditionFormProps
 ) {
-  return <></>;
+  const commentInputRef = useRef<HTMLInputElement>(null);
+  const xCoordInputRef = useRef<HTMLInputElement>(null);
+  const yCoordInputRef = useRef<HTMLInputElement>(null);
+  const coordsMapSelectRef = useRef<HTMLSelectElement>(null);
+  const itemNameInputRef = useRef<HTMLInputElement>(null);
+  const itemIdInputRef = useRef<HTMLInputElement>(null);
+
+  function buildGoToTaskProps(): GoToTaskEditableProps {
+    let taskProps: GoToTaskEditableProps = {
+      xCoord:
+        xCoordInputRef.current?.value !== undefined &&
+        !isNaN(Number.parseFloat(xCoordInputRef.current.value))
+          ? Math.round(Number.parseFloat(xCoordInputRef.current.value) * 100) /
+            100
+          : 0,
+      yCoord:
+        yCoordInputRef.current?.value !== undefined &&
+        !isNaN(Number.parseFloat(yCoordInputRef.current.value))
+          ? Math.round(Number.parseFloat(yCoordInputRef.current.value) * 100) /
+            100
+          : 0,
+      coordsMap:
+        coordsMapSelectRef.current?.value !== undefined
+          ? coordsMapSelectRef.current.value
+          : DEFAULT_COORDS_MAP.text,
+    };
+    if (
+      commentInputRef.current?.value !== undefined &&
+      commentInputRef.current?.value !== ""
+    ) {
+      taskProps.comment = commentInputRef.current.value;
+    }
+    if (
+      itemIdInputRef.current?.value !== undefined &&
+      itemIdInputRef.current?.value !== ""
+    ) {
+      taskProps.itemId = Number.parseInt(itemIdInputRef.current?.value);
+    }
+    if (
+      itemNameInputRef.current?.value !== undefined &&
+      itemNameInputRef.current?.value !== ""
+    ) {
+      taskProps.itemName = itemNameInputRef.current?.value;
+    }
+    return taskProps;
+  }
+
+  function handleOnInputChange() {
+    goToTaskEditionProps.setProps(buildGoToTaskProps());
+  }
+  return (
+    <Form>
+      <Form.Group className="col-6 mb-3">
+        <Form.Label>X Coord.</Form.Label>
+        <Form.Control
+          type="number"
+          placeholder="The X coordinate of this waypoint"
+          value={goToTaskEditionProps.xCoord.toString()}
+          onChange={() => handleOnInputChange()}
+          ref={xCoordInputRef}
+        />
+      </Form.Group>
+      <Form.Group className="col-6 mb-3">
+        <Form.Label>Y Coord.</Form.Label>
+        <Form.Control
+          type="number"
+          placeholder="The Y coordinate of this waypoint"
+          value={goToTaskEditionProps.yCoord.toString()}
+          onChange={() => handleOnInputChange()}
+          ref={yCoordInputRef}
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Map</Form.Label>
+        <Form.Select
+          value={goToTaskEditionProps.coordsMap}
+          onChange={() => handleOnInputChange()}
+          ref={coordsMapSelectRef}
+        >
+          <option
+            value={DEFAULT_COORDS_MAP.text}
+            key={DEFAULT_COORDS_MAP.index}
+          >
+            {DEFAULT_COORDS_MAP.text}
+          </option>
+          {Object.values(CoordinatesMap).map((nextMap, index) => {
+            return (
+              <option key={index} value={nextMap}>
+                {nextMap}
+              </option>
+            );
+          })}
+        </Form.Select>
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Comment</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="The message for this task"
+          value={goToTaskEditionProps.comment || ""}
+          onChange={() => handleOnInputChange()}
+          ref={commentInputRef}
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Item name</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="The name of the item to use"
+          value={goToTaskEditionProps.itemName || ""}
+          onChange={() => handleOnInputChange()}
+          ref={itemNameInputRef}
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Item id</Form.Label>
+        <Form.Control
+          type="number"
+          placeholder="The item's id"
+          value={goToTaskEditionProps.itemId?.toString() || ""}
+          onChange={() => handleOnInputChange()}
+          ref={itemIdInputRef}
+        />
+      </Form.Group>
+    </Form>
+  );
 }
 
 export default GoToTask;

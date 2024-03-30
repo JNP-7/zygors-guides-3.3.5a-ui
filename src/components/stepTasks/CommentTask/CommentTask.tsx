@@ -6,12 +6,17 @@ import {
 import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps, StepTaskProps } from "../StepTask/StepTask";
 import { useRef } from "react";
+import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 
-export interface CommentTaskExtProps
-  extends StepTaskExtProps,
+export interface CommentTaskEditableProps
+  extends IEditableTaskProps,
     ItemUsageTaskProps {
   comment: string;
 }
+
+export interface CommentTaskExtProps
+  extends StepTaskExtProps,
+    CommentTaskEditableProps {}
 
 interface CommentTaskProps extends CommentTaskExtProps {}
 
@@ -38,7 +43,7 @@ function CommentTask(commentProps: CommentTaskProps) {
 }
 
 interface CommentTaskEditionFormProps
-  extends CommentTaskExtProps,
+  extends CommentTaskEditableProps,
     TadkEditionUpdateProps {}
 
 export function CommentTaskEditionForm(
@@ -48,24 +53,26 @@ export function CommentTaskEditionForm(
   const itemNameInputRef = useRef<HTMLInputElement>(null);
   const itemIdInputRef = useRef<HTMLInputElement>(null);
 
-  function buildCommentTaskProps(): CommentTaskExtProps {
-    return {
+  function buildCommentTaskProps(): CommentTaskEditableProps {
+    let taskProps: CommentTaskEditableProps = {
       comment:
         commentInputRef.current?.value !== undefined
           ? commentInputRef.current.value
-          : commentTaskEditionProps.comment,
-      itemId:
-        itemIdInputRef.current?.value !== undefined
-          ? Number.parseInt(itemIdInputRef.current?.value)
-          : commentTaskEditionProps.itemId,
-      itemName:
-        itemNameInputRef.current?.value !== undefined
-          ? itemNameInputRef.current?.value
-          : commentTaskEditionProps.itemName,
-      depth: commentTaskEditionProps.depth,
-      subTasks: commentTaskEditionProps.subTasks,
-      type: commentTaskEditionProps.type,
+          : "",
     };
+    if (
+      itemIdInputRef.current?.value !== undefined &&
+      itemIdInputRef.current?.value !== ""
+    ) {
+      taskProps.itemId = Number.parseInt(itemIdInputRef.current?.value);
+    }
+    if (
+      itemNameInputRef.current?.value !== undefined &&
+      itemNameInputRef.current?.value !== ""
+    ) {
+      taskProps.itemName = itemNameInputRef.current?.value;
+    }
+    return taskProps;
   }
 
   function handleOnInputChange() {
@@ -74,33 +81,32 @@ export function CommentTaskEditionForm(
 
   return (
     <Form>
-      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-        <Form.Label>Comment*</Form.Label>
+      <Form.Group className="mb-3">
+        <Form.Label>Comment</Form.Label>
         <Form.Control
           type="text"
           placeholder="The message for this task"
           value={commentTaskEditionProps.comment}
           onChange={() => handleOnInputChange()}
           ref={commentInputRef}
-          required
         />
       </Form.Group>
-      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+      <Form.Group className="mb-3">
         <Form.Label>Item name</Form.Label>
         <Form.Control
           type="text"
           placeholder="The name of the item to use"
-          value={commentTaskEditionProps.itemName}
+          value={commentTaskEditionProps.itemName || ""}
           onChange={() => handleOnInputChange()}
           ref={itemNameInputRef}
         />
       </Form.Group>
-      <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+      <Form.Group className="mb-3">
         <Form.Label>Item id</Form.Label>
         <Form.Control
           type="number"
           placeholder="The item's id"
-          value={commentTaskEditionProps.itemId}
+          value={commentTaskEditionProps.itemId?.toString() || ""}
           onChange={() => handleOnInputChange()}
           ref={itemIdInputRef}
         />

@@ -1,4 +1,4 @@
-import { StepTaskExtProps } from "../components/stepTasks/StepTask/StepTask";
+import { IEditableTaskProps } from "../components/modals/TaskEditionModal/TaskEditionModal";
 
 export interface ItemUsageTaskProps {
   itemName?: string;
@@ -21,5 +21,5 @@ export function getItemUsageSummary(
 }
 
 export interface TadkEditionUpdateProps {
-  setProps: (newProps: StepTaskExtProps) => void;
+  setProps: (newProps: IEditableTaskProps) => void;
 }
