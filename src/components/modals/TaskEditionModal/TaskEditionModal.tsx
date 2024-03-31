@@ -32,6 +32,16 @@ import {
   KillTaskEditionForm,
   KillTaskExtProps,
 } from "../../stepTasks/KillTask/KillTask";
+import {
+  GetTaskEditableProps,
+  GetTaskEditionForm,
+  GetTaskExtProps,
+} from "../../stepTasks/GetTask/GetTask";
+import {
+  GoalTaskEditableProps,
+  GoalTaskEditionForm,
+  GoalTaskExtProps,
+} from "../../stepTasks/GoalTask/GoalTask";
 
 interface TaskEditionModalProps {
   taskType: TaskType;
@@ -130,6 +140,20 @@ function TaskEditionModal({
               ) as KillTaskEditableProps
             );
             break;
+          case TaskType.GET:
+            setInEditionTaskProps(
+              JSON.parse(
+                advancedTextAreaRef.current.value
+              ) as GetTaskEditableProps
+            );
+            break;
+          case TaskType.GOAL:
+            setInEditionTaskProps(
+              JSON.parse(
+                advancedTextAreaRef.current.value
+              ) as GoalTaskEditableProps
+            );
+            break;
         }
       } catch (e) {
         console.error(e);
@@ -196,6 +220,26 @@ function TaskEditionModal({
           questObjectiveIndex: killProps.questObjectiveIndex,
         };
         return editableKillProps;
+      case TaskType.GET:
+        let getProps: GetTaskExtProps = stepTaskProps as GetTaskExtProps;
+        let editableGetProps: GetTaskEditableProps = {
+          itemName: getProps.itemName,
+          count: getProps.count,
+          questId: getProps.questId,
+          questObjectiveIndex: getProps.questObjectiveIndex,
+          toLootNpcs: getProps.toLootNpcs,
+        };
+        return editableGetProps;
+      case TaskType.GOAL:
+        let goalProps: GoalTaskExtProps = stepTaskProps as GoalTaskExtProps;
+        let editableGoalProps: GoalTaskEditableProps = {
+          goalName: goalProps.goalName,
+          count: goalProps.count,
+          comment: goalProps.comment,
+          questId: goalProps.questId,
+          questObjectiveIndex: goalProps.questObjectiveIndex,
+        };
+        return editableGoalProps;
     }
   }
 
@@ -263,6 +307,26 @@ function TaskEditionModal({
           subTasks: taskCurrentProps.subTasks,
         };
         return killProps;
+      case TaskType.GET:
+        let editableGetProps: GetTaskEditableProps =
+          editableProps as GetTaskEditableProps;
+        let getProps: GetTaskExtProps = {
+          ...editableGetProps,
+          depth: taskCurrentProps.depth,
+          type: taskCurrentProps.type,
+          subTasks: taskCurrentProps.subTasks,
+        };
+        return getProps;
+      case TaskType.GOAL:
+        let editableGoalProps: GoalTaskEditableProps =
+          editableProps as GoalTaskEditableProps;
+        let goalProps: GoalTaskExtProps = {
+          ...editableGoalProps,
+          depth: taskCurrentProps.depth,
+          type: taskCurrentProps.type,
+          subTasks: taskCurrentProps.subTasks,
+        };
+        return goalProps;
     }
   }
 
@@ -313,6 +377,22 @@ function TaskEditionModal({
         return (
           <KillTaskEditionForm
             {...inEditionKillProps}
+            setProps={handleOnChangeProps}
+          />
+        );
+      case TaskType.GET:
+        let inEditionGetProps = inEditionTaskProps as GetTaskExtProps;
+        return (
+          <GetTaskEditionForm
+            {...inEditionGetProps}
+            setProps={handleOnChangeProps}
+          />
+        );
+      case TaskType.GOAL:
+        let inEditionGoalProps = inEditionTaskProps as GoalTaskExtProps;
+        return (
+          <GoalTaskEditionForm
+            {...inEditionGoalProps}
             setProps={handleOnChangeProps}
           />
         );

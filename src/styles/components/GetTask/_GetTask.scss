@@ -1,0 +1,35 @@
+.get-task-edit-form {
+
+    .get-task-edit-form-loot-npcs-list {
+
+        padding-left: 0;
+        list-style: none;
+        margin-bottom: 0;
+
+        .get-task-edit-form-loot-npcs-entry {
+
+            align-items: center;
+            margin-bottom: 1rem;
+
+            &:first-child {
+                margin-top: 0.5rem;
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            button {
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 2rem;
+                height: 2rem;
+                
+            }
+        }
+
+    }
+
+}

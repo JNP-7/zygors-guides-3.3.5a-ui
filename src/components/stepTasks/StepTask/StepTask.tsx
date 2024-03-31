@@ -49,6 +49,16 @@ import KillTask, {
   getDefaultKillTask,
   getKillTaskSummary,
 } from "../KillTask/KillTask";
+import GetTask, {
+  GetTaskExtProps,
+  getDefaultGetTask,
+  getGetTaskSummary,
+} from "../GetTask/GetTask";
+import GoalTask, {
+  GoalTaskExtProps,
+  getDefaultGoalTask,
+  getGoalTaskSummary,
+} from "../GoalTask/GoalTask";
 
 export interface StepTaskExtProps {
   depth: number;
@@ -85,6 +95,10 @@ export function getTaskSummary(
       return getTurnInTaskSummary(targetTask as TurnInTaskExtProps);
     case TaskType.KILL:
       return getKillTaskSummary(targetTask as KillTaskExtProps);
+    case TaskType.GET:
+      return getGetTaskSummary(targetTask as GetTaskExtProps);
+    case TaskType.GOAL:
+      return getGoalTaskSummary(targetTask as GoalTaskExtProps);
   }
 }
 
@@ -188,6 +202,12 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
       case TaskType.KILL:
         newStepTaskProps = getDefaultKillTask(depth, subTasks);
         break;
+      case TaskType.GET:
+        newStepTaskProps = getDefaultGetTask(depth, subTasks);
+        break;
+      case TaskType.GOAL:
+        newStepTaskProps = getDefaultGoalTask(depth, subTasks);
+        break;
     }
     guidesContext.setGuidesContext((guides) => {
       let targetTaskList = getTargetTaskList(guides, indexPath, depth);
@@ -276,6 +296,34 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             subTasks={currentKillTask.subTasks}
             type={currentKillTask.type}
           ></KillTask>
+        );
+      case TaskType.GET:
+        let currentGetTask = currentTask as GetTaskExtProps;
+        return (
+          <GetTask
+            itemName={currentGetTask.itemName}
+            count={currentGetTask.count}
+            questId={currentGetTask.questId}
+            questObjectiveIndex={currentGetTask.questObjectiveIndex}
+            toLootNpcs={currentGetTask.toLootNpcs}
+            depth={currentGetTask.depth}
+            subTasks={currentGetTask.subTasks}
+            type={currentGetTask.type}
+          ></GetTask>
+        );
+      case TaskType.GOAL:
+        let currentGoalTask = currentTask as GoalTaskExtProps;
+        return (
+          <GoalTask
+            goalName={currentGoalTask.goalName}
+            count={currentGoalTask.count}
+            comment={currentGoalTask.comment}
+            questId={currentGoalTask.questId}
+            questObjectiveIndex={currentGoalTask.questObjectiveIndex}
+            depth={currentGoalTask.depth}
+            subTasks={currentGoalTask.subTasks}
+            type={currentGoalTask.type}
+          ></GoalTask>
         );
     }
   }

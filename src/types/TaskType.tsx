@@ -5,6 +5,8 @@ enum TaskType {
   ACCEPTQ = "Accept quest",
   TURNINQ = "Turn in quest",
   KILL = "Kill",
+  GET = "Get",
+  GOAL = "Goal",
 }
 
 export function getTaskTypeDescription(type: TaskType): string {
@@ -20,7 +22,11 @@ export function getTaskTypeDescription(type: TaskType): string {
     case TaskType.TURNINQ:
       return "Instructs the player to turn in a completed quest";
     case TaskType.KILL:
-      return "Instructs the player to kill an amount of the specified mob";
+      return "Instructs the player to kill an ammount of the specified mob";
+    case TaskType.GET:
+      return "Instructs the player to pick up an ammount of the specified item";
+    case TaskType.GOAL:
+      return "Instructs the player to complete an ammount of quest goals";
   }
 }
 
