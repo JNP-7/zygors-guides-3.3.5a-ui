@@ -4,6 +4,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
+import { isBlank } from "../../../App";
 
 export interface TurnInTaskEditableProps extends IEditableTaskProps {
   questName?: string;
@@ -42,6 +43,20 @@ export function getDefaultTurnInTask(
     subTasks: subTasks,
     type: TaskType.TURNINQ,
   };
+}
+
+export function buildTurnInTaskTranslation(
+  guideObj: { text: string },
+  taskProps: TurnInTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text +=
+    taskIdentation +
+    "turnin " +
+    (!isBlank(taskProps.questName) ? taskProps.questName : "") +
+    "##" +
+    taskProps.questId +
+    "\n";
 }
 
 function TurnInTask(turnInProps: TurnInTaskProps) {

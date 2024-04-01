@@ -3,6 +3,7 @@ import GuideSection, {
   FINAL_SECTION_OPTION,
   GuideSectionExtProps,
   NO_DEFAULT_RACE_SECTION,
+  buildSectionTranslation,
   getDefaultSectionName,
 } from "../GuideSection/GuideSection";
 import { Button, Col, Form, Row } from "react-bootstrap";
@@ -11,8 +12,9 @@ import {
   GuidesWorkspaceContextAccessor,
 } from "../GuidesWorkspace/GuidesWorkspace";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
-import { Plus } from "react-bootstrap-icons";
+import { Floppy, Plus } from "react-bootstrap-icons";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
+import { isBlank } from "../../App";
 
 export interface GuideExtProps {
   guideName: string;
@@ -26,6 +28,14 @@ interface GuideProps extends GuideExtProps, GuidesWorkspaceContextAccessor {
 
 export function getDefaultGuideName(guideIndex: number) {
   return `Guide ${guideIndex + 1}`;
+}
+
+export function getDefaultGuide(): GuideExtProps {
+  return {
+    guideName: "",
+    guideAuthor: "",
+    guideSections: [],
+  };
 }
 
 function Guide({
@@ -56,6 +66,68 @@ function Guide({
         defaultForRace: NO_DEFAULT_RACE_SECTION.value,
       });
     });
+  }
+
+  async function handleOnBuildGuide() {
+    let guideObj = { text: "" };
+    buildGuideTranslation(guideObj);
+    let blob = new Blob([guideObj.text], {
+      type: " text/x-lua",
+    });
+    await Promise.all([exportZygorGuide(blob)]);
+  }
+
+  async function exportZygorGuide(blob: Blob, guideName: string = "Guide01") {
+    const a = document.createElement("a");
+    a.download = `${guideName}.lua`;
+    a.href = URL.createObjectURL(blob);
+    a.addEventListener("click", (e) => {
+      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+    });
+    a.click();
+  }
+
+  function buildGuideTranslation(guideObj: { text: string }) {
+    type NextSectionInfo = {
+      sectionName: string;
+      sectionIndex: number;
+    };
+
+    //Build guide header
+    guideObj.text += "local ZygorGuidesViewer=ZygorGuidesViewer\n";
+    guideObj.text += "if not ZygorGuidesViewer then return end\n";
+
+    //Build sections
+    let guideName = guidesContext.guidesContext[indexPath[0]].guideName;
+    guideName = !isBlank(guideName) ? guideName : `Guide${indexPath[0] + 1}`;
+    let guideAuthor = guidesContext.guidesContext[indexPath[0]].guideAuthor;
+    guidesContext.guidesContext[indexPath[0]].guideSections.forEach(
+      (currentSection, index) => {
+        let nextSectionInfo: NextSectionInfo | undefined = undefined;
+        if (currentSection.nextSectionVal > -1) {
+          let nextSectionProps: GuideSectionExtProps =
+            guidesContext.guidesContext[indexPath[0]].guideSections[
+              currentSection.nextSectionVal
+            ];
+          nextSectionInfo = {
+            sectionIndex: currentSection.nextSectionVal,
+            sectionName: !isBlank(nextSectionProps.sectionName)
+              ? nextSectionProps.sectionName
+              : `Section${currentSection.nextSectionVal + 1}`,
+          };
+        }
+
+        guideObj.text += "\n";
+        buildSectionTranslation(
+          guideObj,
+          guideName,
+          guideAuthor,
+          currentSection,
+          index,
+          nextSectionInfo
+        );
+      }
+    );
   }
 
   function handleOnSelectGuideSection(e: ChangeEvent<HTMLSelectElement>) {
@@ -90,9 +162,55 @@ function Guide({
     onDeleteGuide(indexPath[0]);
   }
 
+  function getFormattedGuideName(): string {
+    let currentName = guidesContext.guidesContext[indexPath[0]].guideName;
+    if (currentName === "") {
+      return "new_guide";
+    }
+    return currentName.replace(/[\/|\\:*?"<>]/g, " ");
+  }
+
+  async function handleSaveGuide() {
+    let toSaveGuide: GuideExtProps = guidesContext.guidesContext[indexPath[0]];
+    let blob = new Blob([JSON.stringify(toSaveGuide, null, "\t")], {
+      type: "application/json",
+    });
+    await Promise.all([saveGuide(blob, getFormattedGuideName())]);
+  }
+
+  async function saveGuide(blob: Blob, guideName: string) {
+    const a = document.createElement("a");
+    a.download = `${guideName}.json`;
+    a.href = URL.createObjectURL(blob);
+    a.addEventListener("click", (e) => {
+      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+    });
+    a.click();
+  }
+
   return (
     <>
       <div className="guide-data mb-4">
+        <Row className="mb-4">
+          <Col xs="auto">
+            <Button
+              title="Save guide"
+              className="save-guide-button"
+              onClick={() => handleSaveGuide()}
+            >
+              <Floppy />
+            </Button>
+          </Col>
+          <Col xs="auto">
+            <Button
+              title="Build guide"
+              variant="outline-primary"
+              onClick={() => handleOnBuildGuide()}
+            >
+              Build guide
+            </Button>
+          </Col>
+        </Row>
         <Row>
           <Col xs={4}>
             <Form.Group>

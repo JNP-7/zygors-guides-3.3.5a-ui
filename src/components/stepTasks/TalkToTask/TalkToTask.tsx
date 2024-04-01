@@ -34,6 +34,19 @@ export function getDefaultTalkToTask(
   };
 }
 
+export function buildTalkToTaskTranslation(
+  guideObj: { text: string },
+  taskProps: TalkToTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text += taskIdentation;
+  guideObj.text +=
+    "talk " +
+    taskProps.npcName +
+    (taskProps.npcId !== undefined ? "##" + taskProps.npcId : "");
+  guideObj.text += "\n";
+}
+
 function TalkToTask(talkToProps: TalkToTaskProps) {
   return <p className="mb-0">{getTalkToTaskSummary(talkToProps)}</p>;
 }

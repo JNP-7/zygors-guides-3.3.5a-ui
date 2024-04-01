@@ -1,9 +1,14 @@
 import { createContext, useState } from "react";
 import { Container, Nav } from "react-bootstrap";
-import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
+import Guide, {
+  GuideExtProps,
+  getDefaultGuide,
+  getDefaultGuideName,
+} from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 import { Updater, useImmer } from "use-immer";
 import { Plus } from "react-bootstrap-icons";
+import GuideSelectionModal from "../modals/GuideSelectionModal/GuideSelectionModal";
 
 type GuidesWorkspaceContextType = {
   guidesContext: GuideExtProps[];
@@ -26,17 +31,11 @@ function GuidesWorkspace() {
 
   const [guides, updateGuides] = useImmer<GuideExtProps[]>([]);
   const [currentTabKey, setCurrentTabKey] = useState(ADD_GUIDE_BUTTON_KEY);
+  const [guideSelectionModalIsVisible, setGuideSelectionModalIsVisible] =
+    useState(false);
 
-  function handleAddGuide(e: React.MouseEvent<HTMLElement, MouseEvent>) {
-    let nGuides = guides.length;
-    setCurrentTabKey(nGuides.toString());
-    updateGuides((guides) => {
-      guides.push({
-        guideName: "",
-        guideAuthor: "",
-        guideSections: [],
-      });
-    });
+  function handleAddGuide() {
+    setGuideSelectionModalIsVisible(true);
   }
 
   function handleDeleteGuide(indexToDelete: number) {
@@ -52,6 +51,15 @@ function GuidesWorkspace() {
     if (activeKey !== ADD_GUIDE_BUTTON_KEY) {
       setCurrentTabKey(activeKey);
     }
+  }
+
+  function handleOnGuidePicked(pickedGuide: GuideExtProps) {
+    let nGuides = guides.length;
+    setCurrentTabKey(nGuides.toString());
+    updateGuides((guides) => {
+      guides.push(pickedGuide);
+    });
+    setGuideSelectionModalIsVisible(false);
   }
 
   return (
@@ -87,7 +95,7 @@ function GuidesWorkspace() {
             <Nav.Item key={ADD_GUIDE_BUTTON_KEY} as="li">
               <Nav.Link
                 eventKey={ADD_GUIDE_BUTTON_KEY}
-                onClick={(e) => handleAddGuide(e)}
+                onClick={() => handleAddGuide()}
                 title="Add guide"
                 className="add-guide-button"
               >
@@ -112,6 +120,12 @@ function GuidesWorkspace() {
           </Tab.Content>
         </Tab.Container>
       </Container>
+      <GuideSelectionModal
+        onPickGuide={handleOnGuidePicked}
+        showVal={guideSelectionModalIsVisible || guides.length < 1}
+        showCrossVal={guides.length > 0}
+        setShowVal={setGuideSelectionModalIsVisible}
+      />
     </GuidesWorkspaceContext.Provider>
   );
 }

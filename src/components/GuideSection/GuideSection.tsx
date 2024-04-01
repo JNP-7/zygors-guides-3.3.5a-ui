@@ -1,15 +1,21 @@
 import { useContext, useState } from "react";
 import { Accordion, Button, Col, Form, Row } from "react-bootstrap";
-import SectionStep, { SectionStepExtProps } from "../SectionStep/SectionStep";
+import SectionStep, {
+  SectionStepExtProps,
+  buildStepTranslation,
+} from "../SectionStep/SectionStep";
 import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
 } from "../GuidesWorkspace/GuidesWorkspace";
 import CharacterRace, {
+  getCharacterRaceByOrdinal,
   getCharacterRaceOrdinal,
+  getRaceWowApiValue,
 } from "../../types/CharacterRace";
 import { AccordionEventKey } from "react-bootstrap/esm/AccordionContext";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
+import { isBlank } from "../../App";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -32,6 +38,37 @@ export function getDefaultSectionName(sectionIndex: number) {
   return `Section ${sectionIndex + 1}`;
 }
 
+export function buildSectionTranslation(
+  guideObj: { text: string },
+  guideName: string,
+  guideAuthor: string,
+  guideSection: GuideSectionExtProps,
+  sectionIndex: number,
+  nextSectionInfo: { sectionName: string; sectionIndex: number } | undefined
+) {
+  let currentSectionName = !isBlank(guideSection.sectionName)
+    ? guideSection.sectionName
+    : `Section${sectionIndex + 1}`;
+
+  guideObj.text += `ZygorGuidesViewer:RegisterGuide("${guideName}\\\\${currentSectionName}",[[\n`;
+  guideObj.text += !isBlank(guideAuthor) ? `\tauthor ${guideAuthor}\n` : "";
+  guideObj.text +=
+    guideSection.defaultForRace > -1
+      ? `\tdefaultfor ${getRaceWowApiValue(
+          getCharacterRaceByOrdinal(guideSection.defaultForRace)
+        )}\n`
+      : "";
+  guideObj.text +=
+    nextSectionInfo !== undefined
+      ? `\tnext ${guideName}\\\\${nextSectionInfo.sectionName}\n`
+      : "";
+  guideObj.text += "\tstartlevel 80\n";
+  guideSection.sectionSteps.forEach((nextStep, stepIndex) => {
+    buildStepTranslation(guideObj, nextStep, stepIndex);
+  });
+  guideObj.text += "]])\n";
+}
+
 interface GuideSectionProps
   extends GuideSectionExtProps,
     GuidesWorkspaceContextAccessor {
@@ -49,8 +86,19 @@ function GuideSection({
   const guidesContext = useContext(GuidesWorkspaceContext);
   const [openAccordionKeyIsOpen, setOpenAccordionKeyIsOpen] = useState<
     boolean[]
-  >([false]);
+  >(getInitialOpenAccordionKeys());
   const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
+
+  function getInitialOpenAccordionKeys(): boolean[] {
+    let nSteps =
+      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+        .sectionSteps.length;
+    let initialOpenKeys: boolean[] = [];
+    for (let index = 0; index < nSteps; index++) {
+      initialOpenKeys.push(false);
+    }
+    return initialOpenKeys;
+  }
 
   function handleOnSelectNextGuideSection(selectedVal: string) {
     guidesContext.setGuidesContext((guides) => {

@@ -10,6 +10,7 @@ import TaskType, {
 import { GuideExtProps } from "../../Guide/Guide";
 import CommentTask, {
   CommentTaskExtProps,
+  buildCommentTaskTranslation,
   getCommentTaskSummary,
   getDefaultCommentTask,
 } from "../CommentTask/CommentTask";
@@ -24,6 +25,7 @@ import {
 import { stepIsMaxedOutOnTasks } from "../../SectionStep/SectionStep";
 import GoToTask, {
   GoToTaskExtProps,
+  buildGoToTaskTranslation,
   getDefaultGoToTask,
   getGoToTaskSummary,
 } from "../GoToTask/GoToTask";
@@ -31,31 +33,37 @@ import ConfirmationModal from "../../modals/ConfirmationModal/ConfirmationModal"
 import TaskEditionModal from "../../modals/TaskEditionModal/TaskEditionModal";
 import TalkToTask, {
   TalkToTaskExtProps,
+  buildTalkToTaskTranslation,
   getDefaultTalkToTask,
   getTalkToTaskSummary,
 } from "../TalkToTask/TalkToTask";
 import AcceptTask, {
   AcceptTaskExtProps,
+  buildAcceptTaskTranslation,
   getAcceptTaskSummary,
   getDefaultAcceptTask,
 } from "../AcceptTask/AcceptTask";
 import TurnInTask, {
   TurnInTaskExtProps,
+  buildTurnInTaskTranslation,
   getDefaultTurnInTask,
   getTurnInTaskSummary,
 } from "../TurnInTask/TurnInTask";
 import KillTask, {
   KillTaskExtProps,
+  buildKillTaskTranslation,
   getDefaultKillTask,
   getKillTaskSummary,
 } from "../KillTask/KillTask";
 import GetTask, {
   GetTaskExtProps,
+  buildGetTaskTranslation,
   getDefaultGetTask,
   getGetTaskSummary,
 } from "../GetTask/GetTask";
 import GoalTask, {
   GoalTaskExtProps,
+  buildGoalTaskTranslation,
   getDefaultGoalTask,
   getGoalTaskSummary,
 } from "../GoalTask/GoalTask";
@@ -134,6 +142,82 @@ export function getTargetTaskList(
   }
 
   return stepTasks;
+}
+
+export function buildTaskTranslation(
+  guideObj: { text: string },
+  taskProps: StepTaskExtProps
+) {
+  let taskIdentation = getTaskIdentation(taskProps.depth);
+  switch (taskProps.type) {
+    case TaskType.COMMENT:
+      buildCommentTaskTranslation(
+        guideObj,
+        taskProps as CommentTaskExtProps,
+        taskIdentation
+      );
+      break;
+    case TaskType.GOTO:
+      buildGoToTaskTranslation(
+        guideObj,
+        taskProps as GoToTaskExtProps,
+        taskIdentation
+      );
+      break;
+    case TaskType.TALKTO:
+      buildTalkToTaskTranslation(
+        guideObj,
+        taskProps as TalkToTaskExtProps,
+        taskIdentation
+      );
+      break;
+    case TaskType.ACCEPTQ:
+      buildAcceptTaskTranslation(
+        guideObj,
+        taskProps as AcceptTaskExtProps,
+        taskIdentation
+      );
+      break;
+    case TaskType.TURNINQ:
+      buildTurnInTaskTranslation(
+        guideObj,
+        taskProps as TurnInTaskExtProps,
+        taskIdentation
+      );
+      break;
+    case TaskType.KILL:
+      buildKillTaskTranslation(
+        guideObj,
+        taskProps as KillTaskExtProps,
+        taskIdentation
+      );
+      break;
+    case TaskType.GET:
+      buildGetTaskTranslation(
+        guideObj,
+        taskProps as GetTaskExtProps,
+        taskIdentation
+      );
+      break;
+    case TaskType.GOAL:
+      buildGoalTaskTranslation(
+        guideObj,
+        taskProps as GoalTaskExtProps,
+        taskIdentation
+      );
+      break;
+  }
+  taskProps.subTasks.forEach((nextSubTask) => {
+    buildTaskTranslation(guideObj, nextSubTask);
+  });
+}
+
+function getTaskIdentation(taskDepth: number): string {
+  let identation: string = "\t\t";
+  for (let i = 0; i < taskDepth - 1; i++) {
+    identation += ".";
+  }
+  return identation;
 }
 
 function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {

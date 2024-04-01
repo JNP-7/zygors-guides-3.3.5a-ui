@@ -40,6 +40,30 @@ export function getDefaultKillTask(
   };
 }
 
+export function buildKillTaskTranslation(
+  guideObj: { text: string },
+  taskProps: KillTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text += taskIdentation;
+  guideObj.text += "kill ";
+  if (taskProps.count !== undefined && taskProps.count > 1) {
+    guideObj.text += taskProps.count + " ";
+  }
+  guideObj.text += taskProps.npcName;
+  if (taskProps.npcId !== undefined) {
+    guideObj.text += "##" + taskProps.npcId;
+  }
+  if (
+    taskProps.questId !== undefined &&
+    taskProps.questObjectiveIndex !== undefined
+  ) {
+    guideObj.text +=
+      "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
+  }
+  guideObj.text += "\n";
+}
+
 function KillTask(killProps: KillTaskProps) {
   return <p className="mb-0">{getKillTaskSummary(killProps)}</p>;
 }
@@ -115,7 +139,7 @@ export function KillTaskEditionForm(
             <Form.Label>NPC ID</Form.Label>
             <Form.Control
               type="number"
-              placeholder="The NPC's ID'"
+              placeholder="The NPC's ID"
               value={killTaskEditionProps.npcId?.toString() || ""}
               onChange={() => handleOnInputChange()}
               ref={npcIdInputRef}

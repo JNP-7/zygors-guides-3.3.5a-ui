@@ -4,6 +4,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
+import { isBlank } from "../../../App";
 
 export interface GoalTaskEditableProps extends IEditableTaskProps {
   goalName: string;
@@ -40,6 +41,30 @@ export function getDefaultGoalTask(
     subTasks: subTasks,
     type: TaskType.GOAL,
   };
+}
+
+export function buildGoalTaskTranslation(
+  guideObj: { text: string },
+  taskProps: GoalTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text += taskIdentation;
+  if (!isBlank(taskProps.comment)) {
+    guideObj.text += "'" + taskProps.comment + "|";
+  }
+  guideObj.text += "goal ";
+  if (taskProps.count !== undefined && taskProps.count > 1) {
+    guideObj.text += taskProps.count + " ";
+  }
+  guideObj.text += taskProps.goalName;
+  if (
+    taskProps.questId !== undefined &&
+    taskProps.questObjectiveIndex !== undefined
+  ) {
+    guideObj.text +=
+      "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
+  }
+  guideObj.text += "\n";
 }
 
 function GoalTask(goalProps: GoalTaskProps) {

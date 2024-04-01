@@ -2,7 +2,7 @@ enum CharacterClass {
   DRUID = "Druid",
   HUNTER = "Hunter",
   MAGE = "Mage",
-  PALLADIN = "Palladin",
+  PALADIN = "Paladin",
   PRIEST = "Priest",
   ROGUE = "Rogue",
   SHAMAN = "Shaman",

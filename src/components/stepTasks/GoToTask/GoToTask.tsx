@@ -9,6 +9,7 @@ import TaskType from "../../../types/TaskType";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { Col, Form, Row } from "react-bootstrap";
+import { isBlank } from "../../../App";
 
 export const DEFAULT_COORDS_MAP_INDEX = -1;
 export const DEFAULT_COORDS_MAP = {
@@ -67,6 +68,38 @@ export function getDefaultGoToTask(
     type: TaskType.GOTO,
     coordsMap: DEFAULT_COORDS_MAP.text,
   };
+}
+
+export function buildGoToTaskTranslation(
+  guideObj: { text: string },
+  taskProps: GoToTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text += taskIdentation;
+  if (!isBlank(taskProps.comment)) {
+    guideObj.text += "'" + taskProps.comment + "|";
+  }
+
+  guideObj.text +=
+    "goto " +
+    (taskProps.coordsMap !== DEFAULT_COORDS_MAP.text
+      ? taskProps.coordsMap + ","
+      : "") +
+    taskProps.xCoord +
+    "," +
+    taskProps.yCoord;
+
+  let itemUsageText = "";
+  if (!isBlank(taskProps.itemName)) {
+    itemUsageText +=
+      `use ${taskProps.itemName}` +
+      (taskProps.itemId !== undefined ? `##${taskProps.itemId}` : "");
+  }
+  if (!isBlank(itemUsageText)) {
+    guideObj.text += `|${itemUsageText}`;
+  }
+
+  guideObj.text += "\n";
 }
 
 function GoToTask(goToTaskProps: GoToTaskProps) {

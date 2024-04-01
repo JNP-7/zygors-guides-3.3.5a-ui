@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import Accordion from "react-bootstrap/Accordion";
 import StepTask, {
   StepTaskExtProps,
+  buildTaskTranslation,
   getTaskSummary,
 } from "../stepTasks/StepTask/StepTask";
 import { Button, Col, Form, ListGroup, Row } from "react-bootstrap";
@@ -14,10 +15,12 @@ import Stack from "../../types/Stack";
 import { ChevronDown, ChevronUp, Dash, Plus } from "react-bootstrap-icons";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import CharacterClass, {
-  getCharacterClassByName,
   getCharacterClassOrdinal,
 } from "../../types/CharacterClass";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
+import TaskType from "../../types/TaskType";
+import { GetTaskExtProps, ToLootNPC } from "../stepTasks/GetTask/GetTask";
+import { isBlank } from "../../App";
 
 export interface SectionStepExtProps {
   stepTasks: StepTaskExtProps[];
@@ -37,15 +40,75 @@ export function stepIsMaxedOutOnTasks(
 
   let totalTasks = 0;
   let tasksStack: Stack<StepTaskExtProps> = new Stack<StepTaskExtProps>();
-  totalTasks += tasksStack.pushAll(currentStepProps.stepTasks);
+  totalTasks +=
+    tasksStack.pushAll(currentStepProps.stepTasks) +
+    doubleLineTasks(currentStepProps.stepTasks);
   while (tasksStack.hasNext()) {
     let nextTask: StepTaskExtProps | undefined = tasksStack.pop();
     if (nextTask !== undefined) {
-      totalTasks += tasksStack.pushAll(nextTask.subTasks);
+      totalTasks +=
+        tasksStack.pushAll(nextTask.subTasks) +
+        doubleLineTasks(nextTask.subTasks);
     }
     if (totalTasks >= MAX_STEP_TASKS) return true;
   }
   return totalTasks >= MAX_STEP_TASKS;
+}
+
+//Some kind of tasks might generate 2 lines (2 tasks) in the addon's syntaxis
+function doubleLineTasks(tasksToCheck: StepTaskExtProps[]): number {
+  let totalDoubleLiners = 0;
+
+  tasksToCheck.forEach((nextTaskToCheck) => {
+    let isDoubleLiner = false;
+    switch (nextTaskToCheck.type) {
+      case TaskType.GET:
+        let getTaskToCheck = nextTaskToCheck as GetTaskExtProps;
+        for (
+          let i = 0;
+          i < getTaskToCheck.toLootNpcs.length && !isDoubleLiner;
+          i++
+        ) {
+          let nextLootableNPC: ToLootNPC = getTaskToCheck.toLootNpcs[i];
+          if (
+            !isBlank(nextLootableNPC.npcName) &&
+            nextLootableNPC.npcId !== undefined
+          ) {
+            isDoubleLiner = true;
+          }
+        }
+        break;
+    }
+    if (isDoubleLiner) {
+      totalDoubleLiners++;
+    }
+  });
+
+  return totalDoubleLiners;
+}
+
+export function buildStepTranslation(
+  guideObj: { text: string },
+  stepProps: SectionStepExtProps,
+  stepIndex: number
+) {
+  guideObj.text += `\tstep//${stepIndex + 1}\n`;
+  stepProps.stepTasks.forEach((nextTask) => {
+    buildTaskTranslation(guideObj, nextTask);
+  });
+  if (stepProps.onlyForClasses.length > 0) {
+    let classesText: string = "";
+    stepProps.onlyForClasses.forEach((nextClass, index) => {
+      if (!isNaN(Number.parseInt(nextClass))) {
+        let classIndex = Number.parseInt(nextClass);
+        classesText += Object.values(CharacterClass)[classIndex].toString();
+        if (index < stepProps.onlyForClasses.length - 1) {
+          classesText += ",";
+        }
+      }
+    });
+    guideObj.text += `\t\tonly ${classesText}\n`;
+  }
 }
 
 interface SectionStepProps

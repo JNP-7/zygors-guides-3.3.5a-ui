@@ -5,6 +5,7 @@ import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef, useState } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { Dash } from "react-bootstrap-icons";
+import { isBlank } from "../../../App";
 
 export interface ToLootNPC {
   npcName: string;
@@ -47,6 +48,41 @@ export function getDefaultGetTask(
     subTasks: subTasks,
     type: TaskType.GET,
   };
+}
+
+export function buildGetTaskTranslation(
+  guideObj: { text: string },
+  taskProps: GetTaskExtProps,
+  taskIdentation: string
+) {
+  let toLootNpcsText = "";
+  let addedToLootNpcs = 0;
+  taskProps.toLootNpcs.forEach((toLootNpc) => {
+    if (!isBlank(toLootNpc.npcName) && toLootNpc.npcId !== undefined) {
+      if (addedToLootNpcs > 0) {
+        toLootNpcsText += ", ";
+      }
+      toLootNpcsText += toLootNpc.npcName + "##" + toLootNpc.npcId;
+      addedToLootNpcs++;
+    }
+  });
+  if (!isBlank(toLootNpcsText)) {
+    guideObj.text += taskIdentation + "from " + toLootNpcsText + "\n";
+  }
+
+  guideObj.text += taskIdentation + "get ";
+  if (taskProps.count !== undefined && taskProps.count > 1) {
+    guideObj.text += taskProps.count + " ";
+  }
+  guideObj.text += taskProps.itemName;
+  if (
+    taskProps.questId !== undefined &&
+    taskProps.questObjectiveIndex !== undefined
+  ) {
+    guideObj.text +=
+      "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
+  }
+  guideObj.text += "\n";
 }
 
 function GetTask(getProps: GetTaskProps) {

@@ -4,6 +4,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
+import { isBlank } from "../../../App";
 
 export interface AcceptTaskEditableProps extends IEditableTaskProps {
   questName?: string;
@@ -42,6 +43,20 @@ export function getDefaultAcceptTask(
     subTasks: subTasks,
     type: TaskType.ACCEPTQ,
   };
+}
+
+export function buildAcceptTaskTranslation(
+  guideObj: { text: string },
+  taskProps: AcceptTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text +=
+    taskIdentation +
+    "accept " +
+    (!isBlank(taskProps.questName) ? taskProps.questName : "") +
+    "##" +
+    taskProps.questId +
+    "\n";
 }
 
 function AcceptTask(acceptProps: AcceptTaskProps) {
