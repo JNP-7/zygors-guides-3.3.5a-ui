@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import { TaskEditionUpdateProps } from "../../../types/CommonTaskProps";
 import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { Dash } from "react-bootstrap-icons";
 import { isBlank } from "../../../App";

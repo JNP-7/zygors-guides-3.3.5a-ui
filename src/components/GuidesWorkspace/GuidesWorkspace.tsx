@@ -1,10 +1,6 @@
 import { createContext, useState } from "react";
 import { Container, Nav } from "react-bootstrap";
-import Guide, {
-  GuideExtProps,
-  getDefaultGuide,
-  getDefaultGuideName,
-} from "../Guide/Guide";
+import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 import { Updater, useImmer } from "use-immer";
 import { Plus } from "react-bootstrap-icons";

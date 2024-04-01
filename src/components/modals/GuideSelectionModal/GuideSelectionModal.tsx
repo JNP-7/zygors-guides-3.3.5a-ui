@@ -27,7 +27,7 @@ function GuideSelectionModal({
         if (targetInput.files !== null && targetInput.files.length > 0) {
           let guideFile = targetInput.files[0];
           let fileReader = new FileReader();
-          fileReader.addEventListener("load", (e) => {
+          fileReader.addEventListener("load", () => {
             if (fileReader.result !== null) {
               let newGuideProps: GuideExtProps = JSON.parse(
                 fileReader.result as string

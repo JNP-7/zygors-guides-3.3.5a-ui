@@ -151,7 +151,7 @@ function SectionStep({
             indexPath: indexPath.concat(index),
           };
         })
-        .toReversed()
+        .reverse()
     );
     while (
       tasksStack.hasNext() &&
@@ -178,7 +178,7 @@ function SectionStep({
                     : [],
               };
             })
-            .toReversed()
+            .reverse()
         );
       }
     }

@@ -1,7 +1,7 @@
 import { Accordion, Button, Col, Form, Modal, Row } from "react-bootstrap";
 import { StepTaskExtProps } from "../../stepTasks/StepTask/StepTask";
 import TaskType from "../../../types/TaskType";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   GoToTaskEditableProps,
   GoToTaskEditionForm,
