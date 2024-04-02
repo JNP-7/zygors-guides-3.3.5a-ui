@@ -4,7 +4,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
-import { isBlank } from "../../../App";
+import { arrayContainsAll, isBlank } from "../../../App";
 
 export interface GoalTaskEditableProps extends IEditableTaskProps {
   goalName: string;
@@ -65,6 +65,46 @@ export function buildGoalTaskTranslation(
       "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
   }
   guideObj.text += "\n";
+}
+
+export function checkEditableGoalTaskProps(taskProps: GoalTaskEditableProps) {
+  let propsKeys = [
+    "goalName",
+    "comment",
+    "count",
+    "questId",
+    "questObjectiveIndex",
+  ];
+  if (!arrayContainsAll(propsKeys, Object.keys(taskProps))) {
+    throw new Error();
+  }
+  if (
+    taskProps.goalName === undefined ||
+    typeof taskProps.goalName !== "string"
+  ) {
+    throw new Error();
+  }
+  if (
+    taskProps.comment === undefined &&
+    typeof taskProps.comment !== "string"
+  ) {
+    throw new Error();
+  }
+  if (taskProps.count !== undefined && typeof taskProps.count !== "number") {
+    throw new Error();
+  }
+  if (
+    taskProps.questId === undefined ||
+    typeof taskProps.questId !== "number"
+  ) {
+    throw new Error();
+  }
+  if (
+    taskProps.questObjectiveIndex === undefined ||
+    typeof taskProps.questObjectiveIndex !== "number"
+  ) {
+    throw new Error();
+  }
 }
 
 function GoalTask(goalProps: GoalTaskProps) {

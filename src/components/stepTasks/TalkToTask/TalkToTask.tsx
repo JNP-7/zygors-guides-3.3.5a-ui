@@ -4,6 +4,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
+import { arrayContainsAll } from "../../../App";
 
 export interface TalkToTaskEditableProps extends IEditableTaskProps {
   npcName: string;
@@ -45,6 +46,24 @@ export function buildTalkToTaskTranslation(
     taskProps.npcName +
     (taskProps.npcId !== undefined ? "##" + taskProps.npcId : "");
   guideObj.text += "\n";
+}
+
+export function checkEditableTalkToTaskProps(
+  taskProps: TalkToTaskEditableProps
+) {
+  let propsKeys = ["npcName", "npcId"];
+  if (!arrayContainsAll(propsKeys, Object.keys(taskProps))) {
+    throw new Error();
+  }
+  if (
+    taskProps.npcName === undefined ||
+    typeof taskProps.npcName !== "string"
+  ) {
+    throw new Error();
+  }
+  if (taskProps.npcId !== undefined && typeof taskProps.npcId !== "number") {
+    throw new Error();
+  }
 }
 
 function TalkToTask(talkToProps: TalkToTaskProps) {

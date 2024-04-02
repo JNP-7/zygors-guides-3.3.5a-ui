@@ -5,7 +5,7 @@ import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { Dash } from "react-bootstrap-icons";
-import { isBlank } from "../../../App";
+import { arrayContainsAll, isBlank } from "../../../App";
 
 export interface ToLootNPC {
   npcName: string;
@@ -83,6 +83,66 @@ export function buildGetTaskTranslation(
       "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
   }
   guideObj.text += "\n";
+}
+
+export function checkEditableGetTaskProps(taskProps: GetTaskEditableProps) {
+  let propsKeys = [
+    "itemName",
+    "count",
+    "questId",
+    "questObjectiveIndex",
+    "toLootNpcs",
+  ];
+  if (!arrayContainsAll(propsKeys, Object.keys(taskProps))) {
+    throw new Error();
+  }
+  if (
+    taskProps.itemName === undefined ||
+    typeof taskProps.itemName !== "string"
+  ) {
+    throw new Error();
+  }
+  if (taskProps.count !== undefined && typeof taskProps.count !== "number") {
+    throw new Error();
+  }
+  if (
+    taskProps.questId === undefined ||
+    typeof taskProps.questId !== "number"
+  ) {
+    throw new Error();
+  }
+  if (
+    taskProps.questObjectiveIndex === undefined ||
+    typeof taskProps.questObjectiveIndex !== "number"
+  ) {
+    throw new Error();
+  }
+  if (
+    taskProps.toLootNpcs === undefined ||
+    typeof taskProps.toLootNpcs !== "object"
+  ) {
+    throw new Error();
+  } else {
+    let toLootNpcsKeys = ["npcId", "npcName"];
+    taskProps.toLootNpcs.forEach((nextNpc) => {
+      if (nextNpc === undefined || typeof nextNpc !== "object") {
+        throw new Error();
+      } else {
+        if (!arrayContainsAll(toLootNpcsKeys, Object.keys(nextNpc))) {
+          throw new Error();
+        }
+        if (nextNpc.npcId === undefined || typeof nextNpc.npcId !== "number") {
+          throw new Error();
+        }
+        if (
+          nextNpc.npcName === undefined ||
+          typeof nextNpc.npcName !== "string"
+        ) {
+          throw new Error();
+        }
+      }
+    });
+  }
 }
 
 function GetTask(getProps: GetTaskProps) {

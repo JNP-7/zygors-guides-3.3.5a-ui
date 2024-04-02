@@ -4,7 +4,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
-import { isBlank } from "../../../App";
+import { arrayContainsAll, isBlank } from "../../../App";
 
 export interface AcceptTaskEditableProps extends IEditableTaskProps {
   questName?: string;
@@ -57,6 +57,27 @@ export function buildAcceptTaskTranslation(
     "##" +
     taskProps.questId +
     "\n";
+}
+
+export function checkEditableAcceptTaskProps(
+  taskProps: AcceptTaskEditableProps
+) {
+  let propsKeys = ["questId", "questName"];
+  if (!arrayContainsAll(propsKeys, Object.keys(taskProps))) {
+    throw new Error();
+  }
+  if (
+    taskProps.questId === undefined ||
+    typeof taskProps.questId !== "number"
+  ) {
+    throw new Error();
+  }
+  if (
+    taskProps.questName !== undefined &&
+    typeof taskProps.questName !== "string"
+  ) {
+    throw new Error();
+  }
 }
 
 function AcceptTask(acceptProps: AcceptTaskProps) {

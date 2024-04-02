@@ -1,4 +1,12 @@
-import { Accordion, Button, Col, Form, Modal, Row } from "react-bootstrap";
+import {
+  Accordion,
+  Alert,
+  Button,
+  Col,
+  Form,
+  Modal,
+  Row,
+} from "react-bootstrap";
 import { StepTaskExtProps } from "../../stepTasks/StepTask/StepTask";
 import TaskType from "../../../types/TaskType";
 import { useRef, useState } from "react";
@@ -6,41 +14,49 @@ import {
   GoToTaskEditableProps,
   GoToTaskEditionForm,
   GoToTaskExtProps,
+  checkEditableGoToTaskProps,
 } from "../../stepTasks/GoToTask/GoToTask";
 import {
   CommentTaskEditableProps,
   CommentTaskEditionForm,
   CommentTaskExtProps,
+  checkEditableCommentTaskProps,
 } from "../../stepTasks/CommentTask/CommentTask";
 import {
   TalkToTaskEditableProps,
   TalkToTaskEditionForm,
   TalkToTaskExtProps,
+  checkEditableTalkToTaskProps,
 } from "../../stepTasks/TalkToTask/TalkToTask";
 import {
   AcceptTaskEditableProps,
   AcceptTaskEditionForm,
   AcceptTaskExtProps,
+  checkEditableAcceptTaskProps,
 } from "../../stepTasks/AcceptTask/AcceptTask";
 import {
   TurnInTaskEditableProps,
   TurnInTaskEditionForm,
   TurnInTaskExtProps,
+  checkEditableTurnInTaskProps,
 } from "../../stepTasks/TurnInTask/TurnInTask";
 import {
   KillTaskEditableProps,
   KillTaskEditionForm,
   KillTaskExtProps,
+  checkEditableKillTaskProps,
 } from "../../stepTasks/KillTask/KillTask";
 import {
   GetTaskEditableProps,
   GetTaskEditionForm,
   GetTaskExtProps,
+  checkEditableGetTaskProps,
 } from "../../stepTasks/GetTask/GetTask";
 import {
   GoalTaskEditableProps,
   GoalTaskEditionForm,
   GoalTaskExtProps,
+  checkEditableGoalTaskProps,
 } from "../../stepTasks/GoalTask/GoalTask";
 
 interface TaskEditionModalProps {
@@ -73,6 +89,7 @@ function TaskEditionModal({
       getEditablePropsFromStepTaskProps(taskCurrentProps)
     );
   const advancedTextAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [showFormatAlert, setShowFormatAlert] = useState(false);
 
   function handleOnHide(isSaveProps: boolean) {
     if (onHide !== undefined) {
@@ -90,6 +107,7 @@ function TaskEditionModal({
     setInEditionTaskProps(newProps);
     if (advancedTextAreaRef.current !== null) {
       advancedTextAreaRef.current.value = getBeautifiedInEditionProps(newProps);
+      setShowFormatAlert(false);
     }
   }
 
@@ -98,66 +116,67 @@ function TaskEditionModal({
       try {
         switch (taskCurrentProps.type) {
           case TaskType.COMMENT:
-            setInEditionTaskProps(
-              JSON.parse(
-                advancedTextAreaRef.current.value
-              ) as CommentTaskEditableProps
-            );
+            let inEditionCommentProps = JSON.parse(
+              advancedTextAreaRef.current.value
+            ) as CommentTaskEditableProps;
+            checkEditableCommentTaskProps(inEditionCommentProps);
+            setInEditionTaskProps(inEditionCommentProps);
             break;
           case TaskType.GOTO:
             let goToProps: GoToTaskEditableProps = JSON.parse(
               advancedTextAreaRef.current.value
             ) as GoToTaskEditableProps;
+            checkEditableGoToTaskProps(goToProps);
             goToProps.xCoord = Math.round(goToProps.xCoord * 100) / 100;
             goToProps.yCoord = Math.round(goToProps.yCoord * 100) / 100;
             setInEditionTaskProps(goToProps);
             break;
           case TaskType.TALKTO:
-            setInEditionTaskProps(
-              JSON.parse(
-                advancedTextAreaRef.current.value
-              ) as TalkToTaskEditableProps
-            );
+            let inEditionTalkToProps = JSON.parse(
+              advancedTextAreaRef.current.value
+            ) as TalkToTaskEditableProps;
+            checkEditableTalkToTaskProps(inEditionTalkToProps);
+            setInEditionTaskProps(inEditionTalkToProps);
             break;
           case TaskType.ACCEPTQ:
-            setInEditionTaskProps(
-              JSON.parse(
-                advancedTextAreaRef.current.value
-              ) as AcceptTaskEditableProps
-            );
+            let inEditionAcceptProps = JSON.parse(
+              advancedTextAreaRef.current.value
+            ) as AcceptTaskEditableProps;
+            checkEditableAcceptTaskProps(inEditionAcceptProps);
+            setInEditionTaskProps(inEditionAcceptProps);
             break;
           case TaskType.TURNINQ:
-            setInEditionTaskProps(
-              JSON.parse(
-                advancedTextAreaRef.current.value
-              ) as TurnInTaskEditableProps
-            );
+            let inEditionTurnInProps = JSON.parse(
+              advancedTextAreaRef.current.value
+            ) as TurnInTaskEditableProps;
+            checkEditableTurnInTaskProps(inEditionTurnInProps);
+            setInEditionTaskProps(inEditionTurnInProps);
             break;
           case TaskType.KILL:
-            setInEditionTaskProps(
-              JSON.parse(
-                advancedTextAreaRef.current.value
-              ) as KillTaskEditableProps
-            );
+            let inEditionKillProps = JSON.parse(
+              advancedTextAreaRef.current.value
+            ) as KillTaskEditableProps;
+            checkEditableKillTaskProps(inEditionKillProps);
+            setInEditionTaskProps(inEditionKillProps);
             break;
           case TaskType.GET:
-            setInEditionTaskProps(
-              JSON.parse(
-                advancedTextAreaRef.current.value
-              ) as GetTaskEditableProps
-            );
+            let inEditionGetTaskProps = JSON.parse(
+              advancedTextAreaRef.current.value
+            ) as GetTaskEditableProps;
+            checkEditableGetTaskProps(inEditionGetTaskProps);
+            setInEditionTaskProps(inEditionGetTaskProps);
             break;
           case TaskType.GOAL:
-            setInEditionTaskProps(
-              JSON.parse(
-                advancedTextAreaRef.current.value
-              ) as GoalTaskEditableProps
-            );
+            let inEditionGoalTaskProps = JSON.parse(
+              advancedTextAreaRef.current.value
+            ) as GoalTaskEditableProps;
+            checkEditableGoalTaskProps(inEditionGoalTaskProps);
+            setInEditionTaskProps(inEditionGoalTaskProps);
             break;
         }
+        setShowFormatAlert(false);
       } catch (e) {
-        console.error(e);
-        alert("Format not valid for this type of task");
+        setShowFormatAlert(true);
       }
     }
   }
@@ -422,6 +441,14 @@ function TaskEditionModal({
           <Accordion.Item eventKey="advancedEditionInput">
             <Accordion.Header>Advanced</Accordion.Header>
             <Accordion.Body>
+              <Alert
+                variant="danger"
+                onClose={() => setShowFormatAlert(false)}
+                show={showFormatAlert}
+                dismissible
+              >
+                <p className="mb-0">Format not valid for this type of task</p>
+              </Alert>
               <Form.Group className="mb-3">
                 <Form.Control
                   as="textarea"

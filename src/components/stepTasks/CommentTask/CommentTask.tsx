@@ -7,7 +7,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
-import { isBlank } from "../../../App";
+import { arrayContainsAll, isBlank } from "../../../App";
 
 export interface CommentTaskEditableProps
   extends IEditableTaskProps,
@@ -55,6 +55,30 @@ export function buildCommentTaskTranslation(
     guideObj.text += `|${itemUsageText}`;
   }
   guideObj.text += "\n";
+}
+
+export function checkEditableCommentTaskProps(
+  taskProps: CommentTaskEditableProps
+) {
+  let propsKeys = ["comment", "itemId", "itemName"];
+  if (!arrayContainsAll(propsKeys, Object.keys(taskProps))) {
+    throw new Error();
+  }
+  if (
+    taskProps.comment === undefined ||
+    typeof taskProps.comment !== "string"
+  ) {
+    throw new Error();
+  }
+  if (taskProps.itemId !== undefined && typeof taskProps.itemId !== "number") {
+    throw new Error();
+  }
+  if (
+    taskProps.itemName !== undefined &&
+    typeof taskProps.itemName !== "string"
+  ) {
+    throw new Error();
+  }
 }
 
 function CommentTask(commentProps: CommentTaskProps) {

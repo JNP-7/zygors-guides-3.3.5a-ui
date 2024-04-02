@@ -16,6 +16,10 @@ export function isBlank(text: string | null | undefined): boolean {
   }
 }
 
+export function arrayContainsAll(arr: any[], target: any[]): boolean {
+  return target.every((v) => arr.includes(v));
+}
+
 function App() {
   return (
     <>

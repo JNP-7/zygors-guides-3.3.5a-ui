@@ -4,6 +4,7 @@ import TaskType from "../../../types/TaskType";
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
+import { arrayContainsAll } from "../../../App";
 
 export interface KillTaskEditableProps extends IEditableTaskProps {
   npcName: string;
@@ -62,6 +63,43 @@ export function buildKillTaskTranslation(
       "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
   }
   guideObj.text += "\n";
+}
+
+export function checkEditableKillTaskProps(taskProps: KillTaskEditableProps) {
+  let propsKeys = [
+    "npcName",
+    "npcId",
+    "count",
+    "questId",
+    "questObjectiveIndex",
+  ];
+  if (!arrayContainsAll(propsKeys, Object.keys(taskProps))) {
+    throw new Error();
+  }
+  if (
+    taskProps.npcName === undefined ||
+    typeof taskProps.npcName !== "string"
+  ) {
+    throw new Error();
+  }
+  if (taskProps.npcId !== undefined && typeof taskProps.npcId !== "number") {
+    throw new Error();
+  }
+  if (taskProps.count !== undefined && typeof taskProps.count !== "number") {
+    throw new Error();
+  }
+  if (
+    taskProps.questId !== undefined &&
+    typeof taskProps.questId !== "number"
+  ) {
+    throw new Error();
+  }
+  if (
+    taskProps.questObjectiveIndex !== undefined &&
+    typeof taskProps.questObjectiveIndex !== "number"
+  ) {
+    throw new Error();
+  }
 }
 
 function KillTask(killProps: KillTaskProps) {
