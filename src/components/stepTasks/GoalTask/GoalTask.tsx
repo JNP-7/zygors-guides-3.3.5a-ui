@@ -108,7 +108,11 @@ export function checkEditableGoalTaskProps(taskProps: GoalTaskEditableProps) {
 }
 
 function GoalTask(goalProps: GoalTaskProps) {
-  return <p className="mb-0">{getGoalTaskSummary(goalProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getGoalTaskSummary(goalProps)}
+    </p>
+  );
 }
 
 interface GoalTaskEditionFormProps

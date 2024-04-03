@@ -82,7 +82,11 @@ export function checkEditableCommentTaskProps(
 }
 
 function CommentTask(commentProps: CommentTaskProps) {
-  return <p className="mb-0">{getCommentTaskSummary(commentProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getCommentTaskSummary(commentProps)}
+    </p>
+  );
 }
 
 interface CommentTaskEditionFormProps

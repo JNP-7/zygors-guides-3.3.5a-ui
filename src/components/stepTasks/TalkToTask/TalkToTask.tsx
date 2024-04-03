@@ -67,7 +67,11 @@ export function checkEditableTalkToTaskProps(
 }
 
 function TalkToTask(talkToProps: TalkToTaskProps) {
-  return <p className="mb-0">{getTalkToTaskSummary(talkToProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getTalkToTaskSummary(talkToProps)}
+    </p>
+  );
 }
 
 interface TalkToTaskEditionFormProps

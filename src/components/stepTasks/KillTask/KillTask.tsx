@@ -103,7 +103,11 @@ export function checkEditableKillTaskProps(taskProps: KillTaskEditableProps) {
 }
 
 function KillTask(killProps: KillTaskProps) {
-  return <p className="mb-0">{getKillTaskSummary(killProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getKillTaskSummary(killProps)}
+    </p>
+  );
 }
 
 interface KillTaskEditionFormProps

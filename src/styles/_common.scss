@@ -4,3 +4,10 @@
     align-items: center !important;
     justify-content: center !important;
 }
+
+.one-line-ellipsis {
+    white-space: nowrap !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden  !important;
+    text-overflow: ellipsis !important;
+}

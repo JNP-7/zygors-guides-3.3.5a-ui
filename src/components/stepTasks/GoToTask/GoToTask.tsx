@@ -144,7 +144,11 @@ export function checkEditableGoToTaskProps(taskProps: GoToTaskEditableProps) {
 }
 
 function GoToTask(goToTaskProps: GoToTaskProps) {
-  return <p className="mb-0">{getGoToTaskSummary(goToTaskProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getGoToTaskSummary(goToTaskProps)}
+    </p>
+  );
 }
 
 interface GoToTaskEditionFormProps

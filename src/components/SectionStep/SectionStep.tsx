@@ -28,7 +28,7 @@ export interface SectionStepExtProps {
 }
 
 export const MAX_STEP_TASKS = 20; //According to the addon documentation
-export const STEP_SUMMARY_MAX_LENGTH = 80;
+export const STEP_SUMMARY_MAX_LENGTH = 120;
 
 export function stepIsMaxedOutOnTasks(
   stepIndexPath: number[],
@@ -274,7 +274,9 @@ function SectionStep({
         eventKey={indexPath[2].toString()}
       >
         <Accordion.Header className="position-relative">
-          <span>{getStepSummary()}</span>
+          <span className="one-line-ellipsis summary-accordion-item">
+            {getStepSummary()}
+          </span>
         </Accordion.Header>
         <div className="step-shift-buttons-container">
           <Button

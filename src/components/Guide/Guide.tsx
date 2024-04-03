@@ -247,48 +247,41 @@ function Guide({
       </div>
       <div className="section-management mb-4">
         <Row>
-          <Col xs="4" className="d-flex">
-            <Row>
-              <Col xs="auto">
-                <Form.Group>
-                  <Form.Label>Current section</Form.Label>
-                  <Form.Select
-                    aria-label="Section selection"
-                    onChange={(e) => handleOnSelectGuideSection(e)}
-                    value={currentSectionIndex}
-                  >
-                    <option
-                      key={DEFAULT_SECTION_INDEX}
-                      value={DEFAULT_SECTION_INDEX}
-                    >
-                      Choose or add a section
-                    </option>
-                    {guideSections.map((nextGuideSection, index) => {
-                      return (
-                        <option key={index} value={index}>
-                          {nextGuideSection.sectionName !== ""
-                            ? nextGuideSection.sectionName
-                            : getDefaultSectionName(index)}
-                        </option>
-                      );
-                    })}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col
-                xs="auto"
-                className="d-flex align-items-center align-self-end"
+          <Col xs={4}>
+            <Form.Group>
+              <Form.Label>Current section</Form.Label>
+              <Form.Select
+                aria-label="Section selection"
+                onChange={(e) => handleOnSelectGuideSection(e)}
+                value={currentSectionIndex}
               >
-                <Button
-                  variant="primary"
-                  title="Add section"
-                  onClick={() => handleOnAddSection()}
-                  className="p-0"
+                <option
+                  key={DEFAULT_SECTION_INDEX}
+                  value={DEFAULT_SECTION_INDEX}
                 >
-                  <Plus size="2.25rem" />
-                </Button>
-              </Col>
-            </Row>
+                  Choose or add a section
+                </option>
+                {guideSections.map((nextGuideSection, index) => {
+                  return (
+                    <option key={index} value={index}>
+                      {nextGuideSection.sectionName !== ""
+                        ? nextGuideSection.sectionName
+                        : getDefaultSectionName(index)}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col xs="auto" className="d-flex align-items-center align-self-end">
+            <Button
+              variant="primary"
+              title="Add section"
+              onClick={() => handleOnAddSection()}
+              className="p-0"
+            >
+              <Plus size="2.25rem" />
+            </Button>
           </Col>
         </Row>
       </div>

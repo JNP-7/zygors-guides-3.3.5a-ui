@@ -81,7 +81,11 @@ export function checkEditableAcceptTaskProps(
 }
 
 function AcceptTask(acceptProps: AcceptTaskProps) {
-  return <p className="mb-0">{getAcceptTaskSummary(acceptProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getAcceptTaskSummary(acceptProps)}
+    </p>
+  );
 }
 
 interface AcceptTaskEditionFormProps

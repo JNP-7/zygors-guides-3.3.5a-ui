@@ -146,7 +146,11 @@ export function checkEditableGetTaskProps(taskProps: GetTaskEditableProps) {
 }
 
 function GetTask(getProps: GetTaskProps) {
-  return <p className="mb-0">{getGetTaskSummary(getProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getGetTaskSummary(getProps)}
+    </p>
+  );
 }
 
 interface GetTaskEditionFormProps

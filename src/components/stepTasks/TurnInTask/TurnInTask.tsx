@@ -81,7 +81,11 @@ export function checkEditableTurnInTaskProps(
 }
 
 function TurnInTask(turnInProps: TurnInTaskProps) {
-  return <p className="mb-0">{getTurnInTaskSummary(turnInProps)}</p>;
+  return (
+    <p className="mb-0 one-line-ellipsis task-summary">
+      {getTurnInTaskSummary(turnInProps)}
+    </p>
+  );
 }
 
 interface TurnInTaskEditionFormProps

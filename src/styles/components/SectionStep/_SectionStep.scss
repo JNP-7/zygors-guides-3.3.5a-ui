@@ -37,6 +37,10 @@
                     background-size: calc(var(--bs-accordion-btn-icon-width) /1.25);
     
                 }
+
+                & > .summary-accordion-item {
+                    line-height: 1.5rem;
+                }
     
             }
 

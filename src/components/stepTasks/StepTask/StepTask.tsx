@@ -434,9 +434,13 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
       <ListGroup.Item as="li" className="task-container">
         <Row className="align-items-center">
           <Col xs="auto">
-            <span>{getStepTaskIndexText()}</span>
+            <Row className="align-items-center">
+              <Col xs="auto">
+                <span>{getStepTaskIndexText()}</span>
+              </Col>
+              <Col xs="auto">{getStepTaskNode()}</Col>
+            </Row>
           </Col>
-          <Col xs="auto">{getStepTaskNode()}</Col>
           <Col xs="auto" className="d-flex align-items-center ms-auto">
             <Form.Label className="col-form-label me-2">{`Task type: `}</Form.Label>
             <Form.Group className="me-2">
