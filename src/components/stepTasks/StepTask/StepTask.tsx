@@ -214,7 +214,7 @@ export function buildTaskTranslation(
 
 function getTaskIdentation(taskDepth: number): string {
   let identation: string = "\t\t";
-  for (let i = 0; i < taskDepth - 1; i++) {
+  for (let i = 0; i < taskDepth; i++) {
     identation += ".";
   }
   return identation;
