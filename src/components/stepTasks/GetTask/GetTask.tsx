@@ -37,7 +37,8 @@ export function getGetTaskSummary(getTaskProps: GetTaskExtProps): string {
 
 export function getDefaultGetTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): GetTaskExtProps {
   return {
     itemName: "Some item",
@@ -47,6 +48,7 @@ export function getDefaultGetTask(
     depth: depth,
     subTasks: subTasks,
     type: TaskType.GET,
+    isCustom: isCustom,
   };
 }
 

@@ -25,13 +25,15 @@ export function getTalkToTaskSummary(
 
 export function getDefaultTalkToTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): TalkToTaskExtProps {
   return {
     npcName: "Some NPC",
     depth: depth,
     subTasks: subTasks,
     type: TaskType.TALKTO,
+    isCustom: isCustom,
   };
 }
 

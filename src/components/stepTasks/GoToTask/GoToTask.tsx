@@ -58,7 +58,8 @@ export function getGoToTaskSummary(goToTaskProps: GoToTaskExtProps): string {
 
 export function getDefaultGoToTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): GoToTaskExtProps {
   return {
     xCoord: 0.0,
@@ -67,6 +68,7 @@ export function getDefaultGoToTask(
     subTasks: subTasks,
     type: TaskType.GOTO,
     coordsMap: DEFAULT_COORDS_MAP.text,
+    isCustom: isCustom,
   };
 }
 

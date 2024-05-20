@@ -217,7 +217,7 @@ function SectionStep({
       guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
         indexPath[2] + 1,
         0,
-        { stepTasks: [getDefaultCommentTask(0)], onlyForClasses: [] }
+        { stepTasks: [getDefaultCommentTask(0, [], false)], onlyForClasses: [] }
       );
     });
     onAddStep(indexPath[2]);
@@ -364,6 +364,7 @@ function SectionStep({
                   depth={nextTask.depth}
                   indexPath={indexPath.concat(index)}
                   subTasks={nextTask.subTasks}
+                  isCustom={nextTask.isCustom}
                 ></StepTask>
               ))}
             </ListGroup>

@@ -34,7 +34,8 @@ export function getTurnInTaskSummary(
 
 export function getDefaultTurnInTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): TurnInTaskExtProps {
   return {
     questName: "Some quest",
@@ -42,6 +43,7 @@ export function getDefaultTurnInTask(
     depth: depth,
     subTasks: subTasks,
     type: TaskType.TURNINQ,
+    isCustom: isCustom,
   };
 }
 

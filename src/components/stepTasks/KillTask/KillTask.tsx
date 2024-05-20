@@ -31,13 +31,15 @@ export function getKillTaskSummary(killTaskProps: KillTaskExtProps): string {
 
 export function getDefaultKillTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): KillTaskExtProps {
   return {
     npcName: "Some NPC",
     depth: depth,
     subTasks: subTasks,
     type: TaskType.KILL,
+    isCustom: isCustom,
   };
 }
 

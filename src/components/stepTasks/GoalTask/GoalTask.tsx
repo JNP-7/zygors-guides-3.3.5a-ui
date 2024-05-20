@@ -31,7 +31,8 @@ export function getGoalTaskSummary(goalTaskProps: GoalTaskExtProps): string {
 
 export function getDefaultGoalTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): GoalTaskExtProps {
   return {
     goalName: "Some objective",
@@ -40,6 +41,7 @@ export function getDefaultGoalTask(
     depth: depth,
     subTasks: subTasks,
     type: TaskType.GOAL,
+    isCustom: isCustom,
   };
 }
 

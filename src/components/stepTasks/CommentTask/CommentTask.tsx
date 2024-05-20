@@ -29,13 +29,15 @@ export function getCommentTaskSummary(
 
 export function getDefaultCommentTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): CommentTaskExtProps {
   return {
     comment: "Do something",
     depth: depth,
     subTasks: subTasks,
     type: TaskType.COMMENT,
+    isCustom: isCustom,
   };
 }
 

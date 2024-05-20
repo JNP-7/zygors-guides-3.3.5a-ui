@@ -71,6 +71,7 @@ import GoalTask, {
 export interface StepTaskExtProps {
   depth: number;
   type: TaskType;
+  isCustom: boolean;
   subTasks: StepTaskExtProps[];
 }
 /*
@@ -220,7 +221,13 @@ function getTaskIdentation(taskDepth: number): string {
   return identation;
 }
 
-function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
+function StepTask({
+  depth,
+  type,
+  subTasks,
+  indexPath,
+  isCustom,
+}: StepTaskProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
   const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
   const [taskEditionModalIsVisible, setTaskEditionModalIsVisible] =
@@ -241,17 +248,25 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
   function handleOnAddSubtasksList() {
     guidesContext.setGuidesContext((guides) => {
       let targetTask = getTargetTask(guides, indexPath, depth);
-      targetTask.subTasks.splice(0, 0, getDefaultCommentTask(depth + 1));
+      targetTask.subTasks.splice(
+        0,
+        0,
+        getDefaultCommentTask(depth + 1, [], isCustom)
+      );
     });
   }
 
   function handleOnAddTask() {
     guidesContext.setGuidesContext((guides) => {
       let targetTaskList = getTargetTaskList(guides, indexPath, depth);
+      let parentTaskIsCustom =
+        depth > 0
+          ? getTargetTask(guides, indexPath, depth - 1).isCustom
+          : false;
       targetTaskList.splice(
         indexPath[3 + depth] + 1,
         0,
-        getDefaultCommentTask(depth)
+        getDefaultCommentTask(depth, [], parentTaskIsCustom)
       );
     });
   }
@@ -269,33 +284,40 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
     let newStepTaskProps: StepTaskExtProps;
     switch (newStepTaskType) {
       case TaskType.COMMENT:
-        newStepTaskProps = getDefaultCommentTask(depth, subTasks);
+        newStepTaskProps = getDefaultCommentTask(depth, subTasks, isCustom);
         break;
       case TaskType.GOTO:
-        newStepTaskProps = getDefaultGoToTask(depth, subTasks);
+        newStepTaskProps = getDefaultGoToTask(depth, subTasks, isCustom);
         break;
       case TaskType.TALKTO:
-        newStepTaskProps = getDefaultTalkToTask(depth, subTasks);
+        newStepTaskProps = getDefaultTalkToTask(depth, subTasks, isCustom);
         break;
       case TaskType.ACCEPTQ:
-        newStepTaskProps = getDefaultAcceptTask(depth, subTasks);
+        newStepTaskProps = getDefaultAcceptTask(depth, subTasks, isCustom);
         break;
       case TaskType.TURNINQ:
-        newStepTaskProps = getDefaultTurnInTask(depth, subTasks);
+        newStepTaskProps = getDefaultTurnInTask(depth, subTasks, isCustom);
         break;
       case TaskType.KILL:
-        newStepTaskProps = getDefaultKillTask(depth, subTasks);
+        newStepTaskProps = getDefaultKillTask(depth, subTasks, isCustom);
         break;
       case TaskType.GET:
-        newStepTaskProps = getDefaultGetTask(depth, subTasks);
+        newStepTaskProps = getDefaultGetTask(depth, subTasks, isCustom);
         break;
       case TaskType.GOAL:
-        newStepTaskProps = getDefaultGoalTask(depth, subTasks);
+        newStepTaskProps = getDefaultGoalTask(depth, subTasks, isCustom);
         break;
     }
     guidesContext.setGuidesContext((guides) => {
       let targetTaskList = getTargetTaskList(guides, indexPath, depth);
       targetTaskList.splice(indexPath[3 + depth], 1, newStepTaskProps);
+    });
+  }
+
+  function handleIsCustomChange(callerSwitch: HTMLInputElement) {
+    guidesContext.setGuidesContext((guides) => {
+      let targetTask = getTargetTask(guides, indexPath, depth);
+      targetTask.isCustom = callerSwitch.checked;
     });
   }
 
@@ -317,6 +339,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             type={currentCommentTask.type}
             itemId={currentCommentTask.itemId}
             itemName={currentCommentTask.itemName}
+            isCustom={currentCommentTask.isCustom}
           ></CommentTask>
         );
       case TaskType.GOTO:
@@ -332,6 +355,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             comment={currentGoToTask.comment}
             itemId={currentGoToTask.itemId}
             itemName={currentGoToTask.itemName}
+            isCustom={currentGoToTask.isCustom}
           ></GoToTask>
         );
       case TaskType.TALKTO:
@@ -343,6 +367,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             depth={currentTalkToTask.depth}
             subTasks={currentTalkToTask.subTasks}
             type={currentTalkToTask.type}
+            isCustom={currentTalkToTask.isCustom}
           ></TalkToTask>
         );
       case TaskType.ACCEPTQ:
@@ -354,6 +379,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             depth={currentAcceptTask.depth}
             subTasks={currentAcceptTask.subTasks}
             type={currentAcceptTask.type}
+            isCustom={currentAcceptTask.isCustom}
           ></AcceptTask>
         );
       case TaskType.TURNINQ:
@@ -365,6 +391,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             depth={currentTurnInTask.depth}
             subTasks={currentTurnInTask.subTasks}
             type={currentTurnInTask.type}
+            isCustom={currentTurnInTask.isCustom}
           ></TurnInTask>
         );
       case TaskType.KILL:
@@ -379,6 +406,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             depth={currentKillTask.depth}
             subTasks={currentKillTask.subTasks}
             type={currentKillTask.type}
+            isCustom={currentKillTask.isCustom}
           ></KillTask>
         );
       case TaskType.GET:
@@ -393,6 +421,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             depth={currentGetTask.depth}
             subTasks={currentGetTask.subTasks}
             type={currentGetTask.type}
+            isCustom={currentGetTask.isCustom}
           ></GetTask>
         );
       case TaskType.GOAL:
@@ -407,6 +436,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             depth={currentGoalTask.depth}
             subTasks={currentGoalTask.subTasks}
             type={currentGoalTask.type}
+            isCustom={currentGoalTask.isCustom}
           ></GoalTask>
         );
     }
@@ -431,7 +461,10 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
 
   return (
     <>
-      <ListGroup.Item as="li" className="task-container">
+      <ListGroup.Item
+        as="li"
+        className={"task-container" + (isCustom ? " custom-task" : "")}
+      >
         <Row className="align-items-center">
           <Col xs="auto">
             <Row className="align-items-center">
@@ -442,6 +475,16 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
             </Row>
           </Col>
           <Col xs="auto" className="d-flex align-items-center ms-auto">
+            <Form.Group className="me-2">
+              <Form.Check
+                type="switch"
+                title="Marks the quest as a custom quest, which makes the resulting guide avoid the usage of certain things (mainly ids) when selecting some 'Build guide' options"
+                onChange={(e) => handleIsCustomChange(e.target)}
+                label={`Custom: `}
+                reverse={true}
+                checked={isCustom}
+              ></Form.Check>
+            </Form.Group>
             <Form.Label className="col-form-label me-2">{`Task type: `}</Form.Label>
             <Form.Group className="me-2">
               <Form.Select
@@ -514,6 +557,7 @@ function StepTask({ depth, type, subTasks, indexPath }: StepTaskProps) {
                 subTasks={nextSubtask.subTasks}
                 indexPath={indexPath.concat(index)}
                 type={nextSubtask.type}
+                isCustom={nextSubtask.isCustom}
               ></StepTask>
             ))}
           </ListGroup>

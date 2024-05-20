@@ -34,7 +34,8 @@ export function getAcceptTaskSummary(
 
 export function getDefaultAcceptTask(
   depth: number,
-  subTasks: StepTaskExtProps[] = []
+  subTasks: StepTaskExtProps[] = [],
+  isCustom: boolean
 ): AcceptTaskExtProps {
   return {
     questName: "Some quest",
@@ -42,6 +43,7 @@ export function getDefaultAcceptTask(
     depth: depth,
     subTasks: subTasks,
     type: TaskType.ACCEPTQ,
+    isCustom: isCustom,
   };
 }
 
