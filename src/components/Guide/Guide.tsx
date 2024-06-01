@@ -60,7 +60,10 @@ function Guide({
       guides[indexPath[0]].guideSections.push({
         sectionName: "",
         sectionSteps: [
-          { stepTasks: [getDefaultCommentTask(0)], onlyForClasses: [] },
+          {
+            stepTasks: [getDefaultCommentTask(0, [], false)],
+            onlyForClasses: [],
+          },
         ],
         nextSectionVal: FINAL_SECTION_OPTION.value,
         defaultForRace: NO_DEFAULT_RACE_SECTION.value,

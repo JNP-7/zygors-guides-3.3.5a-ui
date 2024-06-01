@@ -274,6 +274,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return commentProps;
       case TaskType.GOTO:
@@ -284,6 +285,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return goToProps;
       case TaskType.TALKTO:
@@ -294,6 +296,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return talkToProps;
       case TaskType.ACCEPTQ:
@@ -304,6 +307,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return acceptQProps;
       case TaskType.TURNINQ:
@@ -314,6 +318,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return turnInQProps;
       case TaskType.KILL:
@@ -324,6 +329,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return killProps;
       case TaskType.GET:
@@ -334,6 +340,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return getProps;
       case TaskType.GOAL:
@@ -344,6 +351,7 @@ function TaskEditionModal({
           depth: taskCurrentProps.depth,
           type: taskCurrentProps.type,
           subTasks: taskCurrentProps.subTasks,
+          isCustom: taskCurrentProps.isCustom,
         };
         return goalProps;
     }
