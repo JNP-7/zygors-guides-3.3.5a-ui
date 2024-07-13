@@ -1,5 +1,9 @@
 import { Button, Modal } from "react-bootstrap";
 import { GuideExtProps, getDefaultGuide } from "../../Guide/Guide";
+import {
+  getSimpleGuidePropsFromLuaEntries,
+  parseLuaWAQuestlogHistoryToArray,
+} from "../../../utils/SavedVariablesUtils";
 
 interface GuideSelectionModalProps {
   showVal: boolean;
@@ -41,6 +45,33 @@ function GuideSelectionModal({
     });
   }
 
+  function handleOnImportRawLuaGuide() {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "text/x-lua";
+    fileInput.click();
+    fileInput.addEventListener("change", (e) => {
+      if (e.target !== null) {
+        let targetInput: HTMLInputElement = e.target as HTMLInputElement;
+        if (targetInput.files !== null && targetInput.files.length > 0) {
+          let rawLuaFile = targetInput.files[0];
+          let fileReader = new FileReader();
+          fileReader.addEventListener("load", () => {
+            if (fileReader.result !== null) {
+              let guideEntries = parseLuaWAQuestlogHistoryToArray(
+                fileReader.result as string
+              );
+              let newGuideProps: GuideExtProps =
+                getSimpleGuidePropsFromLuaEntries(guideEntries);
+              onPickGuide(newGuideProps);
+            }
+          });
+          fileReader.readAsText(rawLuaFile);
+        }
+      }
+    });
+  }
+
   function handleOnCreateNewGuide() {
     let newGuide: GuideExtProps = getDefaultGuide();
     onPickGuide(newGuide);
@@ -65,7 +96,13 @@ function GuideSelectionModal({
         >
           Edit an existing guide
         </Button>
-        <p className="mb-4">or</p>
+        <Button
+          variant="primary"
+          className="mb-4"
+          onClick={() => handleOnImportRawLuaGuide()}
+        >
+          Import from raw LUA
+        </Button>
         <Button
           variant="secondary"
           className="mb-4"
