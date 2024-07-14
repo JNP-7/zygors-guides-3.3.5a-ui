@@ -1,9 +1,8 @@
 import { ChangeEvent, useContext, useState } from "react";
 import GuideSection, {
-  FINAL_SECTION_OPTION,
   GuideSectionExtProps,
-  NO_DEFAULT_RACE_SECTION,
   buildSectionTranslation,
+  getDefaultSection,
   getDefaultSectionName,
 } from "../GuideSection/GuideSection";
 import { Button, Col, Form, Row } from "react-bootstrap";
@@ -11,7 +10,6 @@ import {
   GuidesWorkspaceContext,
   GuidesWorkspaceContextAccessor,
 } from "../GuidesWorkspace/GuidesWorkspace";
-import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import { Floppy, Plus } from "react-bootstrap-icons";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import { isBlank } from "../../App";
@@ -57,17 +55,7 @@ function Guide({
     let nGuides = guideSections.length;
     setCurrentSectionIndex(nGuides);
     guidesContext.setGuidesContext((guides) => {
-      guides[indexPath[0]].guideSections.push({
-        sectionName: "",
-        sectionSteps: [
-          {
-            stepTasks: [getDefaultCommentTask(0, [], false)],
-            onlyForClasses: [],
-          },
-        ],
-        nextSectionVal: FINAL_SECTION_OPTION.value,
-        defaultForRace: NO_DEFAULT_RACE_SECTION.value,
-      });
+      guides[indexPath[0]].guideSections.push(getDefaultSection());
     });
   }
 

@@ -16,6 +16,7 @@ import CharacterRace, {
 import { AccordionEventKey } from "react-bootstrap/esm/AccordionContext";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import { isBlank } from "../../App";
+import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -36,6 +37,20 @@ export const NO_DEFAULT_RACE_SECTION = {
 
 export function getDefaultSectionName(sectionIndex: number) {
   return `Section ${sectionIndex + 1}`;
+}
+
+export function getDefaultSection(): GuideSectionExtProps {
+  return {
+    sectionName: "",
+    sectionSteps: [
+      {
+        stepTasks: [getDefaultCommentTask(0, [], false)],
+        onlyForClasses: [],
+      },
+    ],
+    nextSectionVal: FINAL_SECTION_OPTION.value,
+    defaultForRace: NO_DEFAULT_RACE_SECTION.value,
+  };
 }
 
 export function buildSectionTranslation(

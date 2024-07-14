@@ -101,7 +101,7 @@ function GuidesWorkspace() {
           </Nav>
           <Tab.Content>
             {guides.map(function (nextGuide, nextIndex) {
-              return (
+              return nextIndex.toString() === currentTabKey ? (
                 <Tab.Pane key={nextIndex} eventKey={nextIndex} className="p-4">
                   <Guide
                     onDeleteGuide={handleDeleteGuide}
@@ -111,6 +111,8 @@ function GuidesWorkspace() {
                     guideAuthor={nextGuide.guideAuthor}
                   ></Guide>
                 </Tab.Pane>
+              ) : (
+                <></>
               );
             })}
           </Tab.Content>
