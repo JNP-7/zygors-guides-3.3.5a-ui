@@ -17,6 +17,7 @@ import { AccordionEventKey } from "react-bootstrap/esm/AccordionContext";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import { isBlank } from "../../App";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
+import Paginator from "../Paginator/Paginator";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -34,6 +35,8 @@ export const NO_DEFAULT_RACE_SECTION = {
   text: "Any",
   value: -1,
 };
+
+const MAX_STEPS_PER_PAGE: number = 20;
 
 export function getDefaultSectionName(sectionIndex: number) {
   return `Section ${sectionIndex + 1}`;
@@ -103,6 +106,7 @@ function GuideSection({
     boolean[]
   >(getInitialOpenAccordionKeys());
   const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
+  const [currentStepsPage, setCurrentStepsPage] = useState(1);
 
   function getInitialOpenAccordionKeys(): boolean[] {
     let nSteps =
@@ -170,6 +174,10 @@ function GuideSection({
         return indexToDelete !== index;
       })
     );
+    let totalStepPages = getTotalStepsPages();
+    if (totalStepPages < currentStepsPage) {
+      setCurrentStepsPage(totalStepPages > 0 ? totalStepPages : 1);
+    }
   }
 
   function handleOnAddStep(indexThatAdded: number) {
@@ -232,6 +240,24 @@ function GuideSection({
       if (nextKeyIsOpen) openAccordionKeys.push(index.toString());
     });
     return openAccordionKeys;
+  }
+
+  function handleOnStepsPageSelection(selectedPage: number) {
+    setCurrentStepsPage(selectedPage);
+  }
+
+  function getTotalStepsPages(): number {
+    return (
+      Math.trunc(sectionSteps.length / MAX_STEPS_PER_PAGE) +
+      (sectionSteps.length % MAX_STEPS_PER_PAGE > 0 ? 1 : 0)
+    );
+  }
+
+  function isVisibleStep(stepIndex: number): boolean {
+    return (
+      stepIndex >= (currentStepsPage - 1) * MAX_STEPS_PER_PAGE &&
+      stepIndex < currentStepsPage * MAX_STEPS_PER_PAGE
+    );
   }
 
   return (
@@ -328,6 +354,19 @@ function GuideSection({
         </Row>
       </div>
 
+      <Row
+        className={
+          getTotalStepsPages() > 1 ? "mb-4 justify-content-end" : "d-none"
+        }
+      >
+        <Col xs={"auto"}>
+          <Paginator
+            currentPage={currentStepsPage}
+            totalPages={getTotalStepsPages()}
+            onSelectPage={handleOnStepsPageSelection}
+          ></Paginator>
+        </Col>
+      </Row>
       <Accordion
         alwaysOpen
         activeKey={getOpenAccordionKeys()}
@@ -335,19 +374,35 @@ function GuideSection({
         className="steps-acordion"
       >
         {sectionSteps.map(function (nextStep, index) {
-          return (
-            <SectionStep
-              key={index}
-              stepTasks={nextStep.stepTasks}
-              indexPath={indexPath.concat(index)}
-              onlyForClasses={nextStep.onlyForClasses}
-              onDeleteStep={handleOnDeleteStep}
-              onAddStep={handleOnAddStep}
-              onStepShift={handleOnStepShift}
-            ></SectionStep>
-          );
+          if (isVisibleStep(index)) {
+            return (
+              <SectionStep
+                key={index}
+                stepTasks={nextStep.stepTasks}
+                indexPath={indexPath.concat(index)}
+                onlyForClasses={nextStep.onlyForClasses}
+                onDeleteStep={handleOnDeleteStep}
+                onAddStep={handleOnAddStep}
+                onStepShift={handleOnStepShift}
+              ></SectionStep>
+            );
+          }
         })}
       </Accordion>
+      <Row
+        className={
+          getTotalStepsPages() > 1 ? "mt-4 justify-content-end" : "d-none"
+        }
+      >
+        <Col xs={"auto"}>
+          <Paginator
+            currentPage={currentStepsPage}
+            totalPages={getTotalStepsPages()}
+            onSelectPage={handleOnStepsPageSelection}
+          ></Paginator>
+        </Col>
+      </Row>
+
       <ConfirmationModal
         onConfirmation={handleOnDeleteSection}
         bodyText="This section will be delete. Any information related to it will be deleted as well."

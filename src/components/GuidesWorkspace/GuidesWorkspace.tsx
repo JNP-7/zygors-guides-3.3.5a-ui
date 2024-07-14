@@ -101,19 +101,23 @@ function GuidesWorkspace() {
           </Nav>
           <Tab.Content>
             {guides.map(function (nextGuide, nextIndex) {
-              return nextIndex.toString() === currentTabKey ? (
-                <Tab.Pane key={nextIndex} eventKey={nextIndex} className="p-4">
-                  <Guide
-                    onDeleteGuide={handleDeleteGuide}
-                    guideName={nextGuide.guideName}
-                    guideSections={nextGuide.guideSections}
-                    indexPath={[nextIndex]}
-                    guideAuthor={nextGuide.guideAuthor}
-                  ></Guide>
-                </Tab.Pane>
-              ) : (
-                <></>
-              );
+              if (nextIndex.toString() === currentTabKey) {
+                return (
+                  <Tab.Pane
+                    key={nextIndex}
+                    eventKey={nextIndex}
+                    className="p-4"
+                  >
+                    <Guide
+                      onDeleteGuide={handleDeleteGuide}
+                      guideName={nextGuide.guideName}
+                      guideSections={nextGuide.guideSections}
+                      indexPath={[nextIndex]}
+                      guideAuthor={nextGuide.guideAuthor}
+                    ></Guide>
+                  </Tab.Pane>
+                );
+              }
             })}
           </Tab.Content>
         </Tab.Container>

@@ -278,21 +278,20 @@ function Guide({
       </div>
       <div className="guide-content">
         {guideSections.map((nextGuideSection, index) => {
-          return (
-            <div
-              key={index}
-              className={index !== currentSectionIndex ? "d-none" : ""}
-            >
-              <GuideSection
-                indexPath={indexPath.concat(index)}
-                sectionName={nextGuideSection.sectionName}
-                sectionSteps={nextGuideSection.sectionSteps}
-                nextSectionVal={nextGuideSection.nextSectionVal}
-                defaultForRace={nextGuideSection.defaultForRace}
-                onDeleteSection={handleOnDeleteSection}
-              ></GuideSection>
-            </div>
-          );
+          if (index == currentSectionIndex) {
+            return (
+              <div key={index}>
+                <GuideSection
+                  indexPath={indexPath.concat(index)}
+                  sectionName={nextGuideSection.sectionName}
+                  sectionSteps={nextGuideSection.sectionSteps}
+                  nextSectionVal={nextGuideSection.nextSectionVal}
+                  defaultForRace={nextGuideSection.defaultForRace}
+                  onDeleteSection={handleOnDeleteSection}
+                ></GuideSection>
+              </div>
+            );
+          }
         })}
       </div>
       <ConfirmationModal
