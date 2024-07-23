@@ -21,6 +21,7 @@ import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import TaskType from "../../types/TaskType";
 import { GetTaskExtProps, ToLootNPC } from "../stepTasks/GetTask/GetTask";
 import { isBlank } from "../../App";
+import { MAX_STEPS_PER_PAGE } from "../GuideSection/GuideSection";
 
 export interface SectionStepExtProps {
   stepTasks: StepTaskExtProps[];
@@ -114,7 +115,10 @@ export function buildStepTranslation(
 interface SectionStepProps
   extends SectionStepExtProps,
     GuidesWorkspaceContextAccessor {
-  onDeleteStep: (indexToDelete: number) => void;
+  onDeleteStep: (
+    indexToDelete: number,
+    isRemovingPageFromLastItem: boolean
+  ) => void;
   onAddStep: (indexToDelete: number) => void;
   onStepShift: (indexToShift: number, shiftAmount: number) => void;
 }
@@ -224,13 +228,25 @@ function SectionStep({
   }
 
   function handleOnDeleteStep() {
+    let nStepsInCurrentSection: number =
+      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+        .sectionSteps.length;
+    let isDeletingLastStep: boolean =
+      nStepsInCurrentSection === indexPath[2] + 1;
+    let currentNPages: number =
+      Math.trunc(nStepsInCurrentSection / MAX_STEPS_PER_PAGE) +
+      (nStepsInCurrentSection % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
+    let newNPages: number =
+      Math.trunc((nStepsInCurrentSection - 1) / MAX_STEPS_PER_PAGE) +
+      ((nStepsInCurrentSection - 1) % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
+    let numberOfPagesIsDecreasing: boolean = currentNPages > newNPages;
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
         indexPath[2],
         1
       );
     });
-    onDeleteStep(indexPath[2]);
+    onDeleteStep(indexPath[2], isDeletingLastStep && numberOfPagesIsDecreasing);
   }
 
   function handleOnStepShift(shiftAmount: number) {
@@ -373,7 +389,7 @@ function SectionStep({
       </Accordion.Item>
       <ConfirmationModal
         onConfirmation={handleOnDeleteStep}
-        bodyText="This step an all its tasks will be deleted."
+        bodyText="This step and all its tasks will be deleted."
         setShowVal={setConfirmModalIsVisible}
         showVal={confirmModalIsVisible}
       />

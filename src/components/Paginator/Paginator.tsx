@@ -1,6 +1,6 @@
-import { Button, Pagination } from "react-bootstrap";
+import { Button, Dropdown, Pagination } from "react-bootstrap";
 
-const SHOW_DROPDOWN_ELLIPSIS_BREAKPOINT: number = 4;
+const MAX_PAGE_BUTTONS: number = 5;
 
 export interface PaginatorProps {
   onSelectPage: (selectedPage: number) => void;
@@ -11,97 +11,93 @@ export interface PaginatorProps {
 function Paginator({ totalPages, onSelectPage, currentPage }: PaginatorProps) {
   function buildPageItems(): JSX.Element[] {
     let pageElements: JSX.Element[] = [];
-    let showDropdowns: boolean =
-      totalPages > SHOW_DROPDOWN_ELLIPSIS_BREAKPOINT * 2 + 1;
-    let showLeftDropdown: boolean =
-      showDropdowns && currentPage - SHOW_DROPDOWN_ELLIPSIS_BREAKPOINT > 1;
-    let showRightDropdown: boolean =
-      showDropdowns &&
-      currentPage + SHOW_DROPDOWN_ELLIPSIS_BREAKPOINT < totalPages;
 
-    pageElements.push(
-      <Pagination.First
-        key={"first"}
-        as={Button}
-        onClick={() => {
-          onSelectPage(1);
-        }}
-        disabled={currentPage === 1}
-      />
-    );
-    pageElements.push(
-      <Pagination.Prev
-        key={"previous"}
-        as={Button}
-        disabled={currentPage < 2}
-        onClick={() => {
-          onSelectPage(currentPage - 1);
-        }}
-      />
-    );
-
-    let leftEllipsisAdded = false;
-    let rightEllipsisAdded = false;
-    for (let i = 1; i <= totalPages; i++) {
-      if (
-        showLeftDropdown &&
-        !leftEllipsisAdded &&
-        i > 1 &&
-        i < currentPage - 2
-      ) {
-        pageElements.push(<Pagination.Ellipsis as={Button} key={i} />);
-        leftEllipsisAdded = true;
-        i += currentPage - 2 - i;
-      } else if (
-        showRightDropdown &&
-        !rightEllipsisAdded &&
-        i < totalPages &&
-        i > currentPage + 2
-      ) {
-        pageElements.push(<Pagination.Ellipsis as={Button} key={i} />);
-        rightEllipsisAdded = true;
-        i += totalPages - i - 1;
-      } else {
+    if (totalPages <= MAX_PAGE_BUTTONS) {
+      for (let i = 1; i <= totalPages; i++) {
         pageElements.push(
           <Pagination.Item
-            key={i}
             as={Button}
-            active={currentPage === i}
-            onClick={() => {
-              onSelectPage(i);
-            }}
+            key={i}
+            onClick={() => onSelectPage(i)}
+            active={i === currentPage}
           >
             {i}
           </Pagination.Item>
         );
       }
+    } else {
+      let pageButtons: JSX.Element[] = [];
+      for (
+        let nextPageNumber = 1;
+        nextPageNumber <= totalPages;
+        nextPageNumber++
+      ) {
+        pageButtons.push(
+          <Dropdown.Item
+            on
+            key={nextPageNumber}
+            as={Button}
+            onClick={() => onSelectPage(nextPageNumber)}
+            active={currentPage === nextPageNumber}
+          >
+            {nextPageNumber}
+          </Dropdown.Item>
+        );
+      }
+      let dropdownElement: JSX.Element = (
+        <Dropdown key="pageDropdownSelector">
+          <Dropdown.Toggle>{currentPage}</Dropdown.Toggle>
+          <Dropdown.Menu>{pageButtons}</Dropdown.Menu>
+        </Dropdown>
+      );
+      pageElements.push(dropdownElement);
     }
-
-    pageElements.push(
-      <Pagination.Next
-        key={"next"}
-        as={Button}
-        disabled={currentPage < 2}
-        onClick={() => {
-          onSelectPage(currentPage - 1);
-        }}
-      />
-    );
-    pageElements.push(
-      <Pagination.Last
-        key={"last"}
-        as={Button}
-        onClick={() => {
-          onSelectPage(totalPages);
-        }}
-        disabled={currentPage === totalPages}
-      />
-    );
 
     return pageElements;
   }
 
-  return <Pagination className="mb-0">{buildPageItems()}</Pagination>;
+  return (
+    <div className="row align-items-center steps-paginator">
+      <p className="col-auto mb-0">
+        Page {currentPage} of {totalPages}
+      </p>
+      <Pagination className="col-auto mb-0">
+        <Pagination.First
+          key={"first"}
+          as={Button}
+          onClick={() => {
+            onSelectPage(1);
+          }}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Prev
+          key={"previous"}
+          as={Button}
+          disabled={currentPage === 1}
+          onClick={() => {
+            onSelectPage(currentPage - 1);
+          }}
+        />
+        {buildPageItems()}
+        <Pagination.Next
+          key={"next"}
+          as={Button}
+          disabled={currentPage === totalPages}
+          onClick={() => {
+            onSelectPage(currentPage + 1);
+          }}
+        />
+        <Pagination.Last
+          key={"last"}
+          as={Button}
+          onClick={() => {
+            onSelectPage(totalPages);
+          }}
+          disabled={currentPage === totalPages}
+        />
+      </Pagination>
+    </div>
+  );
 }
 
 export default Paginator;

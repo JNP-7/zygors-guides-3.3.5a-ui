@@ -1,0 +1,12 @@
+.steps-paginator {
+
+    $maxVisibleElements: 5;
+    $paddingHeight: 18px;
+    $elementHeight: 32px;
+
+    .dropdown-menu {
+        max-height: calc(calc($maxVisibleElements * $elementHeight) + $paddingHeight);
+        overflow-y: auto;
+    }
+
+}

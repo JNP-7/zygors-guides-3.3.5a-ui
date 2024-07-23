@@ -36,7 +36,7 @@ export const NO_DEFAULT_RACE_SECTION = {
   value: -1,
 };
 
-const MAX_STEPS_PER_PAGE: number = 20;
+export const MAX_STEPS_PER_PAGE: number = 20;
 
 export function getDefaultSectionName(sectionIndex: number) {
   return `Section ${sectionIndex + 1}`;
@@ -168,15 +168,18 @@ function GuideSection({
     });
   }
 
-  function handleOnDeleteStep(indexToDelete: number) {
+  function handleOnDeleteStep(
+    indexToDelete: number,
+    isRemovingPageFromLastItem: boolean
+  ) {
     setOpenAccordionKeyIsOpen(
       openAccordionKeyIsOpen.filter((_, index) => {
         return indexToDelete !== index;
       })
     );
-    let totalStepPages = getTotalStepsPages();
-    if (totalStepPages < currentStepsPage) {
-      setCurrentStepsPage(totalStepPages > 0 ? totalStepPages : 1);
+
+    if (isRemovingPageFromLastItem && currentStepsPage > 1) {
+      setCurrentStepsPage(currentStepsPage - 1);
     }
   }
 
@@ -247,9 +250,12 @@ function GuideSection({
   }
 
   function getTotalStepsPages(): number {
+    let nSteps =
+      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+        .sectionSteps.length;
     return (
-      Math.trunc(sectionSteps.length / MAX_STEPS_PER_PAGE) +
-      (sectionSteps.length % MAX_STEPS_PER_PAGE > 0 ? 1 : 0)
+      Math.trunc(nSteps / MAX_STEPS_PER_PAGE) +
+      (nSteps % MAX_STEPS_PER_PAGE > 0 ? 1 : 0)
     );
   }
 
