@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 import { Accordion, Button, Col, Form, Row } from "react-bootstrap";
 import SectionStep, {
   SectionStepExtProps,
@@ -105,8 +105,12 @@ function GuideSection({
   const [openAccordionKeyIsOpen, setOpenAccordionKeyIsOpen] = useState<
     boolean[]
   >(getInitialOpenAccordionKeys());
-  const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
-  const [currentStepsPage, setCurrentStepsPage] = useState(1);
+  const [confirmModalIsVisible, setConfirmModalIsVisible] =
+    useState<boolean>(false);
+  const [currentStepsPage, setCurrentStepsPage] = useState<number>(1);
+  const [checkedSectionSteps, setCheckedSectionSteps] = useState<boolean[]>(
+    getInitialCheckedSectionSteps()
+  );
 
   function getInitialOpenAccordionKeys(): boolean[] {
     let nSteps =
@@ -117,6 +121,17 @@ function GuideSection({
       initialOpenKeys.push(false);
     }
     return initialOpenKeys;
+  }
+
+  function getInitialCheckedSectionSteps(): boolean[] {
+    let nSteps =
+      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+        .sectionSteps.length;
+    let initialCheckedSteps: boolean[] = [];
+    for (let index = 0; index < nSteps; index++) {
+      initialCheckedSteps.push(false);
+    }
+    return initialCheckedSteps;
   }
 
   function handleOnSelectNextGuideSection(selectedVal: string) {
@@ -178,6 +193,12 @@ function GuideSection({
       })
     );
 
+    setCheckedSectionSteps(
+      checkedSectionSteps.filter((_, index) => {
+        return indexToDelete !== index;
+      })
+    );
+
     if (isRemovingPageFromLastItem && currentStepsPage > 1) {
       setCurrentStepsPage(currentStepsPage - 1);
     }
@@ -188,6 +209,11 @@ function GuideSection({
       ...openAccordionKeyIsOpen.slice(0, indexThatAdded + 1),
       false,
       ...openAccordionKeyIsOpen.slice(indexThatAdded + 1),
+    ]);
+    setCheckedSectionSteps([
+      ...checkedSectionSteps.slice(0, indexThatAdded + 1),
+      false,
+      ...checkedSectionSteps.slice(indexThatAdded + 1),
     ]);
   }
 
@@ -249,6 +275,19 @@ function GuideSection({
     setCurrentStepsPage(selectedPage);
   }
 
+  function handleOnSectionStepCheckChange(
+    changedIndex: number,
+    isChecked: boolean
+  ) {
+    setCheckedSectionSteps(
+      checkedSectionSteps.map(
+        (nextStepCheckStatus: boolean, curIndex: number) => {
+          return curIndex === changedIndex ? isChecked : nextStepCheckStatus;
+        }
+      )
+    );
+  }
+
   function getTotalStepsPages(): number {
     let nSteps =
       guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
@@ -264,6 +303,44 @@ function GuideSection({
       stepIndex >= (currentStepsPage - 1) * MAX_STEPS_PER_PAGE &&
       stepIndex < currentStepsPage * MAX_STEPS_PER_PAGE
     );
+  }
+
+  function currentPageHasCheckedSteps(): boolean {
+    let curPageIndexesRange = getCurrentPageRangeIndexes();
+    return checkedSectionSteps
+      .slice(curPageIndexesRange.startIndex, curPageIndexesRange.endIndex)
+      .includes(true);
+  }
+
+  function handleOnChangeGlobalChecker(e: ChangeEvent<HTMLInputElement>) {
+    let newCheckedVal = e.target.checked;
+    let curPageIndexesRange = getCurrentPageRangeIndexes();
+    setCheckedSectionSteps(
+      checkedSectionSteps.map((nextStepCheckedStatus, index) => {
+        let isInRange =
+          index >= curPageIndexesRange.startIndex &&
+          index < curPageIndexesRange.endIndex;
+        return isInRange ? newCheckedVal : nextStepCheckedStatus;
+      })
+    );
+  }
+
+  type IndexRange = {
+    startIndex: number;
+    endIndex: number; //endIndex is exclusive
+  };
+
+  function getCurrentPageRangeIndexes(): IndexRange {
+    return {
+      startIndex: (currentStepsPage - 1) * MAX_STEPS_PER_PAGE,
+      endIndex: currentStepsPage * MAX_STEPS_PER_PAGE,
+    };
+  }
+
+  function getTotalSelectedSectionSteps(): number {
+    return checkedSectionSteps.filter(
+      (nextStepStatusIsChecked) => nextStepStatusIsChecked
+    ).length;
   }
 
   return (
@@ -360,12 +437,24 @@ function GuideSection({
         </Row>
       </div>
 
-      <Row
-        className={
-          getTotalStepsPages() > 1 ? "mb-4 justify-content-end" : "d-none"
-        }
-      >
-        <Col xs={"auto"}>
+      <Row className="mb-4">
+        <Col xs={"auto"} className="me-auto d-flex-full-center">
+          <Form.Check
+            type="checkbox"
+            checked={currentPageHasCheckedSteps()}
+            className="d-flex-full-center page-steps-global-checker"
+            onChange={(e) => handleOnChangeGlobalChecker(e)}
+          />
+          <p
+            className={
+              getTotalSelectedSectionSteps() > 0 ? "ms-2 mb-0" : "d-none"
+            }
+          >
+            {getTotalSelectedSectionSteps()} of {checkedSectionSteps.length}{" "}
+            steps selected
+          </p>
+        </Col>
+        <Col xs={"auto"} className={getTotalStepsPages() > 1 ? "" : "d-none"}>
           <Paginator
             currentPage={currentStepsPage}
             totalPages={getTotalStepsPages()}
@@ -390,6 +479,8 @@ function GuideSection({
                 onDeleteStep={handleOnDeleteStep}
                 onAddStep={handleOnAddStep}
                 onStepShift={handleOnStepShift}
+                onStepCheckChange={handleOnSectionStepCheckChange}
+                isChecked={checkedSectionSteps[index]}
               ></SectionStep>
             );
           }

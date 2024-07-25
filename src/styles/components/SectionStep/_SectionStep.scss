@@ -1,121 +1,142 @@
 
 .steps-acordion {
 
-    .step-acordion-item {
+    .step-acordion-item-container {
 
-        $button-management-size: 1.5rem;
-        $button-shift-size: 1rem;
-        $button-shift-separation: 0.25rem;
-    
-        position: relative;
         margin-bottom: 1.5rem;
-        border-radius: var(--bs-accordion-border-radius);
-
-        & > .accordion-header .accordion-button{
-            border-radius: var(--bs-accordion-border-radius)
-        }
 
         &:last-of-type{
             margin-bottom: 0;
         }
 
-        &:not(:first-of-type) {
-            border-top: var(--bs-accordion-border-width) solid var(--bs-accordion-border-color);
-        }
-    
-        & > .accordion-header {
-    
-            & > .accordion-button {
-    
-                &::after{
-    
-                    position: absolute;
-                    right: 0.5rem;
-                    top: 0.5rem;
-                    width: calc(var(--bs-accordion-btn-icon-width) / 1.25);
-                    height: calc(var(--bs-accordion-btn-icon-width) / 1.25);
-                    background-size: calc(var(--bs-accordion-btn-icon-width) /1.25);
-    
-                }
+        .step-acordion-select-checkbox {
 
-                & > .summary-accordion-item {
-                    line-height: 1.5rem;
-                }
-    
-            }
+            .form-check-input {
 
-        }
-
-        .step-for-class-accordion {
-
-            .accordion-button {
-                padding: calc(var(--bs-accordion-btn-padding-y) / 2) calc(var(--bs-accordion-btn-padding-x) / 2);
-                &::after{
-    
-                    width: calc(var(--bs-accordion-btn-icon-width) / 1.25);
-                    height: calc(var(--bs-accordion-btn-icon-width) / 1.25);
-                    background-size: calc(var(--bs-accordion-btn-icon-width) /1.25);
-    
-                }
-            }
-
-        }
-    
-        .step-creation-buttons-container {
-    
-            position: absolute;
-            display: flex;
-            right: $button-management-size;
-            bottom: calc(-1 * calc($button-management-size / 2));
-            z-index: 500;
-            
-            & > button {
+                margin-top: 0;
+                border-color: var(--bs-primary);
                 
-                width: $button-management-size;
-                height: $button-management-size;
-                line-height: 1;
-                padding: 0;
+                &:focus {
+                    border-color: var(--bs-primary);
+                }
     
-
             }
-            
+
         }
-    
-        .step-shift-buttons-container {
+        
+        .step-acordion-item {
 
+            $button-management-size: 1.5rem;
+            $button-shift-size: 1rem;
+            $button-shift-separation: 0.25rem;
+        
+            position: relative;
             
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            left: calc(-1 * calc($button-shift-size / 2));
-            top: calc(50% - calc($button-shift-size + calc($button-shift-separation / 2)));
-            z-index: 500;
-
-            & > button {
-                
+            border-radius: var(--bs-accordion-border-radius);
+            width: 100%;
+    
+            & > .accordion-header .accordion-button{
+                border-radius: var(--bs-accordion-border-radius)
+            }
+    
+            &:not(:first-of-type) {
+                border-top: var(--bs-accordion-border-width) solid var(--bs-accordion-border-color);
+            }
+        
+            & > .accordion-header {
+        
+                & > .accordion-button {
+        
+                    &::after{
+        
+                        position: absolute;
+                        right: 0.5rem;
+                        top: 0.5rem;
+                        width: calc(var(--bs-accordion-btn-icon-width) / 1.25);
+                        height: calc(var(--bs-accordion-btn-icon-width) / 1.25);
+                        background-size: calc(var(--bs-accordion-btn-icon-width) /1.25);
+        
+                    }
+    
+                    & > .summary-accordion-item {
+                        line-height: 1.5rem;
+                    }
+        
+                }
+    
+            }
+    
+            .step-for-class-accordion {
+    
+                .accordion-button {
+                    padding: calc(var(--bs-accordion-btn-padding-y) / 2) calc(var(--bs-accordion-btn-padding-x) / 2);
+                    &::after{
+        
+                        width: calc(var(--bs-accordion-btn-icon-width) / 1.25);
+                        height: calc(var(--bs-accordion-btn-icon-width) / 1.25);
+                        background-size: calc(var(--bs-accordion-btn-icon-width) /1.25);
+        
+                    }
+                }
+    
+            }
+        
+            .step-creation-buttons-container {
+        
+                position: absolute;
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                width: $button-shift-size;
-                height: $button-shift-size;
-                line-height: 1;
-                padding: 0;
-                margin-top: calc($button-shift-separation / 2);
-                margin-bottom: calc($button-shift-separation / 2);
-
-                &:first-of-type {
-                    margin-top: 0;
+                right: $button-management-size;
+                bottom: calc(-1 * calc($button-management-size / 2));
+                z-index: 500;
+                
+                & > button {
+                    
+                    width: $button-management-size;
+                    height: $button-management-size;
+                    line-height: 1;
+                    padding: 0;
+        
+    
                 }
-
-                &:last-of-type {
-                    margin-bottom: 0;
+                
+            }
+        
+            .step-shift-buttons-container {
+    
+                
+                position: absolute;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                left: calc(-1 * calc($button-shift-size / 2));
+                top: calc(50% - calc($button-shift-size + calc($button-shift-separation / 2)));
+                z-index: 500;
+    
+                & > button {
+                    
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: $button-shift-size;
+                    height: $button-shift-size;
+                    line-height: 1;
+                    padding: 0;
+                    margin-top: calc($button-shift-separation / 2);
+                    margin-bottom: calc($button-shift-separation / 2);
+    
+                    &:first-of-type {
+                        margin-top: 0;
+                    }
+    
+                    &:last-of-type {
+                        margin-bottom: 0;
+                    }
+        
                 }
     
             }
-
+    
         }
-
     }
 
 }

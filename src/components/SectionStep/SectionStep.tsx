@@ -121,6 +121,8 @@ interface SectionStepProps
   ) => void;
   onAddStep: (indexToDelete: number) => void;
   onStepShift: (indexToShift: number, shiftAmount: number) => void;
+  onStepCheckChange: (changedIndex: number, isChecked: boolean) => void;
+  isChecked: boolean;
 }
 
 function SectionStep({
@@ -130,6 +132,8 @@ function SectionStep({
   onDeleteStep,
   onAddStep,
   onStepShift,
+  onStepCheckChange,
+  isChecked,
 }: SectionStepProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
   const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
@@ -285,108 +289,118 @@ function SectionStep({
 
   return (
     <>
-      <Accordion.Item
-        className="step-acordion-item"
-        eventKey={indexPath[2].toString()}
-      >
-        <Accordion.Header className="position-relative">
-          <span className="one-line-ellipsis summary-accordion-item">
-            {getStepSummary()}
-          </span>
-        </Accordion.Header>
-        <div className="step-shift-buttons-container">
-          <Button
-            title="Shift step upwards"
-            size="sm"
-            variant="primary"
-            disabled={isFirstStep()}
-            onClick={() => handleOnStepShift(-1)}
-          >
-            <ChevronUp />
-          </Button>
-          <Button
-            title="Shift step downwards"
-            size="sm"
-            variant="primary"
-            disabled={isLastStep()}
-            onClick={() => handleOnStepShift(1)}
-          >
-            <ChevronDown />
-          </Button>
-        </div>
-        <div className="step-creation-buttons-container">
-          <Button
-            title="Add step"
-            size="sm"
-            variant="primary"
-            onClick={() => handleOnAddStep()}
-          >
-            <Plus size="1.15rem" />
-          </Button>
-          <Button
-            title="Remove this step"
-            size="sm"
-            variant="danger"
-            className="ms-2"
-            disabled={isOnlySectionStep()}
-            onClick={() => setConfirmModalIsVisible(true)}
-          >
-            <Dash size="1.15rem" />
-          </Button>
-        </div>
-        <Accordion.Body>
-          <Row className="mb-2">
-            <Col xs={4}>
-              <Accordion className="step-for-class-accordion">
-                <Accordion.Item
-                  eventKey={"onlyForClassSelector-" + indexPath.join("-")}
-                >
-                  <Accordion.Header>{`Only for class(es)`}</Accordion.Header>
-                  <Accordion.Body>
-                    <Form.Select
-                      multiple={true}
-                      aria-label="This step will only load for the choosen races"
-                      onChange={(e) =>
-                        handleOnSelectOnlyForClasses(e.target.selectedOptions)
-                      }
-                      value={onlyForClasses}
-                    >
-                      {Object.entries(CharacterClass).map((nextClassEntry) => {
-                        return (
-                          <option
-                            key={getCharacterClassOrdinal(
-                              nextClassEntry[1]
-                            ).toString()}
-                            value={getCharacterClassOrdinal(
-                              nextClassEntry[1]
-                            ).toString()}
-                          >
-                            {nextClassEntry[1]}
-                          </option>
-                        );
-                      })}
-                    </Form.Select>
-                  </Accordion.Body>
-                </Accordion.Item>
-              </Accordion>
-            </Col>
-          </Row>
-          {stepTasks.length > 0 && (
-            <ListGroup as="ul" className="step-tasks-container">
-              {stepTasks.map((nextTask, index) => (
-                <StepTask
-                  key={index}
-                  type={nextTask.type}
-                  depth={nextTask.depth}
-                  indexPath={indexPath.concat(index)}
-                  subTasks={nextTask.subTasks}
-                  isCustom={nextTask.isCustom}
-                ></StepTask>
-              ))}
-            </ListGroup>
-          )}
-        </Accordion.Body>
-      </Accordion.Item>
+      <div className="d-flex align-items-center step-acordion-item-container">
+        <Form.Check
+          type="checkbox"
+          checked={isChecked}
+          onChange={() => onStepCheckChange(indexPath[2], !isChecked)}
+          className="me-4 d-flex-full-center step-acordion-select-checkbox"
+        />
+        <Accordion.Item
+          className="step-acordion-item"
+          eventKey={indexPath[2].toString()}
+        >
+          <Accordion.Header className="position-relative">
+            <span className="one-line-ellipsis summary-accordion-item">
+              {getStepSummary()}
+            </span>
+          </Accordion.Header>
+          <div className="step-shift-buttons-container">
+            <Button
+              title="Shift step upwards"
+              size="sm"
+              variant="primary"
+              disabled={isFirstStep()}
+              onClick={() => handleOnStepShift(-1)}
+            >
+              <ChevronUp />
+            </Button>
+            <Button
+              title="Shift step downwards"
+              size="sm"
+              variant="primary"
+              disabled={isLastStep()}
+              onClick={() => handleOnStepShift(1)}
+            >
+              <ChevronDown />
+            </Button>
+          </div>
+          <div className="step-creation-buttons-container">
+            <Button
+              title="Add step"
+              size="sm"
+              variant="primary"
+              onClick={() => handleOnAddStep()}
+            >
+              <Plus size="1.15rem" />
+            </Button>
+            <Button
+              title="Remove this step"
+              size="sm"
+              variant="danger"
+              className="ms-2"
+              disabled={isOnlySectionStep()}
+              onClick={() => setConfirmModalIsVisible(true)}
+            >
+              <Dash size="1.15rem" />
+            </Button>
+          </div>
+          <Accordion.Body>
+            <Row className="mb-2">
+              <Col xs={4}>
+                <Accordion className="step-for-class-accordion">
+                  <Accordion.Item
+                    eventKey={"onlyForClassSelector-" + indexPath.join("-")}
+                  >
+                    <Accordion.Header>{`Only for class(es)`}</Accordion.Header>
+                    <Accordion.Body>
+                      <Form.Select
+                        multiple={true}
+                        aria-label="This step will only load for the choosen races"
+                        onChange={(e) =>
+                          handleOnSelectOnlyForClasses(e.target.selectedOptions)
+                        }
+                        value={onlyForClasses}
+                      >
+                        {Object.entries(CharacterClass).map(
+                          (nextClassEntry) => {
+                            return (
+                              <option
+                                key={getCharacterClassOrdinal(
+                                  nextClassEntry[1]
+                                ).toString()}
+                                value={getCharacterClassOrdinal(
+                                  nextClassEntry[1]
+                                ).toString()}
+                              >
+                                {nextClassEntry[1]}
+                              </option>
+                            );
+                          }
+                        )}
+                      </Form.Select>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+              </Col>
+            </Row>
+            {stepTasks.length > 0 && (
+              <ListGroup as="ul" className="step-tasks-container">
+                {stepTasks.map((nextTask, index) => (
+                  <StepTask
+                    key={index}
+                    type={nextTask.type}
+                    depth={nextTask.depth}
+                    indexPath={indexPath.concat(index)}
+                    subTasks={nextTask.subTasks}
+                    isCustom={nextTask.isCustom}
+                  ></StepTask>
+                ))}
+              </ListGroup>
+            )}
+          </Accordion.Body>
+        </Accordion.Item>
+      </div>
       <ConfirmationModal
         onConfirmation={handleOnDeleteStep}
         bodyText="This step and all its tasks will be deleted."

@@ -1,0 +1,15 @@
+
+.page-steps-global-checker {
+
+    .form-check-input {
+
+        margin-top: 0;
+        border-color: var(--bs-primary);
+        
+        &:focus {
+            border-color: var(--bs-primary);
+        }
+
+    }
+
+}
