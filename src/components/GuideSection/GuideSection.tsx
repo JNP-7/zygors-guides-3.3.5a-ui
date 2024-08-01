@@ -3,6 +3,7 @@ import { Accordion, Button, Col, Form, Row } from "react-bootstrap";
 import SectionStep, {
   SectionStepExtProps,
   buildStepTranslation,
+  isRemovingPageFromLastItem,
 } from "../SectionStep/SectionStep";
 import {
   GuidesWorkspaceContext,
@@ -18,6 +19,7 @@ import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import { isBlank } from "../../App";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import Paginator from "../Paginator/Paginator";
+import { FolderSymlinkFill, Trash3 } from "react-bootstrap-icons";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -244,7 +246,9 @@ function GuideSection({
   }
 
   function handleOnStepShift(indexToShift: number, shiftAmount: number) {
-    let oldIndexValue: boolean = openAccordionKeyIsOpen[indexToShift];
+    let oldIndexOpenAccordionValue: boolean =
+      openAccordionKeyIsOpen[indexToShift];
+    let oldIndexIsCheckedValue: boolean = checkedSectionSteps[indexToShift];
     let newPosition: number = indexToShift + shiftAmount;
     if (newPosition < 0) {
       newPosition = 0;
@@ -258,8 +262,18 @@ function GuideSection({
     );
     setOpenAccordionKeyIsOpen([
       ...filteredKeyIsOpen.slice(0, newPosition),
-      oldIndexValue,
+      oldIndexOpenAccordionValue,
       ...filteredKeyIsOpen.slice(newPosition),
+    ]);
+    let filteredIsCheckedStep: boolean[] = checkedSectionSteps.filter(
+      (_, index) => {
+        return index !== indexToShift;
+      }
+    );
+    setCheckedSectionSteps([
+      ...filteredIsCheckedStep.slice(0, newPosition),
+      oldIndexIsCheckedValue,
+      ...filteredIsCheckedStep.slice(newPosition),
     ]);
   }
 
@@ -341,6 +355,34 @@ function GuideSection({
     return checkedSectionSteps.filter(
       (nextStepStatusIsChecked) => nextStepStatusIsChecked
     ).length;
+  }
+
+  function handleDeleteSelectedSteps(): void {
+    let toDeleteIndexes: number[] = [];
+    checkedSectionSteps.forEach(function (isChecked, index) {
+      if (isChecked) {
+        toDeleteIndexes.push(index);
+      }
+    });
+    let deletedIndexes: number = 0;
+    toDeleteIndexes.forEach(function (nextIndexToDelete) {
+      guidesContext.setGuidesContext((guides) => {
+        guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+          nextIndexToDelete - deletedIndexes,
+          1
+        );
+      });
+      handleOnDeleteStep(
+        nextIndexToDelete - deletedIndexes,
+        isRemovingPageFromLastItem(
+          guidesContext.guidesContext,
+          indexPath[0],
+          indexPath[1],
+          nextIndexToDelete - deletedIndexes
+        )
+      );
+      deletedIndexes++;
+    });
   }
 
   return (
@@ -453,6 +495,30 @@ function GuideSection({
             {getTotalSelectedSectionSteps()} of {checkedSectionSteps.length}{" "}
             steps selected
           </p>
+          <Button
+            size="sm"
+            title="Move selected steps to another section"
+            className={
+              getTotalSelectedSectionSteps() > 0
+                ? "ms-2 checked-steps-action-btn"
+                : "d-none"
+            }
+          >
+            <FolderSymlinkFill />
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            title="Delete selected steps"
+            className={
+              getTotalSelectedSectionSteps() > 0
+                ? "ms-2 checked-steps-action-btn"
+                : "d-none"
+            }
+            onClick={() => handleDeleteSelectedSteps()}
+          >
+            <Trash3 />
+          </Button>
         </Col>
         <Col xs={"auto"} className={getTotalStepsPages() > 1 ? "" : "d-none"}>
           <Paginator

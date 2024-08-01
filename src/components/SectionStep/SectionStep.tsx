@@ -31,6 +31,26 @@ export interface SectionStepExtProps {
 export const MAX_STEP_TASKS = 20; //According to the addon documentation
 export const STEP_SUMMARY_MAX_LENGTH = 120;
 
+export function isRemovingPageFromLastItem(
+  guidesContext: GuideExtProps[],
+  guideIndex: number,
+  sectionIndex: number,
+  stepIndex: number
+): boolean {
+  let nStepsInCurrentSection: number =
+    guidesContext[guideIndex].guideSections[sectionIndex].sectionSteps.length;
+  let isDeletingLastStep: boolean = nStepsInCurrentSection === stepIndex + 1;
+  let currentNPages: number =
+    Math.trunc(nStepsInCurrentSection / MAX_STEPS_PER_PAGE) +
+    (nStepsInCurrentSection % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
+  let newNPages: number =
+    Math.trunc((nStepsInCurrentSection - 1) / MAX_STEPS_PER_PAGE) +
+    ((nStepsInCurrentSection - 1) % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
+  let numberOfPagesIsDecreasing: boolean = currentNPages > newNPages;
+
+  return isDeletingLastStep && numberOfPagesIsDecreasing;
+}
+
 export function stepIsMaxedOutOnTasks(
   stepIndexPath: number[],
   guidesContext: GuideExtProps[]
@@ -232,25 +252,21 @@ function SectionStep({
   }
 
   function handleOnDeleteStep() {
-    let nStepsInCurrentSection: number =
-      guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
-        .sectionSteps.length;
-    let isDeletingLastStep: boolean =
-      nStepsInCurrentSection === indexPath[2] + 1;
-    let currentNPages: number =
-      Math.trunc(nStepsInCurrentSection / MAX_STEPS_PER_PAGE) +
-      (nStepsInCurrentSection % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
-    let newNPages: number =
-      Math.trunc((nStepsInCurrentSection - 1) / MAX_STEPS_PER_PAGE) +
-      ((nStepsInCurrentSection - 1) % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
-    let numberOfPagesIsDecreasing: boolean = currentNPages > newNPages;
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
         indexPath[2],
         1
       );
     });
-    onDeleteStep(indexPath[2], isDeletingLastStep && numberOfPagesIsDecreasing);
+    onDeleteStep(
+      indexPath[2],
+      isRemovingPageFromLastItem(
+        guidesContext.guidesContext,
+        indexPath[0],
+        indexPath[1],
+        indexPath[2]
+      )
+    );
   }
 
   function handleOnStepShift(shiftAmount: number) {
