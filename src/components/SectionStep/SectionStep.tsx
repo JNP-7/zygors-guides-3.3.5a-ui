@@ -13,7 +13,6 @@ import {
 import { GuideExtProps } from "../Guide/Guide";
 import Stack from "../../types/Stack";
 import { ChevronDown, ChevronUp, Dash, Plus } from "react-bootstrap-icons";
-import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import CharacterClass, {
   getCharacterClassOrdinal,
 } from "../../types/CharacterClass";
@@ -21,7 +20,6 @@ import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import TaskType from "../../types/TaskType";
 import { GetTaskExtProps, ToLootNPC } from "../stepTasks/GetTask/GetTask";
 import { isBlank } from "../../App";
-import { MAX_STEPS_PER_PAGE } from "../GuideSection/GuideSection";
 
 export interface SectionStepExtProps {
   stepTasks: StepTaskExtProps[];
@@ -30,26 +28,6 @@ export interface SectionStepExtProps {
 
 export const MAX_STEP_TASKS = 20; //According to the addon documentation
 export const STEP_SUMMARY_MAX_LENGTH = 120;
-
-export function isRemovingPageFromLastItem(
-  guidesContext: GuideExtProps[],
-  guideIndex: number,
-  sectionIndex: number,
-  stepIndex: number
-): boolean {
-  let nStepsInCurrentSection: number =
-    guidesContext[guideIndex].guideSections[sectionIndex].sectionSteps.length;
-  let isDeletingLastStep: boolean = nStepsInCurrentSection === stepIndex + 1;
-  let currentNPages: number =
-    Math.trunc(nStepsInCurrentSection / MAX_STEPS_PER_PAGE) +
-    (nStepsInCurrentSection % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
-  let newNPages: number =
-    Math.trunc((nStepsInCurrentSection - 1) / MAX_STEPS_PER_PAGE) +
-    ((nStepsInCurrentSection - 1) % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
-  let numberOfPagesIsDecreasing: boolean = currentNPages > newNPages;
-
-  return isDeletingLastStep && numberOfPagesIsDecreasing;
-}
 
 export function stepIsMaxedOutOnTasks(
   stepIndexPath: number[],
@@ -135,10 +113,7 @@ export function buildStepTranslation(
 interface SectionStepProps
   extends SectionStepExtProps,
     GuidesWorkspaceContextAccessor {
-  onDeleteStep: (
-    indexToDelete: number,
-    isRemovingPageFromLastItem: boolean
-  ) => void;
+  onDeleteStep: (indexToDelete: number) => void;
   onAddStep: (indexToDelete: number) => void;
   onStepShift: (indexToShift: number, shiftAmount: number) => void;
   onStepCheckChange: (changedIndex: number, isChecked: boolean) => void;
@@ -241,32 +216,11 @@ function SectionStep({
   }
 
   function handleOnAddStep() {
-    guidesContext.setGuidesContext((guides) => {
-      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
-        indexPath[2] + 1,
-        0,
-        { stepTasks: [getDefaultCommentTask(0, [], false)], onlyForClasses: [] }
-      );
-    });
     onAddStep(indexPath[2]);
   }
 
   function handleOnDeleteStep() {
-    guidesContext.setGuidesContext((guides) => {
-      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
-        indexPath[2],
-        1
-      );
-    });
-    onDeleteStep(
-      indexPath[2],
-      isRemovingPageFromLastItem(
-        guidesContext.guidesContext,
-        indexPath[0],
-        indexPath[1],
-        indexPath[2]
-      )
-    );
+    onDeleteStep(indexPath[2]);
   }
 
   function handleOnStepShift(shiftAmount: number) {

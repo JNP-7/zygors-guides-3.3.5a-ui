@@ -3,7 +3,6 @@ import { Accordion, Button, Col, Form, Row } from "react-bootstrap";
 import SectionStep, {
   SectionStepExtProps,
   buildStepTranslation,
-  isRemovingPageFromLastItem,
 } from "../SectionStep/SectionStep";
 import {
   GuidesWorkspaceContext,
@@ -20,6 +19,7 @@ import { isBlank } from "../../App";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import Paginator from "../Paginator/Paginator";
 import { FolderSymlinkFill, Trash3 } from "react-bootstrap-icons";
+import { GuideExtProps } from "../Guide/Guide";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -38,7 +38,7 @@ export const NO_DEFAULT_RACE_SECTION = {
   value: -1,
 };
 
-export const MAX_STEPS_PER_PAGE: number = 20;
+export const MAX_STEPS_PER_PAGE: number = 2;
 
 export function getDefaultSectionName(sectionIndex: number) {
   return `Section ${sectionIndex + 1}`;
@@ -47,14 +47,16 @@ export function getDefaultSectionName(sectionIndex: number) {
 export function getDefaultSection(): GuideSectionExtProps {
   return {
     sectionName: "",
-    sectionSteps: [
-      {
-        stepTasks: [getDefaultCommentTask(0, [], false)],
-        onlyForClasses: [],
-      },
-    ],
+    sectionSteps: [getDefaultSectionTask()],
     nextSectionVal: FINAL_SECTION_OPTION.value,
     defaultForRace: NO_DEFAULT_RACE_SECTION.value,
+  };
+}
+
+export function getDefaultSectionTask(): SectionStepExtProps {
+  return {
+    stepTasks: [getDefaultCommentTask(0, [], false)],
+    onlyForClasses: [],
   };
 }
 
@@ -109,6 +111,10 @@ function GuideSection({
   >(getInitialOpenAccordionKeys());
   const [confirmModalIsVisible, setConfirmModalIsVisible] =
     useState<boolean>(false);
+  const [
+    confirmStepsDeletionModalIsVisible,
+    setStepsDeletionConfirmModalIsVisible,
+  ] = useState<boolean>(false);
   const [currentStepsPage, setCurrentStepsPage] = useState<number>(1);
   const [checkedSectionSteps, setCheckedSectionSteps] = useState<boolean[]>(
     getInitialCheckedSectionSteps()
@@ -185,28 +191,77 @@ function GuideSection({
     });
   }
 
-  function handleOnDeleteStep(
-    indexToDelete: number,
-    isRemovingPageFromLastItem: boolean
+  function handleOnDeleteStep(indexToDelete: number) {
+    let newNumberOfPages = 0;
+    let removedEverything = false;
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+        indexToDelete,
+        1
+      );
+      let nStepsInCurrentSection: number =
+        guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.length;
+      newNumberOfPages =
+        Math.trunc(nStepsInCurrentSection / MAX_STEPS_PER_PAGE) +
+        (nStepsInCurrentSection % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
+      removedEverything = nStepsInCurrentSection <= 0;
+      if (removedEverything) {
+        guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps = [
+          getDefaultSectionTask(),
+        ];
+      }
+    });
+    updateSectionStatesAfterStepsRemoval(
+      indexToDelete,
+      newNumberOfPages,
+      removedEverything
+    );
+  }
+
+  function updateSectionStatesAfterStepsRemoval(
+    indexToDelete: number | number[],
+    newNumberOfPages: number,
+    removedEverything: boolean
   ) {
-    setOpenAccordionKeyIsOpen(
-      openAccordionKeyIsOpen.filter((_, index) => {
-        return indexToDelete !== index;
-      })
-    );
+    if (!removedEverything) {
+      if (Array.isArray(indexToDelete)) {
+        setOpenAccordionKeyIsOpen(
+          openAccordionKeyIsOpen.filter((_, index) => {
+            return indexToDelete.indexOf(index) < 0;
+          })
+        );
 
-    setCheckedSectionSteps(
-      checkedSectionSteps.filter((_, index) => {
-        return indexToDelete !== index;
-      })
-    );
+        setCheckedSectionSteps(
+          checkedSectionSteps.filter((_, index) => {
+            return indexToDelete.indexOf(index) < 0;
+          })
+        );
+      } else {
+        setOpenAccordionKeyIsOpen(
+          openAccordionKeyIsOpen.filter((_, index) => {
+            return indexToDelete !== index;
+          })
+        );
 
-    if (isRemovingPageFromLastItem && currentStepsPage > 1) {
-      setCurrentStepsPage(currentStepsPage - 1);
+        setCheckedSectionSteps(
+          checkedSectionSteps.filter((_, index) => {
+            return indexToDelete !== index;
+          })
+        );
+      }
+    } else {
+      /*There is always a dummy step. In this case, set the open accordions 
+      and the checked steps to a single not opened unchecked step */
+      setOpenAccordionKeyIsOpen([false]);
+      setCheckedSectionSteps([false]);
+    }
+
+    if (currentStepsPage > newNumberOfPages) {
+      setCurrentStepsPage(newNumberOfPages > 0 ? newNumberOfPages : 1);
     }
   }
 
-  function handleOnAddStep(indexThatAdded: number) {
+  function updateSectionStatesAfterStepsAdded(indexThatAdded: number) {
     setOpenAccordionKeyIsOpen([
       ...openAccordionKeyIsOpen.slice(0, indexThatAdded + 1),
       false,
@@ -217,6 +272,17 @@ function GuideSection({
       false,
       ...checkedSectionSteps.slice(indexThatAdded + 1),
     ]);
+  }
+
+  function handleOnAddStep(indexThatAdded: number) {
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+        indexThatAdded + 1,
+        0,
+        { stepTasks: [getDefaultCommentTask(0, [], false)], onlyForClasses: [] }
+      );
+    });
+    updateSectionStatesAfterStepsAdded(indexThatAdded);
   }
 
   function handleOnSelectAccordion(eventKey: AccordionEventKey) {
@@ -364,25 +430,38 @@ function GuideSection({
         toDeleteIndexes.push(index);
       }
     });
-    let deletedIndexes: number = 0;
-    toDeleteIndexes.forEach(function (nextIndexToDelete) {
-      guidesContext.setGuidesContext((guides) => {
-        guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
-          nextIndexToDelete - deletedIndexes,
-          1
-        );
-      });
-      handleOnDeleteStep(
-        nextIndexToDelete - deletedIndexes,
-        isRemovingPageFromLastItem(
-          guidesContext.guidesContext,
-          indexPath[0],
-          indexPath[1],
-          nextIndexToDelete - deletedIndexes
-        )
-      );
-      deletedIndexes++;
+
+    let newNumberOfPages: number = 0;
+    let removedEverything: boolean = false;
+    guidesContext.setGuidesContext((guides) => {
+      toDeleteIndexes
+        .slice()
+        .reverse() //Remove from last to first to check if we removed everything
+        .forEach(function (nextIndexToDelete) {
+          guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+            nextIndexToDelete,
+            1
+          );
+          let nStepsInCurrentSection: number =
+            guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps
+              .length;
+          newNumberOfPages =
+            Math.trunc(nStepsInCurrentSection / MAX_STEPS_PER_PAGE) +
+            (nStepsInCurrentSection % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
+          removedEverything = removedEverything || nStepsInCurrentSection <= 0;
+        });
+      if (removedEverything) {
+        guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps = [
+          getDefaultSectionTask(),
+        ];
+      }
     });
+
+    updateSectionStatesAfterStepsRemoval(
+      toDeleteIndexes,
+      newNumberOfPages,
+      removedEverything
+    );
   }
 
   return (
@@ -479,7 +558,7 @@ function GuideSection({
         </Row>
       </div>
 
-      <Row className="mb-4">
+      <Row className="mb-4 section-info-top-row">
         <Col xs={"auto"} className="me-auto d-flex-full-center">
           <Form.Check
             type="checkbox"
@@ -515,7 +594,7 @@ function GuideSection({
                 ? "ms-2 checked-steps-action-btn"
                 : "d-none"
             }
-            onClick={() => handleDeleteSelectedSteps()}
+            onClick={() => setStepsDeletionConfirmModalIsVisible(true)}
           >
             <Trash3 />
           </Button>
@@ -571,6 +650,12 @@ function GuideSection({
         bodyText="This section will be delete. Any information related to it will be deleted as well."
         setShowVal={setConfirmModalIsVisible}
         showVal={confirmModalIsVisible}
+      />
+      <ConfirmationModal
+        onConfirmation={handleDeleteSelectedSteps}
+        bodyText="All the selected steps will be deleted. Any information related to them will be deleted as well."
+        setShowVal={setStepsDeletionConfirmModalIsVisible}
+        showVal={confirmStepsDeletionModalIsVisible}
       />
     </>
   );
