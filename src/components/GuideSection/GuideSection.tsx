@@ -19,7 +19,6 @@ import { isBlank } from "../../App";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import Paginator from "../Paginator/Paginator";
 import { FolderSymlinkFill, Trash3 } from "react-bootstrap-icons";
-import { GuideExtProps } from "../Guide/Guide";
 
 export interface GuideSectionExtProps {
   sectionName: string;
