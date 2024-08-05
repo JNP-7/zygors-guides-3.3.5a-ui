@@ -19,6 +19,7 @@ import { isBlank } from "../../App";
 import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import Paginator from "../Paginator/Paginator";
 import { FolderSymlinkFill, Trash3 } from "react-bootstrap-icons";
+import SectionChangeModal from "../modals/SectionChangeModal/SectionChangeModal";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -37,7 +38,7 @@ export const NO_DEFAULT_RACE_SECTION = {
   value: -1,
 };
 
-export const MAX_STEPS_PER_PAGE: number = 2;
+export const MAX_STEPS_PER_PAGE: number = 40;
 
 export function getDefaultSectionName(sectionIndex: number) {
   return `Section ${sectionIndex + 1}`;
@@ -114,6 +115,8 @@ function GuideSection({
     confirmStepsDeletionModalIsVisible,
     setStepsDeletionConfirmModalIsVisible,
   ] = useState<boolean>(false);
+  const [sectionChangeModalIsVisible, setSectionChangeModalIsVisible] =
+    useState<boolean>(false);
   const [currentStepsPage, setCurrentStepsPage] = useState<number>(1);
   const [checkedSectionSteps, setCheckedSectionSteps] = useState<boolean[]>(
     getInitialCheckedSectionSteps()
@@ -463,6 +466,57 @@ function GuideSection({
     );
   }
 
+  function handleOnChangeStepsSection(newSectionIndex: number) {
+    let toRemoveIndexes: number[] = [];
+    let toChangeProps: SectionStepExtProps[] = [];
+    checkedSectionSteps.forEach(function (isChecked, index) {
+      if (isChecked) {
+        toRemoveIndexes.push(index);
+        toChangeProps.push(
+          guidesContext.guidesContext[indexPath[0]].guideSections[indexPath[1]]
+            .sectionSteps[index]
+        );
+      }
+    });
+
+    let newNumberOfPages: number = 0;
+    let removedEverything: boolean = false;
+    guidesContext.setGuidesContext((guides) => {
+      toRemoveIndexes
+        .slice()
+        .reverse() //Remove from last to first to check if we removed everything
+        .forEach(function (nextIndexToDelete) {
+          guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
+            nextIndexToDelete,
+            1
+          );
+          let nStepsInCurrentSection: number =
+            guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps
+              .length;
+          newNumberOfPages =
+            Math.trunc(nStepsInCurrentSection / MAX_STEPS_PER_PAGE) +
+            (nStepsInCurrentSection % MAX_STEPS_PER_PAGE > 0 ? 1 : 0);
+          removedEverything = removedEverything || nStepsInCurrentSection <= 0;
+        });
+      if (removedEverything) {
+        guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps = [
+          getDefaultSectionTask(),
+        ];
+      }
+      toChangeProps.forEach(function (nextProps) {
+        guides[indexPath[0]].guideSections[newSectionIndex].sectionSteps.push(
+          nextProps
+        );
+      });
+    });
+
+    updateSectionStatesAfterStepsRemoval(
+      toRemoveIndexes,
+      newNumberOfPages,
+      removedEverything
+    );
+  }
+
   return (
     <>
       <div className="section-data mb-4">
@@ -581,6 +635,11 @@ function GuideSection({
                 ? "ms-2 checked-steps-action-btn"
                 : "d-none"
             }
+            disabled={
+              //At least another section exists
+              guidesContext.guidesContext[indexPath[0]].guideSections.length < 2
+            }
+            onClick={() => setSectionChangeModalIsVisible(true)}
           >
             <FolderSymlinkFill />
           </Button>
@@ -655,6 +714,14 @@ function GuideSection({
         bodyText="All the selected steps will be deleted. Any information related to them will be deleted as well."
         setShowVal={setStepsDeletionConfirmModalIsVisible}
         showVal={confirmStepsDeletionModalIsVisible}
+      />
+      <SectionChangeModal
+        setShowVal={setSectionChangeModalIsVisible}
+        showVal={sectionChangeModalIsVisible}
+        bodyText="Choose a section to move the selected steps to."
+        indexPath={indexPath}
+        toIgnoreSectionsIndexes={[indexPath[1]]}
+        onSelection={handleOnChangeStepsSection}
       />
     </>
   );
