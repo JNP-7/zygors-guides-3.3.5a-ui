@@ -8,6 +8,7 @@ import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { arrayContainsAll, isBlank } from "../../../App";
+import GuideTranslationType from "../../../types/GuideTranslationType";
 
 export interface CommentTaskEditableProps
   extends IEditableTaskProps,
@@ -44,6 +45,23 @@ export function getDefaultCommentTask(
 export function buildCommentTaskTranslation(
   guideObj: { text: string },
   taskProps: CommentTaskExtProps,
+  taskIdentation: string,
+  translationType: GuideTranslationType
+) {
+  if (
+    translationType == GuideTranslationType.FULL ||
+    (translationType == GuideTranslationType.CUSTOM_TO_TEXT &&
+      !taskProps.isCustom)
+  ) {
+    buildCommentTaskRegularTranslation(guideObj, taskProps, taskIdentation);
+  } else {
+    buildCommentTaskTextTranslation(guideObj, taskProps, taskIdentation);
+  }
+}
+
+function buildCommentTaskRegularTranslation(
+  guideObj: { text: string },
+  taskProps: CommentTaskExtProps,
   taskIdentation: string
 ) {
   let itemUsageText = "";
@@ -55,6 +73,22 @@ export function buildCommentTaskTranslation(
   guideObj.text += taskIdentation + `'${taskProps.comment}`;
   if (!isBlank(itemUsageText)) {
     guideObj.text += `|${itemUsageText}`;
+  }
+  guideObj.text += "\n";
+}
+
+function buildCommentTaskTextTranslation(
+  guideObj: { text: string },
+  taskProps: CommentTaskExtProps,
+  taskIdentation: string
+) {
+  let itemUsageText = "";
+  if (!isBlank(taskProps.itemName)) {
+    itemUsageText += `. Use ${taskProps.itemName}`;
+  }
+  guideObj.text += taskIdentation + `'${taskProps.comment}`;
+  if (!isBlank(itemUsageText)) {
+    guideObj.text += itemUsageText;
   }
   guideObj.text += "\n";
 }

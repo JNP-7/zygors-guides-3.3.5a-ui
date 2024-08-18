@@ -20,6 +20,7 @@ import { getDefaultCommentTask } from "../stepTasks/CommentTask/CommentTask";
 import Paginator from "../Paginator/Paginator";
 import { FolderSymlinkFill, Trash3 } from "react-bootstrap-icons";
 import SectionChangeModal from "../modals/SectionChangeModal/SectionChangeModal";
+import GuideTranslationType from "../../types/GuideTranslationType";
 
 export interface GuideSectionExtProps {
   sectionName: string;
@@ -60,17 +61,22 @@ export function getDefaultSectionTask(): SectionStepExtProps {
   };
 }
 
+export function getDefaultSectionTranslationName(sectionIndex: number): string {
+  return `Section_${sectionIndex + 1}`;
+}
+
 export function buildSectionTranslation(
   guideObj: { text: string },
   guideName: string,
   guideAuthor: string,
   guideSection: GuideSectionExtProps,
   sectionIndex: number,
-  nextSectionInfo: { sectionName: string; sectionIndex: number } | undefined
+  nextSectionInfo: { sectionName: string; sectionIndex: number } | undefined,
+  translationType: GuideTranslationType
 ) {
   let currentSectionName = !isBlank(guideSection.sectionName)
     ? guideSection.sectionName
-    : `Section${sectionIndex + 1}`;
+    : getDefaultSectionTranslationName(sectionIndex);
 
   guideObj.text += `ZygorGuidesViewer:RegisterGuide("${guideName}\\\\${currentSectionName}",[[\n`;
   guideObj.text += !isBlank(guideAuthor) ? `\tauthor ${guideAuthor}\n` : "";
@@ -86,7 +92,7 @@ export function buildSectionTranslation(
       : "";
   guideObj.text += "\tstartlevel 80\n";
   guideSection.sectionSteps.forEach((nextStep, stepIndex) => {
-    buildStepTranslation(guideObj, nextStep, stepIndex);
+    buildStepTranslation(guideObj, nextStep, stepIndex, translationType);
   });
   guideObj.text += "]])\n";
 }

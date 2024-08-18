@@ -5,6 +5,7 @@ import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { arrayContainsAll, isBlank } from "../../../App";
+import GuideTranslationType from "../../../types/GuideTranslationType";
 
 export interface TurnInTaskEditableProps extends IEditableTaskProps {
   questName?: string;
@@ -50,6 +51,23 @@ export function getDefaultTurnInTask(
 export function buildTurnInTaskTranslation(
   guideObj: { text: string },
   taskProps: TurnInTaskExtProps,
+  taskIdentation: string,
+  translationType: GuideTranslationType
+) {
+  if (
+    translationType == GuideTranslationType.FULL ||
+    (translationType == GuideTranslationType.CUSTOM_TO_TEXT &&
+      !taskProps.isCustom)
+  ) {
+    buildTurnInTaskRegularTranslation(guideObj, taskProps, taskIdentation);
+  } else {
+    buildTurnInTaskTextTranslation(guideObj, taskProps, taskIdentation);
+  }
+}
+
+function buildTurnInTaskRegularTranslation(
+  guideObj: { text: string },
+  taskProps: TurnInTaskExtProps,
   taskIdentation: string
 ) {
   guideObj.text +=
@@ -59,6 +77,21 @@ export function buildTurnInTaskTranslation(
     "##" +
     taskProps.questId +
     "\n";
+}
+
+function buildTurnInTaskTextTranslation(
+  guideObj: { text: string },
+  taskProps: TurnInTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text +=
+    taskIdentation +
+    "'Turn in " +
+    (!isBlank(taskProps.questName) ? taskProps.questName + " " : "") +
+    "(id:" +
+    taskProps.questId +
+    ")";
+  guideObj.text += "\n";
 }
 
 export function checkEditableTurnInTaskProps(

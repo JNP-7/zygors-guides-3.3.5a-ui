@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { Dash } from "react-bootstrap-icons";
 import { arrayContainsAll, isBlank } from "../../../App";
+import GuideTranslationType from "../../../types/GuideTranslationType";
 
 export interface ToLootNPC {
   npcName: string;
@@ -55,6 +56,23 @@ export function getDefaultGetTask(
 export function buildGetTaskTranslation(
   guideObj: { text: string },
   taskProps: GetTaskExtProps,
+  taskIdentation: string,
+  translationType: GuideTranslationType
+) {
+  if (
+    translationType == GuideTranslationType.FULL ||
+    (translationType == GuideTranslationType.CUSTOM_TO_TEXT &&
+      !taskProps.isCustom)
+  ) {
+    buildGetTaskRegularTranslation(guideObj, taskProps, taskIdentation);
+  } else {
+    buildGetTaskTextTranslation(guideObj, taskProps, taskIdentation);
+  }
+}
+
+function buildGetTaskRegularTranslation(
+  guideObj: { text: string },
+  taskProps: GetTaskExtProps,
   taskIdentation: string
 ) {
   let toLootNpcsText = "";
@@ -83,6 +101,47 @@ export function buildGetTaskTranslation(
   ) {
     guideObj.text +=
       "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
+  }
+  guideObj.text += "\n";
+}
+
+function buildGetTaskTextTranslation(
+  guideObj: { text: string },
+  taskProps: GetTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text += taskIdentation + "'Get ";
+  if (taskProps.count !== undefined && taskProps.count > 1) {
+    guideObj.text += taskProps.count + " ";
+  }
+  guideObj.text += taskProps.itemName;
+
+  let toLootNpcsText = "";
+  let addedToLootNpcs = 0;
+  taskProps.toLootNpcs.forEach((toLootNpc) => {
+    if (!isBlank(toLootNpc.npcName) && toLootNpc.npcId !== undefined) {
+      if (addedToLootNpcs > 0) {
+        toLootNpcsText += ", ";
+      }
+      toLootNpcsText += toLootNpc.npcName + "(id:" + toLootNpc.npcId + ")";
+      addedToLootNpcs++;
+    }
+  });
+
+  if (!isBlank(toLootNpcsText)) {
+    guideObj.text += taskIdentation + " from " + toLootNpcsText;
+  }
+
+  if (
+    taskProps.questId !== undefined &&
+    taskProps.questObjectiveIndex !== undefined
+  ) {
+    guideObj.text +=
+      " for a quest (id:" +
+      taskProps.questId +
+      ", objective:" +
+      taskProps.questObjectiveIndex +
+      ")";
   }
   guideObj.text += "\n";
 }

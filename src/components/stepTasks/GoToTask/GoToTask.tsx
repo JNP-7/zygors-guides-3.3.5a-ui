@@ -10,6 +10,7 @@ import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionMod
 import { StepTaskExtProps } from "../StepTask/StepTask";
 import { Col, Form, Row } from "react-bootstrap";
 import { arrayContainsAll, isBlank } from "../../../App";
+import GuideTranslationType from "../../../types/GuideTranslationType";
 
 export const DEFAULT_COORDS_MAP_INDEX = -1;
 export const DEFAULT_COORDS_MAP = {
@@ -75,6 +76,23 @@ export function getDefaultGoToTask(
 export function buildGoToTaskTranslation(
   guideObj: { text: string },
   taskProps: GoToTaskExtProps,
+  taskIdentation: string,
+  translationType: GuideTranslationType
+) {
+  if (
+    translationType == GuideTranslationType.FULL ||
+    (translationType == GuideTranslationType.CUSTOM_TO_TEXT &&
+      !taskProps.isCustom)
+  ) {
+    buildGoToTaskRegularTranslation(guideObj, taskProps, taskIdentation);
+  } else {
+    buildGoToTaskTextTranslation(guideObj, taskProps, taskIdentation);
+  }
+}
+
+function buildGoToTaskRegularTranslation(
+  guideObj: { text: string },
+  taskProps: GoToTaskExtProps,
   taskIdentation: string
 ) {
   guideObj.text += taskIdentation;
@@ -100,6 +118,41 @@ export function buildGoToTaskTranslation(
   if (!isBlank(itemUsageText)) {
     guideObj.text += `|${itemUsageText}`;
   }
+
+  guideObj.text += "\n";
+}
+
+function buildGoToTaskTextTranslation(
+  guideObj: { text: string },
+  taskProps: GoToTaskExtProps,
+  taskIdentation: string
+) {
+  let commentText = "";
+  if (!isBlank(taskProps.comment)) {
+    commentText += "'" + taskProps.comment;
+  }
+
+  if (!isBlank(taskProps.itemName)) {
+    if (!isBlank(commentText)) {
+      commentText += `. Use ${taskProps.itemName}`;
+    } else {
+      commentText += `'Use ${taskProps.itemName}`;
+    }
+  }
+
+  guideObj.text += taskIdentation;
+  if (!isBlank(commentText)) {
+    guideObj.text += commentText + "|";
+  }
+
+  guideObj.text +=
+    "goto " +
+    (taskProps.coordsMap !== DEFAULT_COORDS_MAP.text
+      ? taskProps.coordsMap + ","
+      : "") +
+    taskProps.xCoord +
+    "," +
+    taskProps.yCoord;
 
   guideObj.text += "\n";
 }

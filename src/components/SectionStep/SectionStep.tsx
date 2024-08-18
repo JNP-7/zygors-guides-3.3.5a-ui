@@ -20,6 +20,7 @@ import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import TaskType from "../../types/TaskType";
 import { GetTaskExtProps, ToLootNPC } from "../stepTasks/GetTask/GetTask";
 import { isBlank } from "../../App";
+import GuideTranslationType from "../../types/GuideTranslationType";
 
 export interface SectionStepExtProps {
   stepTasks: StepTaskExtProps[];
@@ -89,11 +90,12 @@ function doubleLineTasks(tasksToCheck: StepTaskExtProps[]): number {
 export function buildStepTranslation(
   guideObj: { text: string },
   stepProps: SectionStepExtProps,
-  stepIndex: number
+  stepIndex: number,
+  translationType: GuideTranslationType
 ) {
   guideObj.text += `\tstep//${stepIndex + 1}\n`;
   stepProps.stepTasks.forEach((nextTask) => {
-    buildTaskTranslation(guideObj, nextTask);
+    buildTaskTranslation(guideObj, nextTask, translationType);
   });
   if (stepProps.onlyForClasses.length > 0) {
     let classesText: string = "";

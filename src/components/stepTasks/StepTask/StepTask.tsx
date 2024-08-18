@@ -67,6 +67,7 @@ import GoalTask, {
   getDefaultGoalTask,
   getGoalTaskSummary,
 } from "../GoalTask/GoalTask";
+import GuideTranslationType from "../../../types/GuideTranslationType";
 
 export interface StepTaskExtProps {
   depth: number;
@@ -147,7 +148,8 @@ export function getTargetTaskList(
 
 export function buildTaskTranslation(
   guideObj: { text: string },
-  taskProps: StepTaskExtProps
+  taskProps: StepTaskExtProps,
+  translationType: GuideTranslationType
 ) {
   let taskIdentation = getTaskIdentation(taskProps.depth);
   switch (taskProps.type) {
@@ -155,61 +157,69 @@ export function buildTaskTranslation(
       buildCommentTaskTranslation(
         guideObj,
         taskProps as CommentTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
     case TaskType.GOTO:
       buildGoToTaskTranslation(
         guideObj,
         taskProps as GoToTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
     case TaskType.TALKTO:
       buildTalkToTaskTranslation(
         guideObj,
         taskProps as TalkToTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
     case TaskType.ACCEPTQ:
       buildAcceptTaskTranslation(
         guideObj,
         taskProps as AcceptTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
     case TaskType.TURNINQ:
       buildTurnInTaskTranslation(
         guideObj,
         taskProps as TurnInTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
     case TaskType.KILL:
       buildKillTaskTranslation(
         guideObj,
         taskProps as KillTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
     case TaskType.GET:
       buildGetTaskTranslation(
         guideObj,
         taskProps as GetTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
     case TaskType.GOAL:
       buildGoalTaskTranslation(
         guideObj,
         taskProps as GoalTaskExtProps,
-        taskIdentation
+        taskIdentation,
+        translationType
       );
       break;
   }
   taskProps.subTasks.forEach((nextSubTask) => {
-    buildTaskTranslation(guideObj, nextSubTask);
+    buildTaskTranslation(guideObj, nextSubTask, translationType);
   });
 }
 

@@ -4,6 +4,7 @@ import GuideSection, {
   buildSectionTranslation,
   getDefaultSection,
   getDefaultSectionName,
+  getDefaultSectionTranslationName,
 } from "../GuideSection/GuideSection";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import {
@@ -13,6 +14,8 @@ import {
 import { Floppy, Plus } from "react-bootstrap-icons";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import { isBlank } from "../../App";
+import GuideTranslationType from "../../types/GuideTranslationType";
+import GuideBuildTypeSelectionModal from "../modals/GuideBuildTypeSelectionModal/GuideBuildTypeSelectionModal";
 
 export interface GuideExtProps {
   guideName: string;
@@ -48,6 +51,7 @@ function Guide({
     DEFAULT_SECTION_INDEX
   );
   const [confirmModalIsVisible, setConfirmModalIsVisible] = useState(false);
+  const [buildTypeModalIsVisible, setBuildTypeModalIsVisible] = useState(false);
 
   const guidesContext = useContext(GuidesWorkspaceContext);
 
@@ -59,9 +63,11 @@ function Guide({
     });
   }
 
-  async function handleOnBuildGuide() {
+  async function handleOnBuildTypeSelection(
+    selectedBuildType: GuideTranslationType
+  ) {
     let guideObj = { text: "" };
-    buildGuideTranslation(guideObj);
+    buildGuideTranslation(guideObj, selectedBuildType);
     let blob = new Blob([guideObj.text], {
       type: " text/x-lua",
     });
@@ -78,7 +84,10 @@ function Guide({
     a.click();
   }
 
-  function buildGuideTranslation(guideObj: { text: string }) {
+  function buildGuideTranslation(
+    guideObj: { text: string },
+    translationType: GuideTranslationType
+  ) {
     type NextSectionInfo = {
       sectionName: string;
       sectionIndex: number;
@@ -104,7 +113,7 @@ function Guide({
             sectionIndex: currentSection.nextSectionVal,
             sectionName: !isBlank(nextSectionProps.sectionName)
               ? nextSectionProps.sectionName
-              : `Section${currentSection.nextSectionVal + 1}`,
+              : getDefaultSectionTranslationName(currentSection.nextSectionVal),
           };
         }
 
@@ -115,7 +124,8 @@ function Guide({
           guideAuthor,
           currentSection,
           index,
-          nextSectionInfo
+          nextSectionInfo,
+          translationType
         );
       }
     );
@@ -196,7 +206,7 @@ function Guide({
             <Button
               title="Build guide"
               variant="outline-primary"
-              onClick={() => handleOnBuildGuide()}
+              onClick={() => setBuildTypeModalIsVisible(true)}
             >
               Build guide
             </Button>
@@ -299,6 +309,11 @@ function Guide({
         bodyText="The guide will close. Any changes that haven't been saved yet will be lost."
         setShowVal={setConfirmModalIsVisible}
         showVal={confirmModalIsVisible}
+      />
+      <GuideBuildTypeSelectionModal
+        onBuildSelection={handleOnBuildTypeSelection}
+        showVal={buildTypeModalIsVisible}
+        setShowVal={setBuildTypeModalIsVisible}
       />
     </>
   );

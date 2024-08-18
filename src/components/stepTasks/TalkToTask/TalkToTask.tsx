@@ -5,6 +5,7 @@ import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { arrayContainsAll } from "../../../App";
+import GuideTranslationType from "../../../types/GuideTranslationType";
 
 export interface TalkToTaskEditableProps extends IEditableTaskProps {
   npcName: string;
@@ -40,6 +41,23 @@ export function getDefaultTalkToTask(
 export function buildTalkToTaskTranslation(
   guideObj: { text: string },
   taskProps: TalkToTaskExtProps,
+  taskIdentation: string,
+  translationType: GuideTranslationType
+) {
+  if (
+    translationType == GuideTranslationType.FULL ||
+    (translationType == GuideTranslationType.CUSTOM_TO_TEXT &&
+      !taskProps.isCustom)
+  ) {
+    buildTalkToTaskRegularTranslation(guideObj, taskProps, taskIdentation);
+  } else {
+    buildTalkToTaskTextTranslation(guideObj, taskProps, taskIdentation);
+  }
+}
+
+function buildTalkToTaskRegularTranslation(
+  guideObj: { text: string },
+  taskProps: TalkToTaskExtProps,
   taskIdentation: string
 ) {
   guideObj.text += taskIdentation;
@@ -47,6 +65,19 @@ export function buildTalkToTaskTranslation(
     "talk " +
     taskProps.npcName +
     (taskProps.npcId !== undefined ? "##" + taskProps.npcId : "");
+  guideObj.text += "\n";
+}
+
+function buildTalkToTaskTextTranslation(
+  guideObj: { text: string },
+  taskProps: TalkToTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text += taskIdentation;
+  guideObj.text +=
+    "'Talk to " +
+    taskProps.npcName +
+    (taskProps.npcId !== undefined ? " (id:" + taskProps.npcId + ")" : "");
   guideObj.text += "\n";
 }
 

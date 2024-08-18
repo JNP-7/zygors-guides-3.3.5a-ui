@@ -5,6 +5,7 @@ import { StepTaskExtProps } from "../StepTask/StepTask";
 import { useRef } from "react";
 import { IEditableTaskProps } from "../../modals/TaskEditionModal/TaskEditionModal";
 import { arrayContainsAll } from "../../../App";
+import GuideTranslationType from "../../../types/GuideTranslationType";
 
 export interface KillTaskEditableProps extends IEditableTaskProps {
   npcName: string;
@@ -46,6 +47,23 @@ export function getDefaultKillTask(
 export function buildKillTaskTranslation(
   guideObj: { text: string },
   taskProps: KillTaskExtProps,
+  taskIdentation: string,
+  translationType: GuideTranslationType
+) {
+  if (
+    translationType == GuideTranslationType.FULL ||
+    (translationType == GuideTranslationType.CUSTOM_TO_TEXT &&
+      !taskProps.isCustom)
+  ) {
+    buildKillTaskRegularTranslation(guideObj, taskProps, taskIdentation);
+  } else {
+    buildKillTaskTextTranslation(guideObj, taskProps, taskIdentation);
+  }
+}
+
+function buildKillTaskRegularTranslation(
+  guideObj: { text: string },
+  taskProps: KillTaskExtProps,
   taskIdentation: string
 ) {
   guideObj.text += taskIdentation;
@@ -63,6 +81,34 @@ export function buildKillTaskTranslation(
   ) {
     guideObj.text +=
       "|q " + taskProps.questId + "/" + taskProps.questObjectiveIndex;
+  }
+  guideObj.text += "\n";
+}
+
+function buildKillTaskTextTranslation(
+  guideObj: { text: string },
+  taskProps: KillTaskExtProps,
+  taskIdentation: string
+) {
+  guideObj.text += taskIdentation;
+  guideObj.text += "'Kill ";
+  if (taskProps.count !== undefined && taskProps.count > 1) {
+    guideObj.text += taskProps.count + " ";
+  }
+  guideObj.text += taskProps.npcName;
+  if (taskProps.npcId !== undefined) {
+    guideObj.text += " (id:" + taskProps.npcId + ")";
+  }
+  if (
+    taskProps.questId !== undefined &&
+    taskProps.questObjectiveIndex !== undefined
+  ) {
+    guideObj.text +=
+      " for a quest (id:" +
+      taskProps.questId +
+      ", objective" +
+      taskProps.questObjectiveIndex +
+      ")";
   }
   guideObj.text += "\n";
 }
