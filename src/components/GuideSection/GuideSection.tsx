@@ -155,6 +155,9 @@ function GuideSection({
       guides[indexPath[0]].guideSections[indexPath[1]].nextSectionVal =
         Number.parseInt(selectedVal);
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function handleOnSelectDefaultForRace(selectedVal: string) {
@@ -162,11 +165,17 @@ function GuideSection({
       guides[indexPath[0]].guideSections[indexPath[1]].defaultForRace =
         Number.parseInt(selectedVal);
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function handleOnChangeSectioName(newName: string) {
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].sectionName = newName;
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
   }
 
@@ -197,6 +206,9 @@ function GuideSection({
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections.splice(indexPath[1], 1);
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function handleOnDeleteStep(indexToDelete: number) {
@@ -218,6 +230,9 @@ function GuideSection({
           getDefaultSectionTask(),
         ];
       }
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
     updateSectionStatesAfterStepsRemoval(
       indexToDelete,
@@ -290,6 +305,9 @@ function GuideSection({
         { stepTasks: [getDefaultCommentTask(0, [], false)], onlyForClasses: [] }
       );
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
     updateSectionStatesAfterStepsAdded(indexThatAdded);
   }
 
@@ -349,6 +367,9 @@ function GuideSection({
       oldIndexIsCheckedValue,
       ...filteredIsCheckedStep.slice(newPosition),
     ]);
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function getOpenAccordionKeys(): string[] {
@@ -465,6 +486,10 @@ function GuideSection({
       }
     });
 
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
+
     updateSectionStatesAfterStepsRemoval(
       toDeleteIndexes,
       newNumberOfPages,
@@ -514,6 +539,10 @@ function GuideSection({
           nextProps
         );
       });
+    });
+
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
 
     updateSectionStatesAfterStepsRemoval(

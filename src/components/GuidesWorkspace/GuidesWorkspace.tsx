@@ -3,18 +3,22 @@ import { Container, Nav } from "react-bootstrap";
 import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 import { Updater, useImmer } from "use-immer";
-import { Plus } from "react-bootstrap-icons";
+import { Dot, Plus } from "react-bootstrap-icons";
 import GuideSelectionModal from "../modals/GuideSelectionModal/GuideSelectionModal";
 
 type GuidesWorkspaceContextType = {
   guidesContext: GuideExtProps[];
   setGuidesContext: Updater<GuideExtProps[]>;
+  guideHasChanges: boolean[];
+  setGuideHasChanges: Updater<boolean[]>;
 };
 
 export const GuidesWorkspaceContext = createContext<GuidesWorkspaceContextType>(
   {
     guidesContext: [],
     setGuidesContext: () => {},
+    guideHasChanges: [],
+    setGuideHasChanges: () => {},
   }
 );
 
@@ -26,6 +30,7 @@ function GuidesWorkspace() {
   const ADD_GUIDE_BUTTON_KEY: string = "addGuideButton";
 
   const [guides, updateGuides] = useImmer<GuideExtProps[]>([]);
+  const [guideHasChanges, updateGuideHasChanges] = useImmer<boolean[]>([]);
   const [currentTabKey, setCurrentTabKey] = useState(ADD_GUIDE_BUTTON_KEY);
   const [guideSelectionModalIsVisible, setGuideSelectionModalIsVisible] =
     useState(false);
@@ -58,11 +63,35 @@ function GuidesWorkspace() {
     setGuideSelectionModalIsVisible(false);
   }
 
+  function buildGuideTabContent(
+    nextGuide: GuideExtProps,
+    nextIndex: number
+  ): JSX.Element {
+    return guideHasChanges[nextIndex] ? (
+      <>
+        <Nav.Link eventKey={nextIndex} className="has-changes">
+          {nextGuide.guideName !== ""
+            ? nextGuide.guideName
+            : getDefaultGuideName(nextIndex)}
+          <Dot className="has-changes-icon" width="2rem" height="2rem" />
+        </Nav.Link>
+      </>
+    ) : (
+      <Nav.Link eventKey={nextIndex}>
+        {nextGuide.guideName !== ""
+          ? nextGuide.guideName
+          : getDefaultGuideName(nextIndex)}
+      </Nav.Link>
+    );
+  }
+
   return (
     <GuidesWorkspaceContext.Provider
       value={{
         guidesContext: guides,
         setGuidesContext: updateGuides,
+        guideHasChanges: guideHasChanges,
+        setGuideHasChanges: updateGuideHasChanges,
       }}
     >
       <Container className="workspace-main-container py-4">
@@ -80,11 +109,7 @@ function GuidesWorkspace() {
             {guides.map(function (nextGuide, nextIndex) {
               return (
                 <Nav.Item key={nextIndex} as="li">
-                  <Nav.Link eventKey={nextIndex}>
-                    {nextGuide.guideName !== ""
-                      ? nextGuide.guideName
-                      : getDefaultGuideName(nextIndex)}
-                  </Nav.Link>
+                  {buildGuideTabContent(nextGuide, nextIndex)}
                 </Nav.Item>
               );
             })}

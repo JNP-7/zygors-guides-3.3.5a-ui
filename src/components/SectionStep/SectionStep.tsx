@@ -218,10 +218,16 @@ function SectionStep({
   }
 
   function handleOnAddStep() {
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
     onAddStep(indexPath[2]);
   }
 
   function handleOnDeleteStep() {
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
     onDeleteStep(indexPath[2]);
   }
 
@@ -242,6 +248,9 @@ function SectionStep({
         currentStep
       );
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
     onStepShift(indexPath[2], shiftAmount);
   }
 
@@ -256,6 +265,9 @@ function SectionStep({
       guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps[
         indexPath[2]
       ].onlyForClasses = classesValues;
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
   }
 

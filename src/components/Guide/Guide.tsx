@@ -61,6 +61,9 @@ function Guide({
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections.push(getDefaultSection());
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   async function handleOnBuildTypeSelection(
@@ -142,11 +145,17 @@ function Guide({
     } else {
       setCurrentSectionIndex(DEFAULT_SECTION_INDEX);
     }
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function handleOnChangeGuideName(newName: string) {
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideName = newName;
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
   }
 
@@ -154,11 +163,17 @@ function Guide({
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideAuthor = newAuthorName;
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function handleOnCloseGuide() {
     guidesContext.setGuidesContext((guides) => {
       guides.splice(indexPath[0], 1);
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges.splice(indexPath[0], 1);
     });
     onDeleteGuide(indexPath[0]);
   }
@@ -187,6 +202,10 @@ function Guide({
       setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
     });
     a.click();
+    //TODO: If save is succesfull update hasChanges status
+    // guidesContext.setGuideHasChanges((guideHasChanges) => {
+    //   guideHasChanges[indexPath[0]] = false;
+    // });
   }
 
   return (

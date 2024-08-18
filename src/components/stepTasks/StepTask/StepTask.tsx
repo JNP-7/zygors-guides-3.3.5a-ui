@@ -253,6 +253,9 @@ function StepTask({
       let targetTaskList = getTargetTaskList(guides, indexPath, depth);
       targetTaskList.splice(indexPath[3 + depth], 1);
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function handleOnAddSubtasksList() {
@@ -263,6 +266,9 @@ function StepTask({
         0,
         getDefaultCommentTask(depth + 1, [], isCustom)
       );
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
   }
 
@@ -279,12 +285,18 @@ function StepTask({
         getDefaultCommentTask(depth, [], parentTaskIsCustom)
       );
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
   function handleOnEditTask(taskProps: StepTaskExtProps) {
     guidesContext.setGuidesContext((guides) => {
       let targetTaskList = getTargetTaskList(guides, indexPath, depth);
       targetTaskList[indexPath[3 + depth]] = taskProps;
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
   }
 
@@ -322,12 +334,18 @@ function StepTask({
       let targetTaskList = getTargetTaskList(guides, indexPath, depth);
       targetTaskList.splice(indexPath[3 + depth], 1, newStepTaskProps);
     });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
   }
 
-  function handleIsCustomChange(callerSwitch: HTMLInputElement) {
+  function handleIsCustomChange(newVal: boolean) {
     guidesContext.setGuidesContext((guides) => {
       let targetTask = getTargetTask(guides, indexPath, depth);
-      targetTask.isCustom = callerSwitch.checked;
+      targetTask.isCustom = newVal;
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
     });
   }
 
@@ -489,7 +507,7 @@ function StepTask({
               <Form.Check
                 type="switch"
                 title="Marks the quest as a custom quest, which makes the resulting guide avoid the usage of certain things (mainly ids) when selecting some 'Build guide' options"
-                onChange={(e) => handleIsCustomChange(e.target)}
+                onChange={() => handleIsCustomChange(!isCustom)}
                 label={`Custom: `}
                 reverse={true}
                 checked={isCustom}

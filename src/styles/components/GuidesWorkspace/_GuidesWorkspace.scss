@@ -19,6 +19,25 @@
 
             }
 
+            $icon-size: 2rem;
+
+            .nav-link.has-changes {
+
+                position: relative;
+                padding-right: $icon-size;
+
+                .has-changes-icon{
+
+                    position: absolute;
+                    color: rgb(255, 136, 0);
+                    right: 0;
+                    top: calc(50% - calc($icon-size/2))
+
+                }
+
+            }
+            
+
         }
     }
 }
