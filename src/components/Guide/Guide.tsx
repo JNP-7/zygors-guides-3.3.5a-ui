@@ -66,18 +66,16 @@ function Guide({
     });
   }
 
-  async function handleOnBuildTypeSelection(
-    selectedBuildType: GuideTranslationType
-  ) {
+  function handleOnBuildTypeSelection(selectedBuildType: GuideTranslationType) {
     let guideObj = { text: "" };
     buildGuideTranslation(guideObj, selectedBuildType);
     let blob = new Blob([guideObj.text], {
       type: " text/x-lua",
     });
-    await Promise.all([exportZygorGuide(blob)]);
+    exportZygorGuide(blob);
   }
 
-  async function exportZygorGuide(blob: Blob, guideName: string = "Guide01") {
+  function exportZygorGuide(blob: Blob, guideName: string = "Guide01") {
     const a = document.createElement("a");
     a.download = `${guideName}.lua`;
     a.href = URL.createObjectURL(blob);
@@ -186,26 +184,25 @@ function Guide({
     return currentName.replace(/[\/|\\:*?"<>]/g, " ");
   }
 
-  async function handleSaveGuide() {
+  function handleSaveGuide() {
     let toSaveGuide: GuideExtProps = guidesContext.guidesContext[indexPath[0]];
     let blob = new Blob([JSON.stringify(toSaveGuide, null, "\t")], {
       type: "application/json",
     });
-    await Promise.all([saveGuide(blob, getFormattedGuideName())]);
-  }
-
-  async function saveGuide(blob: Blob, guideName: string) {
+    let fileName = `${getFormattedGuideName()}.json`;
+    let blobUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.download = `${guideName}.json`;
-    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    a.href = blobUrl;
     a.addEventListener("click", () => {
       setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
     });
     a.click();
-    //TODO: If save is succesfull update hasChanges status
-    // guidesContext.setGuideHasChanges((guideHasChanges) => {
-    //   guideHasChanges[indexPath[0]] = false;
-    // });
+    //This sets the status regardless of wether the user actually saves the file or not!!!!
+    //Checking this properly can't be done in the rendering side of the app it seems.
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = false;
+    });
   }
 
   return (

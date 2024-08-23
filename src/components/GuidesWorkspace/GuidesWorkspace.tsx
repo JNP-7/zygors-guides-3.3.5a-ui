@@ -1,10 +1,11 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Container, Nav } from "react-bootstrap";
 import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 import { Updater, useImmer } from "use-immer";
 import { Dot, Plus } from "react-bootstrap-icons";
 import GuideSelectionModal from "../modals/GuideSelectionModal/GuideSelectionModal";
+import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 
 type GuidesWorkspaceContextType = {
   guidesContext: GuideExtProps[];
@@ -34,6 +35,48 @@ function GuidesWorkspace() {
   const [currentTabKey, setCurrentTabKey] = useState(ADD_GUIDE_BUTTON_KEY);
   const [guideSelectionModalIsVisible, setGuideSelectionModalIsVisible] =
     useState(false);
+  const [closeRegardless, setCloseRegardless] = useState(false);
+  const [closeConfirmationModalIsVisible, setCloseConfirmationModalIsVisible] =
+    useState(false);
+
+  function handleOnBeforeUnload(event: BeforeUnloadEvent) {
+    event.preventDefault();
+    setCloseConfirmationModalIsVisible(true);
+    return "";
+  }
+
+  function addBeforeUnloadEvent() {
+    window.addEventListener("beforeunload", handleOnBeforeUnload, {
+      capture: true,
+    });
+  }
+
+  function removeBeforeUnloadEvent() {
+    window.removeEventListener("beforeunload", handleOnBeforeUnload, {
+      capture: true,
+    });
+  }
+
+  function handleOnCloseRegardless() {
+    setCloseRegardless(true);
+  }
+
+  useEffect(() => {
+    //If no changed guide return
+    if (guideHasChanges.indexOf(true) < 0) {
+      return;
+    }
+
+    if (!closeRegardless) {
+      addBeforeUnloadEvent();
+    } else {
+      window.close();
+    }
+
+    return () => {
+      removeBeforeUnloadEvent();
+    };
+  }, [guideHasChanges, closeRegardless]);
 
   function handleAddGuide() {
     setGuideSelectionModalIsVisible(true);
@@ -152,6 +195,14 @@ function GuidesWorkspace() {
         showVal={guideSelectionModalIsVisible || guides.length < 1}
         showCrossVal={guides.length > 0}
         setShowVal={setGuideSelectionModalIsVisible}
+      />
+      <ConfirmationModal
+        onConfirmation={handleOnCloseRegardless}
+        bodyText="One or more of the open guides have unsaved changes. Exit regardless?"
+        confirmText="Exit"
+        cancelText="Go Back"
+        setShowVal={setCloseConfirmationModalIsVisible}
+        showVal={closeConfirmationModalIsVisible}
       />
     </GuidesWorkspaceContext.Provider>
   );
