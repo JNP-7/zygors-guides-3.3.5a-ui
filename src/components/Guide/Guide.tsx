@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import GuideSection, {
   GuideSectionExtProps,
   buildSectionTranslation,
@@ -47,6 +47,10 @@ function Guide({
   onDeleteGuide,
 }: GuideProps) {
   const DEFAULT_SECTION_INDEX = -1;
+  const SAVE_GUIDE_CANCELLED_MSG_NAME = "save-guide-cancelled";
+  const SAVE_GUIDE_COMPLETED_MSG_NAME = "save-guide-completed";
+  const EXPORT_GUIDE_CANCELLED_MSG_NAME = "export-guide-cancelled";
+  const EXPORT_GUIDE_COMPLETED_MSG_NAME = "export-guide-completed";
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
     DEFAULT_SECTION_INDEX
   );
@@ -54,6 +58,14 @@ function Guide({
   const [buildTypeModalIsVisible, setBuildTypeModalIsVisible] = useState(false);
 
   const guidesContext = useContext(GuidesWorkspaceContext);
+
+  useEffect(() => {
+    window.ipcRenderer.on(SAVE_GUIDE_COMPLETED_MSG_NAME, () => {
+      guidesContext.setGuideHasChanges((guideHasChanges) => {
+        guideHasChanges[indexPath[0]] = false;
+      });
+    });
+  }, []);
 
   function handleOnAddSection() {
     let nGuides = guideSections.length;
@@ -69,20 +81,33 @@ function Guide({
   function handleOnBuildTypeSelection(selectedBuildType: GuideTranslationType) {
     let guideObj = { text: "" };
     buildGuideTranslation(guideObj, selectedBuildType);
+    let mimeType = "text/x-lua";
+    let fileExtension = "lua";
     let blob = new Blob([guideObj.text], {
-      type: " text/x-lua",
+      type: mimeType,
     });
-    exportZygorGuide(blob);
+    let blobUrl = URL.createObjectURL(blob);
+    exportZygorGuide(blobUrl, fileExtension, mimeType);
   }
 
-  function exportZygorGuide(blob: Blob, guideName: string = "Guide01") {
-    const a = document.createElement("a");
-    a.download = `${guideName}.lua`;
-    a.href = URL.createObjectURL(blob);
-    a.addEventListener("click", () => {
-      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
-    });
-    a.click();
+  function exportZygorGuide(
+    blobUrl: string,
+    fileExtension: string,
+    mimeType: string,
+    guideName: string = "Guide01"
+  ) {
+    let downloadProps = {
+      downloadUrl: blobUrl,
+      properties: {
+        fileName: guideName,
+        mimeType: mimeType,
+        fileExtension: fileExtension,
+      },
+      cancelledMsgName: EXPORT_GUIDE_CANCELLED_MSG_NAME,
+      completedMsgName: EXPORT_GUIDE_COMPLETED_MSG_NAME,
+    };
+
+    window.ipcRenderer.send("download-file", downloadProps);
   }
 
   function buildGuideTranslation(
@@ -186,23 +211,26 @@ function Guide({
 
   function handleSaveGuide() {
     let toSaveGuide: GuideExtProps = guidesContext.guidesContext[indexPath[0]];
+    let mimeType: string = "application/json";
     let blob = new Blob([JSON.stringify(toSaveGuide, null, "\t")], {
-      type: "application/json",
+      type: mimeType,
     });
-    let fileName = `${getFormattedGuideName()}.json`;
+    let fileName = getFormattedGuideName();
+    let fileExtension = "json";
     let blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.download = fileName;
-    a.href = blobUrl;
-    a.addEventListener("click", () => {
-      setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
-    });
-    a.click();
-    //This sets the status regardless of wether the user actually saves the file or not!!!!
-    //Checking this properly can't be done in the rendering side of the app it seems.
-    guidesContext.setGuideHasChanges((guideHasChanges) => {
-      guideHasChanges[indexPath[0]] = false;
-    });
+
+    let downloadProps = {
+      downloadUrl: blobUrl,
+      properties: {
+        fileName: fileName,
+        mimeType: mimeType,
+        fileExtension: fileExtension,
+      },
+      cancelledMsgName: SAVE_GUIDE_CANCELLED_MSG_NAME,
+      completedMsgName: SAVE_GUIDE_COMPLETED_MSG_NAME,
+    };
+
+    window.ipcRenderer.send("download-file", downloadProps);
   }
 
   return (

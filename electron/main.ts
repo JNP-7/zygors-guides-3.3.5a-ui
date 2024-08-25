@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, BrowserWindowConstructorOptions, dialog, FileFilter, ipcMain } from 'electron'
+import {download, Options} from 'electron-dl';
 import path from 'node:path'
 
 // The built directory structure
@@ -18,15 +19,17 @@ let win: BrowserWindow | null
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
+const DEFAULT_WINDOW_PROPS:BrowserWindowConstructorOptions = {
+  icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
+  webPreferences: {
+    preload: path.join(__dirname, 'preload.js'),
+  },
+  minWidth: 810,
+  width: 1220
+}
+
 function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-    minWidth: 810,
-    width: 1220
-  })
+  win = new BrowserWindow(DEFAULT_WINDOW_PROPS)
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
@@ -60,3 +63,48 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(createWindow)
+
+const DOWNLOAD_FILE_MSG_NAME = "download-file";
+
+ipcMain.on(DOWNLOAD_FILE_MSG_NAME, async(_, downloadProps:any) => {
+
+  let fileFilter: FileFilter[] = [
+    {
+      name: downloadProps.properties.mimeType, 
+      extensions: [downloadProps.properties.fileExtension]
+    }
+  ];
+
+  let customURL = dialog.showSaveDialogSync(
+    {
+      defaultPath: downloadProps.properties.fileName, 
+      filters: fileFilter,
+    }
+  );
+
+  if(customURL) {
+
+    let downloadOptions: Options = {
+      filename: `${downloadProps.properties.fileName}.${downloadProps.properties.fileExtension}`,
+      onCancel: (downloadItem:any) => {
+        win?.webContents.send(downloadProps.cancelledMsgName, downloadItem);
+      },
+      onCompleted: (downloadItem:any) => {
+        win?.webContents.send(downloadProps.completedMsgName, downloadItem);
+      }
+    };
+
+    let focusedWindow = BrowserWindow.getFocusedWindow();
+
+    await download(
+      focusedWindow ? focusedWindow : new BrowserWindow(DEFAULT_WINDOW_PROPS), 
+      downloadProps.downloadUrl,
+      downloadOptions
+    );
+
+  }else {
+    //save was cancelled, notify the frontend
+    win?.webContents.send(downloadProps.cancelledMsgName);
+  }
+
+})
