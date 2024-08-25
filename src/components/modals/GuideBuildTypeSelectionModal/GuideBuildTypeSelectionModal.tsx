@@ -65,7 +65,7 @@ function GuideBuildTypeSelectionModal({
               label={nextType}
               value={index}
               title={getTranslationTypeInfo(nextType)}
-              onChange={(e) => handleBuildTypeChange(index)}
+              onChange={() => handleBuildTypeChange(index)}
               checked={nextType == buildTypeVal}
             />
           );

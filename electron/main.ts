@@ -84,8 +84,11 @@ ipcMain.on(DOWNLOAD_FILE_MSG_NAME, async(_, downloadProps:any) => {
 
   if(customURL) {
 
+    let urlParts = customURL.split("\\");
+    let newFileName = urlParts[urlParts.length - 1];
+
     let downloadOptions: Options = {
-      filename: `${downloadProps.properties.fileName}.${downloadProps.properties.fileExtension}`,
+      filename: newFileName !== undefined ? newFileName : `${downloadProps.properties.fileName}.${downloadProps.properties.fileExtension}`,
       onCancel: (downloadItem:any) => {
         win?.webContents.send(downloadProps.cancelledMsgName, downloadItem);
       },
