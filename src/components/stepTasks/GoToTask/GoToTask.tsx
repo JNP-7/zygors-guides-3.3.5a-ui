@@ -142,13 +142,13 @@ function buildGoToTaskTextTranslation(
 
   guideObj.text += taskIdentation;
   if (!isBlank(commentText)) {
-    guideObj.text += commentText + "|";
+    guideObj.text += commentText + ". ";
   }
 
   guideObj.text +=
-    "goto " +
+    "Go to " +
     (taskProps.coordsMap !== DEFAULT_COORDS_MAP.text
-      ? taskProps.coordsMap + ","
+      ? taskProps.coordsMap + " "
       : "") +
     taskProps.xCoord +
     "," +

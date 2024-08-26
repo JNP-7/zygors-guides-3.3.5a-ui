@@ -39,7 +39,7 @@ export const NO_DEFAULT_RACE_SECTION = {
   value: -1,
 };
 
-export const MAX_STEPS_PER_PAGE: number = 40;
+export const MAX_STEPS_PER_PAGE: number = 20;
 
 export function getDefaultSectionName(sectionIndex: number) {
   return `Section ${sectionIndex + 1}`;

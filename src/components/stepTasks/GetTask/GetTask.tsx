@@ -121,7 +121,11 @@ function buildGetTaskTextTranslation(
   taskProps.toLootNpcs.forEach((toLootNpc) => {
     if (!isBlank(toLootNpc.npcName) && toLootNpc.npcId !== undefined) {
       if (addedToLootNpcs > 0) {
-        toLootNpcsText += ", ";
+        if (addedToLootNpcs < taskProps.toLootNpcs.length - 1) {
+          toLootNpcsText += ", ";
+        } else {
+          toLootNpcsText += " or ";
+        }
       }
       toLootNpcsText += toLootNpc.npcName + "(id:" + toLootNpc.npcId + ")";
       addedToLootNpcs++;
@@ -129,7 +133,7 @@ function buildGetTaskTextTranslation(
   });
 
   if (!isBlank(toLootNpcsText)) {
-    guideObj.text += taskIdentation + " from " + toLootNpcsText;
+    guideObj.text += " from " + toLootNpcsText;
   }
 
   if (
