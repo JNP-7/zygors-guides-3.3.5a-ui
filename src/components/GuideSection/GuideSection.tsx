@@ -27,6 +27,7 @@ export interface GuideSectionExtProps {
   sectionSteps: SectionStepExtProps[];
   nextSectionVal: number;
   defaultForRace: number;
+  startLevel: number;
 }
 
 export const FINAL_SECTION_OPTION = {
@@ -38,6 +39,11 @@ export const NO_DEFAULT_RACE_SECTION = {
   text: "Any",
   value: -1,
 };
+
+export const DEFAULT_START_LEVEL: number = NaN;
+export const MIN_START_LEVEL: number = 1;
+export const MAX_START_LEVEL: number = 60;
+export const ZYGORS_MAX_START_LEVEL: number = 80;
 
 export const MAX_STEPS_PER_PAGE: number = 20;
 
@@ -51,6 +57,7 @@ export function getDefaultSection(): GuideSectionExtProps {
     sectionSteps: [getDefaultSectionTask()],
     nextSectionVal: FINAL_SECTION_OPTION.value,
     defaultForRace: NO_DEFAULT_RACE_SECTION.value,
+    startLevel: DEFAULT_START_LEVEL,
   };
 }
 
@@ -90,7 +97,9 @@ export function buildSectionTranslation(
     nextSectionInfo !== undefined
       ? `\tnext ${guideName}\\\\${nextSectionInfo.sectionName}\n`
       : "";
-  guideObj.text += "\tstartlevel 80\n";
+  guideObj.text += `\tstartlevel ${
+    !isNaN(guideSection.startLevel) ? guideSection.startLevel : MIN_START_LEVEL
+  }\n`;
   guideSection.sectionSteps.forEach((nextStep, stepIndex) => {
     buildStepTranslation(guideObj, nextStep, stepIndex, translationType);
   });
@@ -110,6 +119,7 @@ function GuideSection({
   onDeleteSection,
   defaultForRace,
   sectionSteps,
+  startLevel = DEFAULT_START_LEVEL,
 }: GuideSectionProps) {
   const guidesContext = useContext(GuidesWorkspaceContext);
   const [openAccordionKeyIsOpen, setOpenAccordionKeyIsOpen] = useState<
@@ -173,6 +183,23 @@ function GuideSection({
   function handleOnChangeSectioName(newName: string) {
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].sectionName = newName;
+    });
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
+  }
+
+  function handleOnChangeSectioStartLevel(newLevel: string) {
+    let newLevelVal = Number.parseInt(newLevel);
+    if (!isNaN(newLevelVal)) {
+      if (newLevelVal > MAX_START_LEVEL) {
+        newLevelVal = MAX_START_LEVEL;
+      } else if (newLevelVal < MIN_START_LEVEL) {
+        newLevelVal = MIN_START_LEVEL;
+      }
+    }
+    guidesContext.setGuidesContext((guides) => {
+      guides[indexPath[0]].guideSections[indexPath[1]].startLevel = newLevelVal;
     });
     guidesContext.setGuideHasChanges((guideHasChanges) => {
       guideHasChanges[indexPath[0]] = true;
@@ -564,6 +591,19 @@ function GuideSection({
                 placeholder="Your section name..."
                 onChange={(e) => handleOnChangeSectioName(e.target.value)}
                 value={sectionName}
+              />
+            </Form.Group>
+          </Col>
+          <Col xs={4}>
+            <Form.Group>
+              <Form.Label>Section level</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="The starting level of the section..."
+                onChange={(e) => handleOnChangeSectioStartLevel(e.target.value)}
+                value={!isNaN(startLevel) ? startLevel : ""}
+                min={MIN_START_LEVEL}
+                max={MAX_START_LEVEL}
               />
             </Form.Group>
           </Col>

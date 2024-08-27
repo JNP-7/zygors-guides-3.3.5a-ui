@@ -75,20 +75,22 @@ ipcMain.on(DOWNLOAD_FILE_MSG_NAME, async(_, downloadProps:any) => {
     }
   ];
 
-  let customURL = dialog.showSaveDialogSync(
+  let customPath = dialog.showSaveDialogSync(
     {
       defaultPath: downloadProps.properties.fileName, 
       filters: fileFilter,
     }
   );
 
-  if(customURL) {
+  if(customPath) {
 
-    let urlParts = customURL.split("\\");
-    let newFileName = urlParts[urlParts.length - 1];
+    let pathParts = customPath.split("\\");
+    let newFileName = pathParts.pop();
+    let newDirectory = pathParts.join("\\");
 
     let downloadOptions: Options = {
       filename: newFileName !== undefined ? newFileName : `${downloadProps.properties.fileName}.${downloadProps.properties.fileExtension}`,
+      directory: newDirectory,
       onCancel: (downloadItem:any) => {
         win?.webContents.send(downloadProps.cancelledMsgName, downloadItem);
       },

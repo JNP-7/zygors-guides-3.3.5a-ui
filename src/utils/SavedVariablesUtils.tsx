@@ -1,5 +1,6 @@
 import { GuideExtProps } from "../components/Guide/Guide";
 import {
+  DEFAULT_START_LEVEL,
   FINAL_SECTION_OPTION,
   getDefaultSection,
   GuideSectionExtProps,
@@ -172,6 +173,7 @@ export function getSimpleGuidePropsFromLuaEntries(
         nextSectionVal: FINAL_SECTION_OPTION.value,
         sectionName: "Default section",
         sectionSteps: importProcessState.currentSectionSteps,
+        startLevel: DEFAULT_START_LEVEL,
       };
       newGuideProps.guideSections.push(defaultSection);
     } else {

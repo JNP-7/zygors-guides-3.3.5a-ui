@@ -342,6 +342,7 @@ function Guide({
                   nextSectionVal={nextGuideSection.nextSectionVal}
                   defaultForRace={nextGuideSection.defaultForRace}
                   onDeleteSection={handleOnDeleteSection}
+                  startLevel={nextGuideSection.startLevel}
                 ></GuideSection>
               </div>
             );
