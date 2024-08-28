@@ -15,8 +15,6 @@
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react": "^4.2.1",
     "bootstrap": "^5.3.3",
-    "electron": "^29.1.4",
-    "electron-builder": "^24.13.3",
     "electron-dl": "^3.5.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -32,6 +30,10 @@
     "vite-plugin-electron": "^0.28.4",
     "vite-plugin-electron-renderer": "^0.14.5",
     "vite-tsconfig-paths": "^4.3.2"
+  },
+  "devDependencies": {
+    "electron": "^29.1.4",
+    "electron-builder": "^24.13.3"
   },
   "main": "dist-electron/main.js"
 }
