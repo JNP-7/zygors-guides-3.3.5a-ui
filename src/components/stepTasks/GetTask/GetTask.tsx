@@ -147,6 +147,7 @@ function buildGetTaskTextTranslation(
       taskProps.questObjectiveIndex +
       ")";
   }
+  guideObj.text += "|c";
   guideObj.text += "\n";
 }
 

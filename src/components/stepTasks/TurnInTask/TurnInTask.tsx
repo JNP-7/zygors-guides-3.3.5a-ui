@@ -91,6 +91,7 @@ function buildTurnInTaskTextTranslation(
     "(id:" +
     taskProps.questId +
     ")";
+  guideObj.text += "|c";
   guideObj.text += "\n";
 }
 

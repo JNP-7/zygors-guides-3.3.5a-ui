@@ -97,9 +97,12 @@ export function buildSectionTranslation(
     nextSectionInfo !== undefined
       ? `\tnext ${guideName}\\\\${nextSectionInfo.sectionName}\n`
       : "";
-  guideObj.text += `\tstartlevel ${
-    !isNaN(guideSection.startLevel) ? guideSection.startLevel : MIN_START_LEVEL
-  }\n`;
+  /*Removing startlevel funtionality, you must update the levels constantly through the guide
+  otherwise the steps are marked as obsolete. Too much bloat.*/
+  // guideObj.text += `\tstartlevel ${
+  //   !isNaN(guideSection.startLevel) ? guideSection.startLevel : MIN_START_LEVEL
+  // }\n`;
+  guideObj.text += `\tstartlevel 80\n`;
   guideSection.sectionSteps.forEach((nextStep, stepIndex) => {
     buildStepTranslation(guideObj, nextStep, stepIndex, translationType);
   });

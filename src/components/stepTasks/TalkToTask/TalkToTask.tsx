@@ -78,6 +78,7 @@ function buildTalkToTaskTextTranslation(
     "'Talk to " +
     taskProps.npcName +
     (taskProps.npcId !== undefined ? " (id:" + taskProps.npcId + ")" : "");
+  guideObj.text += "|c";
   guideObj.text += "\n";
 }
 

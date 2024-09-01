@@ -90,7 +90,7 @@ function buildAcceptTaskTextTranslation(
     (!isBlank(taskProps.questName) ? taskProps.questName + " " : "") +
     "(id:" +
     taskProps.questId +
-    ")";
+    ")|c";
   guideObj.text += "\n";
 }
 

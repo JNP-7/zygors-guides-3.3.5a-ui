@@ -74,6 +74,7 @@ function buildCommentTaskRegularTranslation(
   if (!isBlank(itemUsageText)) {
     guideObj.text += `|${itemUsageText}`;
   }
+  guideObj.text += "|c";
   guideObj.text += "\n";
 }
 
@@ -90,6 +91,7 @@ function buildCommentTaskTextTranslation(
   if (!isBlank(itemUsageText)) {
     guideObj.text += itemUsageText;
   }
+  guideObj.text += "|c";
   guideObj.text += "\n";
 }
 

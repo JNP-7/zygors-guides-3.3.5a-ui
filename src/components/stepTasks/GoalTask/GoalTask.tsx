@@ -112,6 +112,7 @@ function buildGoalTaskTextTranslation(
       taskProps.questObjectiveIndex +
       ")";
   }
+  guideObj.text += "|c";
   guideObj.text += "\n";
 }
 
