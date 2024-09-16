@@ -91,7 +91,10 @@ export function getTaskSummary(
   taskDepth: number
 ): string {
   let targetTask = getTargetTask(guidesContext, indexPathToTask, taskDepth);
+  return getSummaryOfTargetTask(targetTask);
+}
 
+export function getSummaryOfTargetTask(targetTask: StepTaskExtProps): string {
   switch (targetTask.type) {
     case TaskType.COMMENT:
       return getCommentTaskSummary(targetTask as CommentTaskExtProps);

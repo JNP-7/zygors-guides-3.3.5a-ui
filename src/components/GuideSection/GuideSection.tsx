@@ -327,12 +327,22 @@ function GuideSection({
     ]);
   }
 
-  function handleOnAddStep(indexThatAdded: number) {
+  function handleOnAddStep(
+    indexThatAdded: number,
+    toAddProps?: SectionStepExtProps
+  ) {
+    let newProps: SectionStepExtProps =
+      toAddProps !== undefined
+        ? { ...toAddProps }
+        : {
+            stepTasks: [getDefaultCommentTask(0, [], false)],
+            onlyForClasses: [],
+          };
     guidesContext.setGuidesContext((guides) => {
       guides[indexPath[0]].guideSections[indexPath[1]].sectionSteps.splice(
         indexThatAdded + 1,
         0,
-        { stepTasks: [getDefaultCommentTask(0, [], false)], onlyForClasses: [] }
+        newProps
       );
     });
     guidesContext.setGuideHasChanges((guideHasChanges) => {

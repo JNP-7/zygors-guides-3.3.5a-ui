@@ -3,6 +3,7 @@ import Accordion from "react-bootstrap/Accordion";
 import StepTask, {
   StepTaskExtProps,
   buildTaskTranslation,
+  getSummaryOfTargetTask,
   getTaskSummary,
 } from "../stepTasks/StepTask/StepTask";
 import { Button, Col, Form, ListGroup, Row } from "react-bootstrap";
@@ -12,7 +13,15 @@ import {
 } from "../GuidesWorkspace/GuidesWorkspace";
 import { GuideExtProps } from "../Guide/Guide";
 import Stack from "../../types/Stack";
-import { ChevronDown, ChevronUp, Dash, Plus } from "react-bootstrap-icons";
+import {
+  ChevronDown,
+  ChevronUp,
+  Clipboard,
+  ClipboardPlus,
+  Copy,
+  Dash,
+  Plus,
+} from "react-bootstrap-icons";
 import CharacterClass, {
   getCharacterClassOrdinal,
 } from "../../types/CharacterClass";
@@ -112,11 +121,42 @@ export function buildStepTranslation(
   }
 }
 
+export function getCopiedStepSummary(copiedStep: SectionStepExtProps): string {
+  let stepSummary: string = "";
+
+  let currentStepProps: SectionStepExtProps = {
+    ...copiedStep,
+  };
+
+  let tasksStack: Stack<StepTaskExtProps> = new Stack<StepTaskExtProps>();
+
+  tasksStack.pushAll(currentStepProps.stepTasks.slice().reverse());
+  while (
+    tasksStack.hasNext() &&
+    stepSummary.length <= STEP_SUMMARY_MAX_LENGTH
+  ) {
+    let nextTask = tasksStack.pop();
+    if (stepSummary != "") {
+      stepSummary += ", ";
+    }
+    if (nextTask !== undefined) {
+      stepSummary += getSummaryOfTargetTask(nextTask);
+      tasksStack.pushAll(nextTask.subTasks.slice().reverse());
+    }
+  }
+
+  if (stepSummary.length > STEP_SUMMARY_MAX_LENGTH) {
+    stepSummary = stepSummary.slice(0, STEP_SUMMARY_MAX_LENGTH) + "...";
+  }
+
+  return stepSummary;
+}
+
 interface SectionStepProps
   extends SectionStepExtProps,
     GuidesWorkspaceContextAccessor {
   onDeleteStep: (indexToDelete: number) => void;
-  onAddStep: (indexToDelete: number) => void;
+  onAddStep: (indexToDelete: number, toAddProps?: SectionStepExtProps) => void;
   onStepShift: (indexToShift: number, shiftAmount: number) => void;
   onStepCheckChange: (changedIndex: number, isChecked: boolean) => void;
   isChecked: boolean;
@@ -221,14 +261,31 @@ function SectionStep({
     guidesContext.setGuideHasChanges((guideHasChanges) => {
       guideHasChanges[indexPath[0]] = true;
     });
-    onAddStep(indexPath[2]);
+    onAddStep(indexPath[2]); //Completly handled by its parent, needed to update pagination
+  }
+
+  function handleOnPasteStep() {
+    guidesContext.setGuideHasChanges((guideHasChanges) => {
+      guideHasChanges[indexPath[0]] = true;
+    });
+    onAddStep(
+      indexPath[2],
+      guidesContext.copiedStep !== null ? guidesContext.copiedStep : undefined
+    ); //Completly handled by its parent, needed to update pagination
+  }
+
+  function handleOnCopyToClipboard() {
+    guidesContext.setCopiedStep({
+      onlyForClasses: [...onlyForClasses],
+      stepTasks: [...stepTasks],
+    });
   }
 
   function handleOnDeleteStep() {
     guidesContext.setGuideHasChanges((guideHasChanges) => {
       guideHasChanges[indexPath[0]] = true;
     });
-    onDeleteStep(indexPath[2]);
+    onDeleteStep(indexPath[2]); //Completly handled by its parent, needed to update pagination
   }
 
   function handleOnStepShift(shiftAmount: number) {
@@ -311,9 +368,28 @@ function SectionStep({
           </div>
           <div className="step-creation-buttons-container">
             <Button
+              title="Copy step"
+              size="sm"
+              variant="info"
+              onClick={() => handleOnCopyToClipboard()}
+            >
+              <Copy size="1.15rem" color="white" />
+            </Button>
+            <Button
+              title="Paste copied step"
+              size="sm"
+              variant="primary"
+              className="ms-2"
+              disabled={guidesContext.copiedStep === null}
+              onClick={() => handleOnPasteStep()}
+            >
+              <Clipboard size="1.15rem" />
+            </Button>
+            <Button
               title="Add step"
               size="sm"
               variant="primary"
+              className="ms-2"
               onClick={() => handleOnAddStep()}
             >
               <Plus size="1.15rem" />

@@ -41,3 +41,12 @@
         }
     }
 }
+
+#root > .clipboard-toast {
+
+    position: fixed;
+    z-index: calc(1050 - 1);
+    right: 1rem;
+    top: 1rem;
+
+}

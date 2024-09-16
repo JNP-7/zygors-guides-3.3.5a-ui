@@ -1,17 +1,23 @@
 import { createContext, useEffect, useState } from "react";
-import { Container, Nav } from "react-bootstrap";
+import { Container, Nav, Toast, ToastContainer } from "react-bootstrap";
 import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 import { Updater, useImmer } from "use-immer";
 import { Dot, Plus } from "react-bootstrap-icons";
 import GuideSelectionModal from "../modals/GuideSelectionModal/GuideSelectionModal";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
+import {
+  getCopiedStepSummary,
+  SectionStepExtProps,
+} from "../SectionStep/SectionStep";
 
 type GuidesWorkspaceContextType = {
   guidesContext: GuideExtProps[];
   setGuidesContext: Updater<GuideExtProps[]>;
   guideHasChanges: boolean[];
   setGuideHasChanges: Updater<boolean[]>;
+  copiedStep: SectionStepExtProps | null;
+  setCopiedStep: Updater<SectionStepExtProps | null>;
 };
 
 export const GuidesWorkspaceContext = createContext<GuidesWorkspaceContextType>(
@@ -20,6 +26,8 @@ export const GuidesWorkspaceContext = createContext<GuidesWorkspaceContextType>(
     setGuidesContext: () => {},
     guideHasChanges: [],
     setGuideHasChanges: () => {},
+    copiedStep: null,
+    setCopiedStep: () => {},
   }
 );
 
@@ -38,6 +46,9 @@ function GuidesWorkspace() {
   const [closeRegardless, setCloseRegardless] = useState(false);
   const [closeConfirmationModalIsVisible, setCloseConfirmationModalIsVisible] =
     useState(false);
+  const [copiedStep, updateCopiedStep] = useImmer<SectionStepExtProps | null>(
+    null
+  );
 
   function handleOnBeforeUnload(event: BeforeUnloadEvent) {
     event.preventDefault();
@@ -128,6 +139,14 @@ function GuidesWorkspace() {
     );
   }
 
+  function getCopiedStepToastText(): String {
+    if (copiedStep !== null) {
+      return "Clipboard: " + getCopiedStepSummary(copiedStep);
+    } else {
+      return "";
+    }
+  }
+
   return (
     <GuidesWorkspaceContext.Provider
       value={{
@@ -135,6 +154,8 @@ function GuidesWorkspace() {
         setGuidesContext: updateGuides,
         guideHasChanges: guideHasChanges,
         setGuideHasChanges: updateGuideHasChanges,
+        copiedStep: copiedStep,
+        setCopiedStep: updateCopiedStep,
       }}
     >
       <Container className="workspace-main-container py-4">
@@ -204,6 +225,21 @@ function GuidesWorkspace() {
         setShowVal={setCloseConfirmationModalIsVisible}
         showVal={closeConfirmationModalIsVisible}
       />
+      <ToastContainer className="clipboard-toast">
+        <Toast
+          show={copiedStep !== null}
+          onClose={() => updateCopiedStep(null)}
+        >
+          <Toast.Header
+            closeButton={true}
+            className="justify-content-between"
+            closeLabel="Clear the clipboard"
+          >
+            Clipboard
+          </Toast.Header>
+          <Toast.Body>{getCopiedStepToastText()}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </GuidesWorkspaceContext.Provider>
   );
 }
