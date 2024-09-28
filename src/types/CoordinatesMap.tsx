@@ -30,7 +30,7 @@ enum CoordinatesMap {
   SilverpineForest = "Silverpine Forest",
   StonetalonMountains = "Stonetalon Mountains",
   StormwindCity = "Stormwind City",
-  StranglethornVale = "StranglethornVale",
+  StranglethornVale = "Stranglethorn Vale",
   SwampOfSorrows = "Swamp of Sorrows",
   Tanaris = "Tanaris",
   Teldrassil = "Teldrassil",
