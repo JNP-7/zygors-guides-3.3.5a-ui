@@ -134,7 +134,7 @@ export function checkEditableGoalTaskProps(taskProps: GoalTaskEditableProps) {
     throw new Error();
   }
   if (
-    taskProps.comment === undefined &&
+    taskProps.comment !== undefined &&
     typeof taskProps.comment !== "string"
   ) {
     throw new Error();
