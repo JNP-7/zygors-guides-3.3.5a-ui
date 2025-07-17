@@ -1,9 +1,14 @@
 import { createContext, useEffect, useState } from "react";
-import { Container, Nav, Toast, ToastContainer } from "react-bootstrap";
+import { Container, Form, Nav, Toast, ToastContainer } from "react-bootstrap";
 import Guide, { GuideExtProps, getDefaultGuideName } from "../Guide/Guide";
 import Tab from "react-bootstrap/Tab";
 import { Updater, useImmer } from "use-immer";
-import { Dot, Plus } from "react-bootstrap-icons";
+import {
+  BrightnessHigh,
+  BrightnessHighFill,
+  Dot,
+  Plus,
+} from "react-bootstrap-icons";
 import GuideSelectionModal from "../modals/GuideSelectionModal/GuideSelectionModal";
 import ConfirmationModal from "../modals/ConfirmationModal/ConfirmationModal";
 import {
@@ -49,6 +54,8 @@ function GuidesWorkspace() {
   const [copiedStep, updateCopiedStep] = useImmer<SectionStepExtProps | null>(
     null
   );
+
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   function handleOnBeforeUnload(event: BeforeUnloadEvent) {
     event.preventDefault();
@@ -147,6 +154,20 @@ function GuidesWorkspace() {
     }
   }
 
+  function handleLightningModeChange(newIsDarkModeVal: boolean) {
+    setIsDarkMode(newIsDarkModeVal);
+  }
+
+  function applyLightningMode(applyDarkMode: boolean) {
+    let dataValue = applyDarkMode ? "dark" : "light";
+    let body = document.getElementsByTagName("body");
+    if (body.length > 0) {
+      body[0].dataset.bsTheme = dataValue;
+    }
+  }
+
+  applyLightningMode(isDarkMode);
+
   return (
     <GuidesWorkspaceContext.Provider
       value={{
@@ -159,6 +180,20 @@ function GuidesWorkspace() {
       }}
     >
       <Container className="workspace-main-container py-4">
+        <Container className="px-0 mb-4 d-flex align-items-center">
+          <Form.Check
+            type="switch"
+            title="Switches the lightning mode"
+            onChange={() => handleLightningModeChange(!isDarkMode)}
+            reverse={false}
+            checked={!isDarkMode}
+          ></Form.Check>
+          {isDarkMode ? (
+            <BrightnessHigh size={24}></BrightnessHigh>
+          ) : (
+            <BrightnessHighFill size={24}></BrightnessHighFill>
+          )}
+        </Container>
         <Tab.Container
           transition={false}
           defaultActiveKey={currentTabKey}
