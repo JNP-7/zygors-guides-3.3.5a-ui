@@ -33,6 +33,8 @@ Using most of the important rules and patterns provided by the "guide_format.htm
 
 The editor allows the user to create guides divided in sections which display a series of steps with a set of tasks to complete. The addon then uses the generated files to display the guide's information ingame and advance through the steps and sections as their respective tasks are completed.
 
+You can get the latest setup wizard or the standalone version [here](https://github.com/JNP-7/zygors-guides-3.3.5a-ui/releases/tag/v1.0).
+
 <img width="651" height="429" alt="Captura de pantalla 2025-07-23 232742" src="https://github.com/user-attachments/assets/b244db5c-ed10-4ff1-b663-c31bd02219d5" />
 
 ### Creating a guide
