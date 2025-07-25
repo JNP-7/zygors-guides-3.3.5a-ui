@@ -1,7 +1,11 @@
 {
+  "author": {
+    "name": "jubi_7 (discord)",
+    "url": "https://github.com/JNP-7/zygors-guides-3.3.5a-ui"
+  },
   "name": "electron-vite-project",
   "private": true,
-  "version": "0.1.2",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
