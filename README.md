@@ -24,6 +24,7 @@ Built with:
       * [NPCs ids](#npcs-ids)
   * [Suggestions for making a guide](#suggestions-for-making-a-guide)
   * [How to build the app](#how-to-build-the-app)
+  * [Closing thoughts](#closing-thoughts)
 
 ## More info & How to use
 
@@ -172,3 +173,12 @@ Ids macro
   * `npm install` on the repo's folder
   * `npm run dev` to run in dev mode
   * `npm run build` to build the exe and setup wizard (/dist/releases/<release_version>)
+
+## Closing thoughts
+
+  * I probably won't develop this further since I'll be focused on playing.
+  * Some features that I would have liked to implement are:
+    * Cloning tasks.
+    * Drag & drop to move tasks/steps.
+    * Move multiple steps at a time inside a sections.
+  * The app needs better packaging. Electron is, simply put, overkill for this kind of app.
