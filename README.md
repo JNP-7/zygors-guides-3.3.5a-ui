@@ -23,7 +23,7 @@ Built with:
       * [Location](#location)
       * [NPCs ids](#npcs-ids)
   * [Suggestions for making a guide](#suggestions-for-making-a-guide)
-  * [Ho to build the app](#how-to-build-the-app)
+  * [How to build the app](#how-to-build-the-app)
 
 ## More info & How to use
 
